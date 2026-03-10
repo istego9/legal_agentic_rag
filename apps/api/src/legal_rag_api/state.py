@@ -29,6 +29,12 @@ class _ContestStoreGuard:
 store = _ContestStoreGuard() if competition_mode_enabled() else InMemoryStore()
 
 
+def is_contest_safe_store() -> bool:
+    if not competition_mode_enabled():
+        return True
+    return not isinstance(store, InMemoryStore)
+
+
 def load_persisted_state() -> bool:
     if competition_mode_enabled():
         raise RuntimeError(

@@ -28,6 +28,7 @@ def _reset_competition_mode_env() -> None:
 
 def test_startup_fails_closed_without_runtime_store_in_competition_mode(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("COMPETITION_MODE", "1")
+    monkeypatch.setattr(main_module, "is_contest_safe_store", lambda: True)
     monkeypatch.setattr(main_module.runtime_pg, "enabled", lambda: False)
     monkeypatch.setattr(main_module.corpus_pg, "enabled", lambda: True)
 
@@ -37,6 +38,7 @@ def test_startup_fails_closed_without_runtime_store_in_competition_mode(monkeypa
 
 def test_startup_fails_closed_without_corpus_store_in_competition_mode(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("COMPETITION_MODE", "1")
+    monkeypatch.setattr(main_module, "is_contest_safe_store", lambda: True)
     monkeypatch.setattr(main_module.runtime_pg, "enabled", lambda: True)
     monkeypatch.setattr(main_module.corpus_pg, "enabled", lambda: False)
 
@@ -48,6 +50,7 @@ def test_startup_requires_postgres_schema_bootstrap_in_competition_mode(monkeypa
     monkeypatch.setenv("COMPETITION_MODE", "1")
     events: list[str] = []
 
+    monkeypatch.setattr(main_module, "is_contest_safe_store", lambda: True)
     monkeypatch.setattr(main_module.runtime_pg, "enabled", lambda: True)
     monkeypatch.setattr(main_module.corpus_pg, "enabled", lambda: True)
     monkeypatch.setattr(main_module.runtime_pg, "ensure_schema", lambda: events.append("runtime"))

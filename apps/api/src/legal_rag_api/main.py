@@ -16,7 +16,7 @@ if str(ROOT) not in sys.path:
 
 from legal_rag_api import corpus_pg, runtime_pg  # noqa: E402
 from legal_rag_api.otel import get_otel_status, setup_fastapi_otel  # noqa: E402
-from legal_rag_api.state import competition_mode_enabled, load_persisted_state  # noqa: E402
+from legal_rag_api.state import competition_mode_enabled, is_contest_safe_store, load_persisted_state  # noqa: E402
 from legal_rag_api.routers import (  # noqa: E402
     corpus as corpus_router,
     qa as qa_router,
@@ -48,6 +48,11 @@ app.add_middleware(
 @app.on_event("startup")
 async def startup_load_runtime_state() -> None:
     if competition_mode_enabled():
+        if not is_contest_safe_store():
+            raise RuntimeError(
+                "COMPETITION_MODE=1 requires non-in-memory state binding. "
+                "Reload process with contest-safe store configuration."
+            )
         if not runtime_pg.enabled():
             raise RuntimeError(
                 "COMPETITION_MODE=1 requires runtime PostgreSQL backing store "
