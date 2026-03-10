@@ -9,12 +9,28 @@ from fastapi import APIRouter, HTTPException
 
 from legal_rag_api import runtime_pg
 from legal_rag_api.contracts import ExportRequest, RunSummary, export_used_source_page_ids
+from packages.scorers.contracts import submission_contract_preflight
 from legal_rag_api.state import store
 
 router = APIRouter(prefix="/v1/runs", tags=["Runs"])
 REPORTS_DIR = Path(__file__).resolve().parents[5] / "reports"
 LOCKED_DATASET_ERROR_DETAIL = "gold dataset is locked and immutable"
 PROJECT_MISMATCH_ERROR_DETAIL = "gold dataset project does not match run project"
+
+
+def _submission_contract_preflight_or_raise(run_id: str, questions: dict[str, object]) -> dict:
+    predictions = list(questions.values())
+    preflight = submission_contract_preflight(predictions)
+    if preflight.get("blocking_failed"):
+        raise HTTPException(
+            status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
+            detail={
+                "code": "submission_contract_preflight_failed",
+                "run_id": run_id,
+                "preflight": preflight,
+            },
+        )
+    return preflight
 
 
 def _artifact_project_id(artifact: object) -> str:
@@ -152,6 +168,7 @@ def export_submission(runId: str, payload: ExportRequest) -> dict:
             raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="run not found")
         run = store.runs[runId]
         qs = store.run_questions.get(runId, {})
+    preflight = _submission_contract_preflight_or_raise(runId, qs)
     answers = []
     for qid, pred in qs.items():
         answers.append(
@@ -171,4 +188,8 @@ def export_submission(runId: str, payload: ExportRequest) -> dict:
     path = REPORTS_DIR / f"submission_{runId}.json"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps({"items": answers}, ensure_ascii=False, indent=2), encoding="utf-8")
-    return {"artifact_url": path.as_uri(), "question_count": len(answers)}
+    return {
+        "artifact_url": path.as_uri(),
+        "question_count": len(answers),
+        "preflight": preflight,
+    }

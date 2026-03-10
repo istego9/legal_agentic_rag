@@ -8,6 +8,7 @@ from fastapi import APIRouter, HTTPException
 
 from legal_rag_api import runtime_pg
 from legal_rag_api.contracts import EvalCompareRequest, EvalRequest
+from packages.scorers.contracts import evaluate_query_response_contract, strict_competition_contracts_enabled
 from legal_rag_api.state import store
 from services.eval.engine import (
     aggregate_run,
@@ -175,6 +176,7 @@ def get_eval_report(evalRunId: str) -> dict:
     )
     beta = float(scoring_policy.get("beta", 2.5))
     ttft_curve = scoring_policy.get("ttft_curve", {})
+    strict_mode = strict_competition_contracts_enabled()
     existing_items = eval_run.metrics.get("question_metrics", []) if isinstance(eval_run.metrics, dict) else []
     if isinstance(existing_items, list) and existing_items:
         return {
@@ -217,6 +219,43 @@ def get_eval_report(evalRunId: str) -> dict:
             error_tags.append("ttft_slow")
         if pred.abstained != (gold.get("canonical_answer") is None):
             error_tags.append("abstain_mismatch")
+        contract_checks = evaluate_query_response_contract(
+            answer=pred.answer,
+            answer_type=pred.answer_type,
+            abstained=pred.abstained,
+            confidence=float(pred.confidence),
+            sources=pred.sources,
+            telemetry=pred.telemetry,
+        )
+        blocking_contract_failures = [
+            str(item).strip()
+            for item in contract_checks.get("blocking_failures", [])
+            if str(item).strip()
+        ]
+        advisory_contract_warnings = [
+            str(item).strip()
+            for item in contract_checks.get("warnings", [])
+            if str(item).strip()
+        ]
+        competition_contract_valid = bool(contract_checks.get("competition_contract_valid", not blocking_contract_failures))
+        prediction_valid_for_competition = competition_contract_valid
+        invalid_reason_tags = []
+        for failure in blocking_contract_failures:
+            if failure.startswith("answer_schema:"):
+                invalid_reason_tags.append("invalid_answer_schema")
+            elif failure.startswith("source_page_id:"):
+                invalid_reason_tags.append("invalid_source_page_id")
+            elif failure.startswith("telemetry:"):
+                invalid_reason_tags.append("invalid_telemetry_contract")
+            elif failure.startswith("no_answer:"):
+                invalid_reason_tags.append("invalid_no_answer_form")
+            else:
+                invalid_reason_tags.append("invalid_contract")
+        invalid_reason_tags = sorted(set(invalid_reason_tags))
+        if strict_mode and not competition_contract_valid:
+            prediction_valid_for_competition = False
+            overall = 0.0
+            error_tags.append("blocking_contract_failure")
         items.append(
             {
                 "question_id": pred.question_id,
@@ -229,6 +268,16 @@ def get_eval_report(evalRunId: str) -> dict:
                 "telemetry_factor": telemetry_factor,
                 "ttft_factor": ttft_factor,
                 "overall_score": overall,
+                "answer_schema_valid": bool(contract_checks.get("answer_schema_valid", False)),
+                "source_page_id_valid": bool(contract_checks.get("source_page_id_valid", False)),
+                "telemetry_contract_valid": bool(contract_checks.get("telemetry_contract_valid", False)),
+                "no_answer_form_valid": bool(contract_checks.get("no_answer_form_valid", False)),
+                "blocking_contract_failures": blocking_contract_failures,
+                "advisory_contract_warnings": advisory_contract_warnings,
+                "competition_contract_valid": competition_contract_valid,
+                "prediction_valid_for_competition": prediction_valid_for_competition,
+                "invalid_reason_tags": invalid_reason_tags,
+                "contract_checks": contract_checks,
                 "error_tags": error_tags,
             }
         )

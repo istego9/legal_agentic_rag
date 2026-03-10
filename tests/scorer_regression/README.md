@@ -12,6 +12,10 @@ Coverage:
   - canonical `source_page_id` validation (`pdf_id_page`)
   - telemetry completeness contract checks
   - allowed no-answer form checks
+- strict competition gate checks:
+  - blocking contract failures mark predictions invalid
+  - strict-mode scorer zeroes invalid question overall scores
+  - blocking failure histogram and strict gate pass metrics
 - readable scorer summary markdown (`scorer_summary.markdown`)
 
 Local command:

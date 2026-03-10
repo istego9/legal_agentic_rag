@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import re
 from typing import Any, Iterable, Mapping
 
@@ -25,6 +26,26 @@ def _to_float(value: Any, *, default: float = 0.0) -> float:
 
 def _is_non_empty_text(value: Any) -> bool:
     return isinstance(value, str) and bool(value.strip())
+
+
+def _env_bool(name: str) -> bool | None:
+    raw = os.getenv(name)
+    if raw is None:
+        return None
+    normalized = str(raw).strip().lower()
+    if normalized in {"1", "true", "yes", "on"}:
+        return True
+    if normalized in {"0", "false", "no", "off"}:
+        return False
+    return None
+
+
+def strict_competition_contracts_enabled() -> bool:
+    strict_override = _env_bool("STRICT_COMPETITION_CONTRACTS")
+    if strict_override is not None:
+        return strict_override
+    competition_mode = _env_bool("COMPETITION_MODE")
+    return bool(competition_mode)
 
 
 def answer_schema_issues(
@@ -173,21 +194,94 @@ def evaluate_query_response_contract(
         + [f"telemetry:{item}" for item in telemetry_contract_issues]
         + [f"no_answer:{item}" for item in no_answer_issues]
     )
+    blocking_failures = list(merged_issues)
+    warnings: list[str] = []
     answer_schema_valid = not answer_issues
     source_page_id_valid = not source_issues
     telemetry_contract_valid = not telemetry_contract_issues
     no_answer_form_valid = not no_answer_issues
+    contract_valid = not merged_issues
+    competition_contract_valid = not blocking_failures
     return {
         "answer_schema_valid": answer_schema_valid,
         "source_page_id_valid": source_page_id_valid,
         "telemetry_contract_valid": telemetry_contract_valid,
         "no_answer_form_valid": no_answer_form_valid,
-        "passed": answer_schema_valid
-        and source_page_id_valid
-        and telemetry_contract_valid
-        and no_answer_form_valid,
+        "blocking_failures": blocking_failures,
+        "warnings": warnings,
+        "contract_valid": contract_valid,
+        "competition_contract_valid": competition_contract_valid,
+        "passed": contract_valid,
         "issues": merged_issues,
         "issue_count": len(merged_issues),
+    }
+
+
+def _blocking_reason_tag(failure: str) -> str:
+    if failure.startswith("answer_schema:"):
+        return "invalid_answer_schema"
+    if failure.startswith("source_page_id:"):
+        return "invalid_source_page_id"
+    if failure.startswith("telemetry:"):
+        return "invalid_telemetry_contract"
+    if failure.startswith("no_answer:"):
+        return "invalid_no_answer_form"
+    return "invalid_contract"
+
+
+def blocking_failure_histogram(items: Iterable[str]) -> dict[str, int]:
+    histogram: dict[str, int] = {}
+    for item in items:
+        label = str(item).strip()
+        if not label:
+            continue
+        histogram[label] = histogram.get(label, 0) + 1
+    return dict(sorted(histogram.items(), key=lambda pair: (-pair[1], pair[0])))
+
+
+def submission_contract_preflight(
+    predictions: Iterable[Any],
+    *,
+    strict_contract_mode: bool | None = None,
+) -> dict[str, Any]:
+    strict_mode = strict_competition_contracts_enabled() if strict_contract_mode is None else bool(strict_contract_mode)
+    checked = 0
+    invalid_count = 0
+    all_failures: list[str] = []
+    items: list[dict[str, Any]] = []
+    for pred in predictions:
+        checked += 1
+        contract = evaluate_query_response_contract(
+            answer=_read(pred, "answer", None),
+            answer_type=str(_read(pred, "answer_type", "")),
+            abstained=bool(_read(pred, "abstained", False)),
+            confidence=_to_float(_read(pred, "confidence", 0.0)),
+            sources=_read(pred, "sources", []) or [],
+            telemetry=_read(pred, "telemetry", {}),
+        )
+        blocking_failures = list(contract.get("blocking_failures", []))
+        competition_contract_valid = bool(contract.get("competition_contract_valid", False))
+        if not competition_contract_valid:
+            invalid_count += 1
+            all_failures.extend(blocking_failures)
+        items.append(
+            {
+                "question_id": str(_read(pred, "question_id", "")).strip(),
+                "competition_contract_valid": competition_contract_valid,
+                "blocking_contract_failures": blocking_failures,
+                "invalid_reason_tags": sorted({_blocking_reason_tag(item) for item in blocking_failures}),
+            }
+        )
+    pass_rate = ((checked - invalid_count) / checked) if checked else 0.0
+    return {
+        "preflight_version": "submission_contract_preflight.v1",
+        "strict_contract_mode": strict_mode,
+        "checked_prediction_count": checked,
+        "invalid_prediction_count": invalid_count,
+        "competition_contract_pass_rate": pass_rate,
+        "blocking_contract_failure_histogram": blocking_failure_histogram(all_failures),
+        "blocking_failed": bool(strict_mode and invalid_count > 0),
+        "items": items,
     }
 
 
@@ -203,7 +297,10 @@ def build_scorer_summary_markdown(metrics: Mapping[str, Any]) -> str:
         "",
         "| Metric | Value |",
         "| --- | --- |",
+        f"| strict_contract_mode | {str(bool(metrics.get('strict_contract_mode', False))).lower()} |",
+        f"| competition_gate_passed | {str(bool(metrics.get('competition_gate_passed', True))).lower()} |",
         f"| overall_score | {_fmt(_metric('overall_score'))} |",
+        f"| overall_score_raw | {_fmt(_metric('overall_score_raw'))} |",
         f"| answer_score_mean | {_fmt(_metric('answer_score_mean'))} |",
         f"| grounding_score_mean | {_fmt(_metric('grounding_score_mean'))} |",
         f"| telemetry_factor | {_fmt(_metric('telemetry_factor'))} |",
@@ -214,6 +311,19 @@ def build_scorer_summary_markdown(metrics: Mapping[str, Any]) -> str:
         f"| source_page_id_valid_rate | {_fmt(_metric('source_page_id_valid_rate'))} |",
         f"| no_answer_form_valid_rate | {_fmt(_metric('no_answer_form_valid_rate'))} |",
         f"| contract_pass_rate | {_fmt(_metric('contract_pass_rate'))} |",
+        f"| competition_contract_pass_rate | {_fmt(_metric('competition_contract_pass_rate'))} |",
+        f"| invalid_prediction_count | {int(_metric('invalid_prediction_count'))} |",
     ]
+    histogram = metrics.get("blocking_contract_failure_histogram", {})
+    if isinstance(histogram, Mapping) and histogram:
+        lines.append("")
+        lines.append("## Top Blocking Contract Failures")
+        lines.append("")
+        lines.append("| Failure | Count |")
+        lines.append("| --- | --- |")
+        for failure, count in sorted(
+            ((str(key), int(_to_float(value, default=0.0))) for key, value in histogram.items()),
+            key=lambda pair: (-pair[1], pair[0]),
+        )[:5]:
+            lines.append(f"| {failure} | {count} |")
     return "\n".join(lines) + "\n"
-

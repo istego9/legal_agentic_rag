@@ -12,8 +12,10 @@ from legal_rag_api.contracts import (
     export_used_source_page_ids,
 )
 from packages.scorers.contracts import (
+    blocking_failure_histogram,
     build_scorer_summary_markdown,
     evaluate_query_response_contract,
+    strict_competition_contracts_enabled,
 )
 from packages.scorers.metrics import overlap_stats
 
@@ -777,7 +779,9 @@ def aggregate_run(
     *,
     scoring_policy_catalog: Mapping[str, Any] | None = None,
     question_context_by_id: Mapping[str, Any] | None = None,
+    strict_contract_mode: bool | None = None,
 ) -> Dict[str, Any]:
+    strict_mode = strict_competition_contracts_enabled() if strict_contract_mode is None else bool(strict_contract_mode)
     policy_versions = policy_versions_for_eval_run(eval_run)
     scoring_policy = resolve_scoring_policy_spec(
         policy_versions.get("scoring_policy_version", ""),
@@ -807,6 +811,12 @@ def aggregate_run(
             "telemetry_completeness_rate": 0.0,
             "no_answer_form_valid_rate": 0.0,
             "contract_pass_rate": 0.0,
+            "competition_contract_pass_rate": 0.0,
+            "invalid_prediction_count": 0,
+            "blocking_contract_failure_histogram": {},
+            "strict_contract_mode": strict_mode,
+            "competition_gate_passed": True,
+            "overall_score_raw": 0.0,
             "p50_ttft_ms": 0,
             "p95_ttft_ms": 0,
             "policy_versions": policy_versions,
@@ -849,6 +859,8 @@ def aggregate_run(
     telemetry_contract_validity: List[float] = []
     no_answer_form_validity: List[float] = []
     contract_passes: List[float] = []
+    competition_contract_validity: List[float] = []
+    all_blocking_contract_failures: List[str] = []
     question_metrics: List[Dict[str, Any]] = []
     predicted_abstain = 0
     correct_abstain = 0
@@ -884,10 +896,38 @@ def aggregate_run(
             sources=pred.sources,
             telemetry=pred.telemetry,
         )
+        blocking_contract_failures = [
+            str(item).strip()
+            for item in contract_checks.get("blocking_failures", [])
+            if str(item).strip()
+        ]
+        advisory_contract_warnings = [
+            str(item).strip()
+            for item in contract_checks.get("warnings", [])
+            if str(item).strip()
+        ]
         answer_schema_valid = bool(contract_checks.get("answer_schema_valid", False))
         source_page_id_valid = bool(contract_checks.get("source_page_id_valid", False))
         telemetry_contract_valid = bool(contract_checks.get("telemetry_contract_valid", False))
         no_answer_form_valid = bool(contract_checks.get("no_answer_form_valid", False))
+        competition_contract_valid = bool(contract_checks.get("competition_contract_valid", not blocking_contract_failures))
+        prediction_valid_for_competition = competition_contract_valid
+        invalid_reason_tags = []
+        for failure in blocking_contract_failures:
+            if failure.startswith("answer_schema:"):
+                invalid_reason_tags.append("invalid_answer_schema")
+            elif failure.startswith("source_page_id:"):
+                invalid_reason_tags.append("invalid_source_page_id")
+            elif failure.startswith("telemetry:"):
+                invalid_reason_tags.append("invalid_telemetry_contract")
+            elif failure.startswith("no_answer:"):
+                invalid_reason_tags.append("invalid_no_answer_form")
+            else:
+                invalid_reason_tags.append("invalid_contract")
+        invalid_reason_tags = sorted(set(invalid_reason_tags))
+        if strict_mode and not competition_contract_valid:
+            prediction_valid_for_competition = False
+            question_overall = 0.0
         error_tags = _question_error_tags(
             pred,
             gold,
@@ -900,6 +940,8 @@ def aggregate_run(
             telemetry_contract_valid=telemetry_contract_valid,
             no_answer_form_valid=no_answer_form_valid,
         )
+        if blocking_contract_failures:
+            error_tags.append("blocking_contract_failure")
 
         a_scores.append(answer_score)
         g_scores.append(grounding_score)
@@ -913,6 +955,8 @@ def aggregate_run(
         telemetry_contract_validity.append(1.0 if telemetry_contract_valid else 0.0)
         no_answer_form_validity.append(1.0 if no_answer_form_valid else 0.0)
         contract_passes.append(1.0 if bool(contract_checks.get("passed", False)) else 0.0)
+        competition_contract_validity.append(1.0 if competition_contract_valid else 0.0)
+        all_blocking_contract_failures.extend(blocking_contract_failures)
         if pred.abstained:
             predicted_abstain += 1
             if gold.get("canonical_answer") is None:
@@ -943,6 +987,11 @@ def aggregate_run(
                 "source_page_id_valid": source_page_id_valid,
                 "telemetry_contract_valid": telemetry_contract_valid,
                 "no_answer_form_valid": no_answer_form_valid,
+                "blocking_contract_failures": blocking_contract_failures,
+                "advisory_contract_warnings": advisory_contract_warnings,
+                "competition_contract_valid": competition_contract_valid,
+                "prediction_valid_for_competition": prediction_valid_for_competition,
+                "invalid_reason_tags": invalid_reason_tags,
                 "contract_checks": contract_checks,
                 "error_tags": error_tags,
             }
@@ -956,7 +1005,7 @@ def aggregate_run(
         telemetry_policy=telemetry_policy,
     )
     ttft_factor = eval_ttft_factor(ttft_ms, ttft_curve=ttft_curve)
-    overall = answer_score_mean * grounding_score_mean * telemetry_factor * ttft_factor
+    overall_raw = answer_score_mean * grounding_score_mean * telemetry_factor * ttft_factor
     source_precision_mean = sum(source_precisions) / len(source_precisions)
     source_recall_mean = sum(source_recalls) / len(source_recalls)
     source_f_beta_mean = sum(source_f_betas) / len(source_f_betas)
@@ -967,12 +1016,20 @@ def aggregate_run(
     telemetry_completeness_rate = sum(telemetry_contract_validity) / len(telemetry_contract_validity)
     no_answer_form_valid_rate = sum(no_answer_form_validity) / len(no_answer_form_validity)
     contract_pass_rate = sum(contract_passes) / len(contract_passes)
+    competition_contract_pass_rate = sum(competition_contract_validity) / len(competition_contract_validity)
+    invalid_prediction_count = int(len(predictions) - sum(int(value) for value in competition_contract_validity))
+    blocking_contract_failures = blocking_failure_histogram(all_blocking_contract_failures)
+    overall = overall_raw
+    if strict_mode:
+        overall = overall_raw * competition_contract_pass_rate
+    competition_gate_passed = invalid_prediction_count == 0
     metrics = {
         "answer_score_mean": answer_score_mean,
         "grounding_score_mean": grounding_score_mean,
         "telemetry_factor": telemetry_factor,
         "ttft_factor": ttft_factor,
         "overall_score": overall,
+        "overall_score_raw": overall_raw,
         "S": answer_score_mean,
         "G": grounding_score_mean,
         "T": telemetry_factor,
@@ -987,6 +1044,11 @@ def aggregate_run(
         "telemetry_completeness_rate": telemetry_completeness_rate,
         "no_answer_form_valid_rate": no_answer_form_valid_rate,
         "contract_pass_rate": contract_pass_rate,
+        "competition_contract_pass_rate": competition_contract_pass_rate,
+        "invalid_prediction_count": invalid_prediction_count,
+        "blocking_contract_failure_histogram": blocking_contract_failures,
+        "strict_contract_mode": strict_mode,
+        "competition_gate_passed": competition_gate_passed,
         "p50_ttft_ms": int(sorted(ttfts)[len(ttfts) // 2]),
         "p95_ttft_ms": int(sorted(ttfts)[max(0, int(len(ttfts) * 0.95) - 1)]),
         "policy_versions": policy_versions,

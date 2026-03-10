@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+from datetime import datetime, timezone
 import io
 import json
 import re
@@ -21,6 +22,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from legal_rag_api.main import app  # noqa: E402
+from legal_rag_api.contracts import PageRef, QueryResponse, Telemetry  # noqa: E402
 from legal_rag_api.state import store  # noqa: E402
 from services.ingest import ingest as ingest_module  # noqa: E402
 from services.runtime.solvers import normalize_answer  # noqa: E402
@@ -1435,3 +1437,62 @@ def test_no_answer_run_exports_empty_sources_and_review_has_no_used_pages() -> N
     exported_path = Path(urlparse(artifact_url).path)
     artifact_payload = json.loads(exported_path.read_text(encoding="utf-8"))
     assert artifact_payload["items"][0]["sources"] == []
+
+
+def test_export_submission_fails_closed_with_strict_contract_preflight(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("STRICT_COMPETITION_CONTRACTS", "1")
+    client = TestClient(app)
+
+    run = store.create_run(dataset_id=str(uuid4()), question_count=1, status="completed")
+    run_id = run["run_id"]
+    now = datetime(2026, 3, 10, tzinfo=timezone.utc)
+    invalid_prediction = QueryResponse(
+        question_id="q-strict-preflight",
+        answer="A",
+        answer_normalized=None,
+        answer_type="free_text",
+        confidence=1.0,
+        route_name="article_lookup",
+        abstained=False,
+        sources=[
+            PageRef(
+                project_id="proj",
+                document_id="doc",
+                pdf_id="doc",
+                page_num=3,
+                page_index_base=0,
+                source_page_id="doc_1",
+                used=True,
+                evidence_role="primary",
+                score=1.0,
+            )
+        ],
+        telemetry=Telemetry(
+            request_started_at=now,
+            first_token_at=now,
+            completed_at=now,
+            ttft_ms=800,
+            total_response_ms=1000,
+            time_per_output_token_ms=1.0,
+            input_tokens=8,
+            output_tokens=8,
+            model_name="test-model",
+            route_name="article_lookup",
+            judge_model_name=None,
+            search_profile="default",
+            telemetry_complete=True,
+            trace_id=f"trace-{uuid4()}",
+        ),
+        debug=None,
+    )
+    store.upsert_run_question(run_id, "q-strict-preflight", invalid_prediction)
+
+    exported = client.post(
+        f"/v1/runs/{run_id}/export-submission",
+        json={"page_index_base": 0},
+    )
+    assert exported.status_code == 422
+    payload = exported.json()["detail"]
+    assert payload["code"] == "submission_contract_preflight_failed"
+    assert payload["preflight"]["strict_contract_mode"] is True
+    assert payload["preflight"]["invalid_prediction_count"] == 1

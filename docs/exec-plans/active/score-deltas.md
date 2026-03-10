@@ -33,3 +33,22 @@ Date: 2026-03-10
 - `source_page_id_valid_rate`
 - `no_answer_form_valid_rate`
 - `contract_pass_rate`
+
+## Step 2a Strict Gate Semantics
+- Strict mode enablement:
+  - `STRICT_COMPETITION_CONTRACTS=1` (explicit)
+  - if not set, strict mode follows `COMPETITION_MODE=1`
+- Blocking contract failures:
+  - answer schema invalid
+  - source page id invalid or non-canonical
+  - telemetry contract invalid
+  - no-answer form invalid
+- Advisory checks are kept separately from blocking failures in `contract_checks`.
+- In strict mode:
+  - invalid predictions are marked with `prediction_valid_for_competition=false`
+  - per-question `overall_score` is forced to `0.0`
+  - run-level `overall_score` is gated by `competition_contract_pass_rate`
+  - submission export fails closed on preflight contract failures
+
+## Local Strict Preflight Run
+- `STRICT_COMPETITION_CONTRACTS=1 PYTHONPATH=apps/api/src:. .venv/bin/python -m pytest tests/scorer_regression tests/integration/test_api_e2e.py -k strict -q`
