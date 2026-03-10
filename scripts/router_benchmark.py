@@ -20,6 +20,11 @@ from packages.contracts.public_question_taxonomy import (  # noqa: E402
     PRIMARY_ROUTES,
     load_and_validate_public_taxonomy,
 )
+from packages.router.benchmark_mapping import (  # noqa: E402
+    BENCHMARK_ROUTE_NORMALIZATION_VERSION,
+    normalize_runtime_route_for_taxonomy,
+    validate_benchmark_mapping,
+)
 from services.runtime.router import resolve_route  # noqa: E402
 
 
@@ -31,35 +36,6 @@ def _safe_divide(numerator: float, denominator: float) -> float:
     if denominator <= 0:
         return 0.0
     return float(numerator) / float(denominator)
-
-
-def map_runtime_route_to_primary_route(
-    runtime_route: str,
-    *,
-    answer_type: str,
-    question: str,
-) -> str:
-    normalized_route = str(runtime_route or "").strip()
-    normalized_answer_type = str(answer_type or "").strip().lower()
-    normalized_question = str(question or "").strip().lower()
-
-    if normalized_route == "cross_case_compare":
-        return "case_cross_compare"
-    if normalized_route == "cross_law_compare":
-        return "cross_law_compare"
-    if normalized_route == "history_lineage":
-        return "law_relation_or_history"
-    if normalized_route == "no_answer":
-        return "negative_or_unanswerable"
-    if normalized_route == "single_case_extraction":
-        if normalized_answer_type in {"name", "names"}:
-            return "case_entity_lookup"
-        return "case_outcome_or_value"
-    if normalized_route == "article_lookup":
-        if any(token in normalized_question for token in ("article", "section", "clause", "paragraph", "schedule")):
-            return "law_article_lookup"
-        return "law_scope_or_definition"
-    return "negative_or_unanswerable"
 
 
 def _empty_confusion_matrix() -> Dict[str, Dict[str, int]]:
@@ -104,16 +80,80 @@ def _compute_per_route_metrics(confusion_matrix: Mapping[str, Mapping[str, int]]
     return rows
 
 
+def compute_macro_f1(per_route_metrics: Sequence[Mapping[str, Any]]) -> float:
+    if not per_route_metrics:
+        return 0.0
+    total = sum(float(row.get("f1", 0.0)) for row in per_route_metrics)
+    return _safe_divide(total, float(len(per_route_metrics)))
+
+
+def compute_top_confusion_pairs(
+    confusion_matrix: Mapping[str, Mapping[str, int]],
+    *,
+    limit: int = 10,
+) -> List[Dict[str, Any]]:
+    pairs: List[Dict[str, Any]] = []
+    for expected in PRIMARY_ROUTES:
+        row = confusion_matrix.get(expected, {})
+        for predicted in PRIMARY_ROUTES:
+            if expected == predicted:
+                continue
+            count = int(row.get(predicted, 0))
+            if count <= 0:
+                continue
+            pairs.append(
+                {
+                    "expected_primary_route": expected,
+                    "predicted_primary_route": predicted,
+                    "count": count,
+                }
+            )
+    pairs.sort(
+        key=lambda item: (
+            -int(item["count"]),
+            str(item["expected_primary_route"]),
+            str(item["predicted_primary_route"]),
+        )
+    )
+    return pairs[: max(0, int(limit))]
+
+
+def detect_dead_routes(per_route_metrics: Sequence[Mapping[str, Any]]) -> List[Dict[str, Any]]:
+    dead: List[Dict[str, Any]] = []
+    for row in per_route_metrics:
+        support = int(row.get("support", 0))
+        predicted = int(row.get("predicted", 0))
+        if support > 0 and predicted == 0:
+            dead.append(
+                {
+                    "primary_route": str(row.get("primary_route", "")),
+                    "support": support,
+                    "predicted": predicted,
+                }
+            )
+    return dead
+
+
+def _count_values(values: Sequence[str]) -> Dict[str, int]:
+    out: Dict[str, int] = {}
+    for item in values:
+        key = str(item or "").strip() or "unknown"
+        out[key] = out.get(key, 0) + 1
+    return dict(sorted(out.items(), key=lambda entry: (-entry[1], entry[0])))
+
+
 def render_mismatch_lines(mismatches: Sequence[Mapping[str, Any]]) -> List[str]:
     lines: List[str] = []
     for row in mismatches:
         question_id = str(row.get("question_id", "")).strip()
         expected = str(row.get("expected_primary_route", "")).strip()
-        predicted = str(row.get("predicted_primary_route", "")).strip()
-        runtime_route = str(row.get("runtime_route", "")).strip()
+        predicted = str(row.get("normalized_predicted_route", row.get("predicted_primary_route", ""))).strip()
+        raw_runtime_route = str(row.get("raw_runtime_route", row.get("runtime_route", ""))).strip()
+        normalization_subroute = str(row.get("normalization_subroute", "")).strip()
         question = str(row.get("question", "")).strip()
         lines.append(
-            f"- [{question_id}] expected={expected} predicted={predicted} runtime={runtime_route} :: {question}"
+            f"- [{question_id}] expected={expected} normalized={predicted} "
+            f"raw={raw_runtime_route} subroute={normalization_subroute} :: {question}"
         )
     return lines
 
@@ -121,6 +161,10 @@ def render_mismatch_lines(mismatches: Sequence[Mapping[str, Any]]) -> List[str]:
 def render_markdown_summary(results: Mapping[str, Any]) -> str:
     per_route_metrics = list(results.get("per_route_metrics", []))
     confusion_matrix = dict(results.get("confusion_matrix", {}))
+    raw_runtime_route_counts = dict(results.get("raw_runtime_route_counts", {}))
+    normalized_taxonomy_route_counts = dict(results.get("normalized_taxonomy_route_counts", {}))
+    top_confusion_pairs = list(results.get("top_confusion_pairs", []))
+    dead_routes = list(results.get("dead_routes", []))
     mismatch_lines = render_mismatch_lines(results.get("mismatches", []))
 
     lines: List[str] = [
@@ -130,10 +174,12 @@ def render_markdown_summary(results: Mapping[str, Any]) -> str:
         f"- public_dataset_path: `{results.get('public_dataset_path', '')}`",
         f"- taxonomy_path: `{results.get('taxonomy_path', '')}`",
         "- benchmark_target: `services.runtime.router.resolve_route`",
-        "- benchmark_mapping: `scripts.router_benchmark.map_runtime_route_to_primary_route`",
+        "- benchmark_mapping: `packages.router.benchmark_mapping.normalize_runtime_route_for_taxonomy`",
+        f"- normalization_model_version: `{results.get('normalization_model_version', '')}`",
         f"- total_questions: `{results.get('total_questions', 0)}`",
         f"- correct_predictions: `{results.get('correct_predictions', 0)}`",
         f"- overall_accuracy: `{float(results.get('overall_accuracy', 0.0)):.4f}`",
+        f"- macro_f1: `{float(results.get('macro_f1', 0.0)):.4f}`",
         "",
         "## Per-Route Precision/Recall/F1",
         "",
@@ -146,6 +192,18 @@ def render_markdown_summary(results: Mapping[str, Any]) -> str:
             f"{row['primary_route']} | {row['support']} | {row['predicted']} | "
             f"{row['precision']:.4f} | {row['recall']:.4f} | {row['f1']:.4f} |"
         )
+
+    lines.extend(["", "## Predicted Count By Raw Runtime Route", ""])
+    lines.append("| raw_runtime_route | predicted_count |")
+    lines.append("| --- | ---: |")
+    for route_name, count in raw_runtime_route_counts.items():
+        lines.append(f"| {route_name} | {int(count)} |")
+
+    lines.extend(["", "## Predicted Count By Normalized Taxonomy Route", ""])
+    lines.append("| normalized_taxonomy_route | predicted_count |")
+    lines.append("| --- | ---: |")
+    for route_name in PRIMARY_ROUTES:
+        lines.append(f"| {route_name} | {int(normalized_taxonomy_route_counts.get(route_name, 0))} |")
 
     lines.extend(
         [
@@ -161,6 +219,24 @@ def render_markdown_summary(results: Mapping[str, Any]) -> str:
         values = [str(int(row.get(predicted, 0))) for predicted in PRIMARY_ROUTES]
         lines.append(f"| {expected} | " + " | ".join(values) + " |")
 
+    lines.extend(["", "## Top Confusion Pairs", ""])
+    if not top_confusion_pairs:
+        lines.append("- none")
+    else:
+        for pair in top_confusion_pairs:
+            lines.append(
+                "- "
+                f"{pair['expected_primary_route']} -> {pair['predicted_primary_route']}: "
+                f"{pair['count']}"
+            )
+
+    lines.extend(["", "## Dead Routes", ""])
+    if not dead_routes:
+        lines.append("- none")
+    else:
+        for row in dead_routes:
+            lines.append(f"- {row['primary_route']} (support={row['support']}, predicted={row['predicted']})")
+
     lines.extend(["", f"## Mismatches ({len(mismatch_lines)})", ""])
     if not mismatch_lines:
         lines.append("- none")
@@ -175,6 +251,11 @@ def run_router_benchmark(
     public_dataset_path: Path = DEFAULT_PUBLIC_DATASET_PATH,
     taxonomy_path: Path = DEFAULT_TAXONOMY_PATH,
 ) -> Dict[str, Any]:
+    mapping_errors = validate_benchmark_mapping()
+    if mapping_errors:
+        details = "\n".join(f"- {item}" for item in mapping_errors)
+        raise ValueError(f"benchmark route normalization mapping invalid:\n{details}")
+
     public_questions, taxonomy_rows, coverage_errors = load_and_validate_public_taxonomy(
         public_dataset_path=public_dataset_path,
         taxonomy_path=taxonomy_path,
@@ -187,6 +268,8 @@ def run_router_benchmark(
     confusion_matrix = _empty_confusion_matrix()
     mismatches: List[Dict[str, Any]] = []
     correct_predictions = 0
+    raw_runtime_routes: List[str] = []
+    normalized_predicted_routes: List[str] = []
 
     for question in public_questions:
         question_id = question["id"]
@@ -201,11 +284,14 @@ def run_router_benchmark(
                 "answer_type": answer_type,
             }
         )
-        predicted_primary_route = map_runtime_route_to_primary_route(
+        normalization_decision = normalize_runtime_route_for_taxonomy(
             runtime_route,
-            answer_type=answer_type,
             question=question_text,
+            answer_type=answer_type,
         )
+        raw_runtime_route = normalization_decision.raw_runtime_route
+        normalization_subroute = normalization_decision.normalization_subroute
+        predicted_primary_route = normalization_decision.normalized_taxonomy_route
         expected_primary_route = taxonomy_row.primary_route
 
         if expected_primary_route not in confusion_matrix:
@@ -214,6 +300,8 @@ def run_router_benchmark(
             raise ValueError(f"unexpected predicted route: {predicted_primary_route!r}")
 
         confusion_matrix[expected_primary_route][predicted_primary_route] += 1
+        raw_runtime_routes.append(raw_runtime_route)
+        normalized_predicted_routes.append(predicted_primary_route)
         if expected_primary_route == predicted_primary_route:
             correct_predictions += 1
         else:
@@ -223,8 +311,11 @@ def run_router_benchmark(
                     "question": question_text,
                     "answer_type_expected": answer_type,
                     "expected_primary_route": expected_primary_route,
+                    "normalized_predicted_route": predicted_primary_route,
                     "predicted_primary_route": predicted_primary_route,
-                    "runtime_route": runtime_route,
+                    "raw_runtime_route": raw_runtime_route,
+                    "runtime_route": raw_runtime_route,
+                    "normalization_subroute": normalization_subroute,
                     "taxonomy_notes": taxonomy_row.notes,
                 }
             )
@@ -232,15 +323,26 @@ def run_router_benchmark(
     total_questions = len(public_questions)
     per_route_metrics = _compute_per_route_metrics(confusion_matrix)
     overall_accuracy = _safe_divide(correct_predictions, total_questions)
+    macro_f1 = compute_macro_f1(per_route_metrics)
+    raw_runtime_route_counts = _count_values(raw_runtime_routes)
+    normalized_taxonomy_route_counts = _count_values(normalized_predicted_routes)
+    top_confusion_pairs = compute_top_confusion_pairs(confusion_matrix)
+    dead_routes = detect_dead_routes(per_route_metrics)
 
     return {
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "public_dataset_path": str(public_dataset_path),
         "taxonomy_path": str(taxonomy_path),
+        "normalization_model_version": BENCHMARK_ROUTE_NORMALIZATION_VERSION,
         "total_questions": total_questions,
         "correct_predictions": correct_predictions,
         "overall_accuracy": overall_accuracy,
+        "macro_f1": macro_f1,
         "per_route_metrics": per_route_metrics,
+        "raw_runtime_route_counts": raw_runtime_route_counts,
+        "normalized_taxonomy_route_counts": normalized_taxonomy_route_counts,
+        "top_confusion_pairs": top_confusion_pairs,
+        "dead_routes": dead_routes,
         "confusion_matrix": confusion_matrix,
         "mismatches": mismatches,
     }

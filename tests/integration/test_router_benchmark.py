@@ -43,8 +43,27 @@ def test_router_benchmark_script_smoke(tmp_path: Path) -> None:
     markdown = markdown_output.read_text(encoding="utf-8")
     assert payload["total_questions"] == 100
     assert "overall_accuracy" in payload
+    assert "macro_f1" in payload
+    assert "raw_runtime_route_counts" in payload
+    assert "normalized_taxonomy_route_counts" in payload
+    assert "top_confusion_pairs" in payload
+    assert "dead_routes" in payload
+    assert "per_route_metrics" in payload
     assert isinstance(payload["mismatches"], list)
+    assert isinstance(payload["top_confusion_pairs"], list)
+    assert isinstance(payload["dead_routes"], list)
+    support_total = sum(int(row["support"]) for row in payload["per_route_metrics"])
+    raw_total = sum(int(count) for count in payload["raw_runtime_route_counts"].values())
+    normalized_total = sum(int(count) for count in payload["normalized_taxonomy_route_counts"].values())
+    assert support_total == payload["total_questions"]
+    assert raw_total == payload["total_questions"]
+    assert normalized_total == payload["total_questions"]
     assert "# Router Benchmark Summary" in markdown
+    assert "- macro_f1:" in markdown
+    assert "## Predicted Count By Raw Runtime Route" in markdown
+    assert "## Predicted Count By Normalized Taxonomy Route" in markdown
+    assert "## Top Confusion Pairs" in markdown
+    assert "## Dead Routes" in markdown
     assert "## Confusion Matrix" in markdown
     assert "## Mismatches (" in markdown
 
@@ -56,8 +75,9 @@ def test_router_benchmark_mismatch_rendering_format() -> None:
             {
                 "question_id": "q-1",
                 "expected_primary_route": "case_cross_compare",
-                "predicted_primary_route": "case_outcome_or_value",
-                "runtime_route": "single_case_extraction",
+                "normalized_predicted_route": "case_cross_compare",
+                "raw_runtime_route": "single_case_extraction",
+                "normalization_subroute": "case_cross_compare",
                 "question": "Which case was decided earlier: A or B?",
             }
         ]
@@ -65,7 +85,22 @@ def test_router_benchmark_mismatch_rendering_format() -> None:
 
     assert len(lines) == 1
     assert re.fullmatch(
-        r"- \[q-1\] expected=case_cross_compare predicted=case_outcome_or_value runtime=single_case_extraction :: .+",
+        r"- \[q-1\] expected=case_cross_compare normalized=case_cross_compare "
+        r"raw=single_case_extraction subroute=case_cross_compare :: .+",
         lines[0],
     )
 
+
+def test_router_benchmark_dead_route_detection() -> None:
+    module = _load_module()
+    dead_routes = module.detect_dead_routes(
+        [
+            {"primary_route": "case_cross_compare", "support": 17, "predicted": 0},
+            {"primary_route": "law_article_lookup", "support": 31, "predicted": 33},
+            {"primary_route": "negative_or_unanswerable", "support": 4, "predicted": 0},
+        ]
+    )
+    assert dead_routes == [
+        {"primary_route": "case_cross_compare", "support": 17, "predicted": 0},
+        {"primary_route": "negative_or_unanswerable", "support": 4, "predicted": 0},
+    ]
