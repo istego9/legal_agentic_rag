@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "public_question_taxonomy_row.schema.v1",
+  "title": "PublicQuestionTaxonomyRow",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "question_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "question": {
+      "type": "string",
+      "minLength": 1
+    },
+    "answer_type_expected": {
+      "type": "string",
+      "enum": [
+        "boolean",
+        "number",
+        "date",
+        "name",
+        "names",
+        "free_text"
+      ]
+    },
+    "primary_route": {
+      "type": "string",
+      "enum": [
+        "case_entity_lookup",
+        "case_outcome_or_value",
+        "case_cross_compare",
+        "law_article_lookup",
+        "law_relation_or_history",
+        "law_scope_or_definition",
+        "cross_law_compare",
+        "negative_or_unanswerable"
+      ]
+    },
+    "document_scope": {
+      "type": "string",
+      "enum": [
+        "single_doc",
+        "cross_doc"
+      ]
+    },
+    "target_doc_types": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "case",
+          "law",
+          "regulation",
+          "enactment_notice"
+        ]
+      }
+    },
+    "evidence_topology": {
+      "type": "string",
+      "enum": [
+        "single_page",
+        "multi_page",
+        "multi_doc",
+        "notice_mediated"
+      ]
+    },
+    "temporal_sensitivity": {
+      "type": "string",
+      "enum": [
+        "none",
+        "current_version",
+        "historical_version"
+      ]
+    },
+    "answerability_risk": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "notes": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "required": [
+    "question_id",
+    "question",
+    "answer_type_expected",
+    "primary_route",
+    "document_scope",
+    "target_doc_types",
+    "evidence_topology",
+    "temporal_sensitivity",
+    "answerability_risk",
+    "notes"
+  ]
+}
