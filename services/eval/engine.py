@@ -11,6 +11,10 @@ from legal_rag_api.contracts import (
     ScoringPolicy,
     export_used_source_page_ids,
 )
+from packages.scorers.contracts import (
+    build_scorer_summary_markdown,
+    evaluate_query_response_contract,
+)
 from packages.scorers.metrics import overlap_stats
 
 POLICY_REGISTRY_VERSION = "policy_registry.v1"
@@ -606,21 +610,33 @@ def _question_error_tags(
     source_precision: float,
     source_recall: float,
     ttft_factor: float,
+    answer_schema_valid: bool,
+    source_page_id_valid: bool,
+    telemetry_contract_valid: bool,
+    no_answer_form_valid: bool,
 ) -> List[str]:
     tags: List[str] = []
     if answer_score < 1.0:
         tags.append("answer_mismatch")
+    if not answer_schema_valid:
+        tags.append("answer_schema_invalid")
     if source_recall < 1.0:
         tags.append("missing_primary_source")
     if source_precision < 1.0 and export_used_source_page_ids(pred.sources):
         tags.append("overcited_sources")
+    if not source_page_id_valid:
+        tags.append("invalid_source_page_id")
     if not pred.telemetry.telemetry_complete:
+        tags.append("telemetry_incomplete")
+    if not telemetry_contract_valid and "telemetry_incomplete" not in tags:
         tags.append("telemetry_incomplete")
     if ttft_factor < 1.0:
         tags.append("ttft_slow")
     gold_has_no_answer = gold.get("canonical_answer") is None
     if pred.abstained != gold_has_no_answer:
         tags.append("abstain_mismatch")
+    if not no_answer_form_valid:
+        tags.append("no_answer_form_invalid")
     return tags
 
 
@@ -771,7 +787,7 @@ def aggregate_run(
         scoring_policy.get("resolved_policy_version")
     ) or policy_versions["scoring_policy_version"]
     if not predictions:
-        return {
+        empty_metrics = {
             "answer_score_mean": 0.0,
             "grounding_score_mean": 0.0,
             "telemetry_factor": 0.0,
@@ -786,6 +802,11 @@ def aggregate_run(
             "source_f_beta": 0.0,
             "no_answer_precision": 0.0,
             "no_answer_recall": 0.0,
+            "answer_schema_valid_rate": 0.0,
+            "source_page_id_valid_rate": 0.0,
+            "telemetry_completeness_rate": 0.0,
+            "no_answer_form_valid_rate": 0.0,
+            "contract_pass_rate": 0.0,
             "p50_ttft_ms": 0,
             "p95_ttft_ms": 0,
             "policy_versions": policy_versions,
@@ -809,6 +830,11 @@ def aggregate_run(
                 "by_temporal_scope": [],
             },
         }
+        empty_metrics["scorer_summary"] = {
+            "summary_version": "scorer_summary.v1",
+            "markdown": build_scorer_summary_markdown(empty_metrics),
+        }
+        return empty_metrics
 
     by_id = {g["question_id"]: g for g in gold_questions}
     a_scores = []
@@ -818,6 +844,11 @@ def aggregate_run(
     source_precisions = []
     source_recalls = []
     source_f_betas = []
+    answer_schema_validity: List[float] = []
+    source_page_id_validity: List[float] = []
+    telemetry_contract_validity: List[float] = []
+    no_answer_form_validity: List[float] = []
+    contract_passes: List[float] = []
     question_metrics: List[Dict[str, Any]] = []
     predicted_abstain = 0
     correct_abstain = 0
@@ -845,6 +876,18 @@ def aggregate_run(
         document_scope = _first_label(question_context.get("document_scope"), "unknown")
         corpus_domain = _first_label(question_context.get("corpus_domain"), "unknown")
         temporal_scope = _first_label(question_context.get("temporal_scope"), "unknown")
+        contract_checks = evaluate_query_response_contract(
+            answer=pred.answer,
+            answer_type=pred.answer_type,
+            abstained=pred.abstained,
+            confidence=float(pred.confidence),
+            sources=pred.sources,
+            telemetry=pred.telemetry,
+        )
+        answer_schema_valid = bool(contract_checks.get("answer_schema_valid", False))
+        source_page_id_valid = bool(contract_checks.get("source_page_id_valid", False))
+        telemetry_contract_valid = bool(contract_checks.get("telemetry_contract_valid", False))
+        no_answer_form_valid = bool(contract_checks.get("no_answer_form_valid", False))
         error_tags = _question_error_tags(
             pred,
             gold,
@@ -852,6 +895,10 @@ def aggregate_run(
             source_precision=source_precision,
             source_recall=source_recall,
             ttft_factor=question_ttft_factor,
+            answer_schema_valid=answer_schema_valid,
+            source_page_id_valid=source_page_id_valid,
+            telemetry_contract_valid=telemetry_contract_valid,
+            no_answer_form_valid=no_answer_form_valid,
         )
 
         a_scores.append(answer_score)
@@ -861,6 +908,11 @@ def aggregate_run(
         source_precisions.append(source_precision)
         source_recalls.append(source_recall)
         source_f_betas.append(source_f_beta)
+        answer_schema_validity.append(1.0 if answer_schema_valid else 0.0)
+        source_page_id_validity.append(1.0 if source_page_id_valid else 0.0)
+        telemetry_contract_validity.append(1.0 if telemetry_contract_valid else 0.0)
+        no_answer_form_validity.append(1.0 if no_answer_form_valid else 0.0)
+        contract_passes.append(1.0 if bool(contract_checks.get("passed", False)) else 0.0)
         if pred.abstained:
             predicted_abstain += 1
             if gold.get("canonical_answer") is None:
@@ -887,6 +939,11 @@ def aggregate_run(
                 "retrieval_profile_id": _first_label(question_context.get("retrieval_profile_id")),
                 "candidate_count": int(question_context.get("candidate_count", 0) or 0),
                 "used_page_count": int(question_context.get("used_page_count", 0) or 0),
+                "answer_schema_valid": answer_schema_valid,
+                "source_page_id_valid": source_page_id_valid,
+                "telemetry_contract_valid": telemetry_contract_valid,
+                "no_answer_form_valid": no_answer_form_valid,
+                "contract_checks": contract_checks,
                 "error_tags": error_tags,
             }
         )
@@ -905,7 +962,12 @@ def aggregate_run(
     source_f_beta_mean = sum(source_f_betas) / len(source_f_betas)
     no_answer_precision = (correct_abstain / predicted_abstain) if predicted_abstain else 0.0
     no_answer_recall = (correct_abstain / gold_no_answer) if gold_no_answer else 0.0
-    return {
+    answer_schema_valid_rate = sum(answer_schema_validity) / len(answer_schema_validity)
+    source_page_id_valid_rate = sum(source_page_id_validity) / len(source_page_id_validity)
+    telemetry_completeness_rate = sum(telemetry_contract_validity) / len(telemetry_contract_validity)
+    no_answer_form_valid_rate = sum(no_answer_form_validity) / len(no_answer_form_validity)
+    contract_pass_rate = sum(contract_passes) / len(contract_passes)
+    metrics = {
         "answer_score_mean": answer_score_mean,
         "grounding_score_mean": grounding_score_mean,
         "telemetry_factor": telemetry_factor,
@@ -920,6 +982,11 @@ def aggregate_run(
         "source_f_beta": source_f_beta_mean,
         "no_answer_precision": no_answer_precision,
         "no_answer_recall": no_answer_recall,
+        "answer_schema_valid_rate": answer_schema_valid_rate,
+        "source_page_id_valid_rate": source_page_id_valid_rate,
+        "telemetry_completeness_rate": telemetry_completeness_rate,
+        "no_answer_form_valid_rate": no_answer_form_valid_rate,
+        "contract_pass_rate": contract_pass_rate,
         "p50_ttft_ms": int(sorted(ttfts)[len(ttfts) // 2]),
         "p95_ttft_ms": int(sorted(ttfts)[max(0, int(len(ttfts) * 0.95) - 1)]),
         "policy_versions": policy_versions,
@@ -928,3 +995,8 @@ def aggregate_run(
         "slices": _build_metric_slices(question_metrics),
         "value_report": build_value_report(question_metrics),
     }
+    metrics["scorer_summary"] = {
+        "summary_version": "scorer_summary.v1",
+        "markdown": build_scorer_summary_markdown(metrics),
+    }
+    return metrics

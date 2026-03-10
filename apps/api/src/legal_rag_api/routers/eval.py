@@ -181,6 +181,7 @@ def get_eval_report(evalRunId: str) -> dict:
             "eval_run": eval_run.model_dump(mode="json"),
             "items": existing_items,
             "value_report": eval_run.metrics.get("value_report", {}),
+            "scorer_summary": eval_run.metrics.get("scorer_summary", {}),
         }
     items = []
     for pred in run_predictions:
@@ -235,6 +236,7 @@ def get_eval_report(evalRunId: str) -> dict:
         "eval_run": eval_run.model_dump(mode="json"),
         "items": items,
         "value_report": build_value_report(items),
+        "scorer_summary": eval_run.metrics.get("scorer_summary", {}),
     }
 
 
