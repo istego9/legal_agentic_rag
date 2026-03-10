@@ -1,0 +1,220 @@
+[
+  {
+    "section_id": "sec_000",
+    "section_kind_case": "header_and_caption",
+    "paragraph_range": null,
+    "page_start": 1,
+    "page_end": 2,
+    "meaning": "Front matter, caption, recitals"
+  },
+  {
+    "section_id": "sec_001",
+    "section_kind_case": "operative_order_item",
+    "order_item_range": [
+      1,
+      13
+    ],
+    "page_start": 2,
+    "page_end": 3,
+    "meaning": "Operative orders, stay, costs, directions"
+  },
+  {
+    "section_id": "sec_002",
+    "section_kind_case": "issuance_block",
+    "paragraph_range": null,
+    "page_start": 3,
+    "page_end": 3,
+    "meaning": "Issued by / date / time"
+  },
+  {
+    "section_id": "sec_003",
+    "section_kind_case": "executive_summary",
+    "paragraph_range": [
+      1,
+      1
+    ],
+    "page_start": 3,
+    "page_end": 3,
+    "meaning": "Summary of renewed applications"
+  },
+  {
+    "section_id": "sec_004",
+    "section_kind_case": "procedural_history",
+    "paragraph_range": [
+      2,
+      14
+    ],
+    "page_start": 3,
+    "page_end": 5,
+    "meaning": "Contract, arbitration, awards, enforcement"
+  },
+  {
+    "section_id": "sec_005",
+    "section_kind_case": "appellate_test_or_legal_standard",
+    "paragraph_range": [
+      15,
+      26
+    ],
+    "page_start": 5,
+    "page_end": 6,
+    "meaning": "RDC 44 permission to appeal test"
+  },
+  {
+    "section_id": "sec_006",
+    "section_kind_case": "evidence_intro",
+    "paragraph_range": [
+      27,
+      27
+    ],
+    "page_start": 6,
+    "page_end": 6,
+    "meaning": "Need to assess evidence in context"
+  },
+  {
+    "section_id": "sec_007",
+    "section_kind_case": "party_evidence_block",
+    "owner": "oaklen",
+    "paragraph_range": [
+      28,
+      42
+    ],
+    "page_start": 7,
+    "page_end": 8,
+    "meaning": "Mr Osmar evidence"
+  },
+  {
+    "section_id": "sec_008",
+    "section_kind_case": "party_evidence_block",
+    "owner": "applicants",
+    "paragraph_range": [
+      43,
+      54
+    ],
+    "page_start": 9,
+    "page_end": 10,
+    "meaning": "Mr Ozias / Mr Olivier evidence"
+  },
+  {
+    "section_id": "sec_009",
+    "section_kind_case": "party_evidence_block",
+    "owner": "oaklen_reply",
+    "paragraph_range": [
+      55,
+      60
+    ],
+    "page_start": 10,
+    "page_end": 11,
+    "meaning": "Second Osmar statement"
+  },
+  {
+    "section_id": "sec_010",
+    "section_kind_case": "evidence_summary",
+    "paragraph_range": [
+      61,
+      67
+    ],
+    "page_start": 11,
+    "page_end": 12,
+    "meaning": "Court summary of evidence quality"
+  },
+  {
+    "section_id": "sec_011",
+    "section_kind_case": "lower_court_findings",
+    "paragraph_range": [
+      68,
+      72
+    ],
+    "page_start": 12,
+    "page_end": 13,
+    "meaning": "Enforcement Judge reasoning"
+  },
+  {
+    "section_id": "sec_012",
+    "section_kind_case": "ground_statement_and_reasoning",
+    "ground_owner": "second_and_third_applicants",
+    "ground_no": "1",
+    "paragraph_range": [
+      73,
+      81
+    ],
+    "page_start": 13,
+    "page_end": 14,
+    "meaning": "Officer definition / RDC 50.2(2)"
+  },
+  {
+    "section_id": "sec_013",
+    "section_kind_case": "ground_statement_and_reasoning",
+    "ground_owner": "second_and_third_applicants",
+    "ground_no": "2",
+    "paragraph_range": [
+      82,
+      89
+    ],
+    "page_start": 14,
+    "page_end": 15,
+    "meaning": "Scope of Part 50 enquiry"
+  },
+  {
+    "section_id": "sec_014",
+    "section_kind_case": "ground_statement_and_reasoning",
+    "ground_owner": "second_and_third_applicants",
+    "ground_no": "3_and_4",
+    "paragraph_range": [
+      90,
+      95
+    ],
+    "page_start": 15,
+    "page_end": 16,
+    "meaning": "Current office / de facto officer / knowledge of means"
+  },
+  {
+    "section_id": "sec_015",
+    "section_kind_case": "party_specific_conclusion",
+    "ground_owner": "second_and_third_applicants",
+    "paragraph_range": [
+      96,
+      97
+    ],
+    "page_start": 16,
+    "page_end": 16,
+    "meaning": "All grounds dismissed"
+  },
+  {
+    "section_id": "sec_016",
+    "section_kind_case": "ground_statement_and_reasoning",
+    "ground_owner": "first_applicant",
+    "ground_no": "1_and_2",
+    "paragraph_range": [
+      98,
+      111
+    ],
+    "page_start": 16,
+    "page_end": 18,
+    "meaning": "Extraterritoriality / jurisdiction outside UAE"
+  },
+  {
+    "section_id": "sec_017",
+    "section_kind_case": "ground_statement_and_reasoning",
+    "ground_owner": "first_applicant",
+    "ground_no": "3",
+    "paragraph_range": [
+      112,
+      115
+    ],
+    "page_start": 18,
+    "page_end": 19,
+    "meaning": "Scope of disclosure / wide enquiry"
+  },
+  {
+    "section_id": "sec_018",
+    "section_kind_case": "party_specific_conclusion",
+    "ground_owner": "first_applicant",
+    "paragraph_range": [
+      116,
+      117
+    ],
+    "page_start": 19,
+    "page_end": 19,
+    "meaning": "Permission granted only on Ground 1"
+  }
+]

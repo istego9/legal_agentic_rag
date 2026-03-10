@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PageRef",
+  "description": "Canonical PDF page reference used in evaluation and submission.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "project_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "document_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "pdf_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._-]+$"
+    },
+    "page_num": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "page_index_base": {
+      "type": "integer",
+      "enum": [
+        0,
+        1
+      ]
+    },
+    "source_page_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._-]+_[0-9]+$"
+    },
+    "used": {
+      "type": "boolean"
+    },
+    "evidence_role": {
+      "type": "string",
+      "enum": [
+        "primary",
+        "supporting",
+        "title",
+        "lineage",
+        "negative_check"
+      ]
+    },
+    "score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    }
+  },
+  "required": [
+    "pdf_id",
+    "page_num",
+    "page_index_base",
+    "source_page_id",
+    "used"
+  ]
+}

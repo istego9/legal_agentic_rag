@@ -1,0 +1,178 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "case_cluster.schema.json",
+  "title": "CaseCluster",
+  "type": "object",
+  "required": [
+    "case_cluster_id",
+    "root_matter_number",
+    "root_matter_type",
+    "entities",
+    "events",
+    "proceedings",
+    "documents"
+  ],
+  "properties": {
+    "case_cluster_id": {
+      "type": "string"
+    },
+    "root_matter_number": {
+      "type": "string"
+    },
+    "root_matter_type": {
+      "type": "string"
+    },
+    "style_of_cause_root": {
+      "type": "string"
+    },
+    "source_availability": {
+      "type": "object",
+      "properties": {
+        "direct_root_order_available": {
+          "type": "boolean"
+        },
+        "best_available_anchor_document_id": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "entities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "entity_id",
+          "name_normalized",
+          "cluster_roles"
+        ],
+        "properties": {
+          "entity_id": {
+            "type": "string"
+          },
+          "name_raw": {
+            "type": "string"
+          },
+          "name_normalized": {
+            "type": "string"
+          },
+          "cluster_roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "event_id",
+          "event_type",
+          "date",
+          "description"
+        ],
+        "properties": {
+          "event_id": {
+            "type": "string"
+          },
+          "event_type": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "description": {
+            "type": "string"
+          },
+          "proceeding_no": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "object",
+            "properties": {
+              "currency": {
+                "type": "string"
+              },
+              "value": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      }
+    },
+    "proceedings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "proceeding_no",
+          "proceeding_type",
+          "status"
+        ],
+        "properties": {
+          "proceeding_no": {
+            "type": "string"
+          },
+          "proceeding_type": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "document_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "documents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "document_id",
+          "proceeding_no",
+          "document_subtype"
+        ],
+        "properties": {
+          "document_id": {
+            "type": "string"
+          },
+          "competition_pdf_id": {
+            "type": "string"
+          },
+          "canonical_slug": {
+            "type": "string"
+          },
+          "proceeding_no": {
+            "type": "string"
+          },
+          "document_subtype": {
+            "type": "string"
+          },
+          "decision_date": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      }
+    },
+    "issue_tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

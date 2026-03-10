@@ -1,0 +1,178 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap");
+
+:root {
+  --page-bg: linear-gradient(180deg, #fafaf9 0%, #f3f4f6 100%);
+  --page-accent-left: radial-gradient(1200px 620px at -10% -22%, rgba(17, 17, 17, 0.1) 0%, rgba(17, 17, 17, 0) 72%);
+  --page-accent-right: radial-gradient(1000px 560px at 108% -8%, rgba(17, 17, 17, 0.07) 0%, rgba(17, 17, 17, 0) 70%);
+  --page-accent-bottom: radial-gradient(860px 480px at 52% 108%, rgba(17, 17, 17, 0.06) 0%, rgba(17, 17, 17, 0) 74%);
+  --panel-border: #d8dde4;
+  --ink: #111111;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  font-family: "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.45;
+  background-image: var(--page-accent-left), var(--page-accent-right), var(--page-accent-bottom), var(--page-bg);
+  background-attachment: fixed, fixed, fixed, fixed;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.app-header {
+  border-bottom: 1px solid var(--panel-border);
+  background: rgba(250, 250, 249, 0.94);
+  backdrop-filter: blur(12px);
+}
+
+.app-header-inner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 14px 20px;
+}
+
+.header-primary {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+
+.brand-block {
+  min-width: 0;
+}
+
+.brand-title {
+  margin: 0;
+  font-family: "IBM Plex Serif", Georgia, "Times New Roman", serif;
+  font-size: clamp(1.4rem, 2vw, 2rem);
+  line-height: 1.1;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.header-actions {
+  flex: 1 1 360px;
+  justify-content: flex-end;
+}
+
+.app-navbar {
+  border-right: 1px solid var(--panel-border);
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(12px);
+}
+
+.app-navbar-inner {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 12px;
+}
+
+.nav-context-card {
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.nav-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.app-main {
+  min-height: calc(100vh - 92px);
+}
+
+.section-header {
+  padding: 20px 20px 0;
+}
+
+.section-body {
+  padding: 20px;
+}
+
+.section-card {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.metric-card {
+  height: 100%;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.empty-state {
+  background: rgba(255, 255, 255, 0.76);
+}
+
+.project-card {
+  cursor: pointer;
+  transition: transform 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.project-card:hover {
+  transform: translateY(-1px);
+  border-color: #bfc7d2;
+  box-shadow: 0 12px 24px rgba(17, 17, 17, 0.06);
+}
+
+.project-card-active {
+  border-color: #111111;
+  box-shadow: 0 12px 24px rgba(17, 17, 17, 0.08);
+}
+
+.debug-code {
+  display: block;
+  max-height: 72vh;
+  overflow: auto;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.data-table th,
+.data-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--panel-border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.data-table tbody tr {
+  cursor: pointer;
+}
+
+.data-table tbody tr:hover {
+  background: rgba(17, 17, 17, 0.04);
+}
+
+@media (max-width: 48em) {
+  .app-header-inner {
+    padding: 12px;
+  }
+
+  .header-actions {
+    justify-content: flex-start;
+  }
+
+  .section-header {
+    padding: 16px 12px 0;
+  }
+
+  .section-body {
+    padding: 16px 12px 24px;
+  }
+}

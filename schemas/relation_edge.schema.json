@@ -1,0 +1,110 @@
+{
+  "properties": {
+    "edge_id": {
+      "title": "Edge Id",
+      "type": "string"
+    },
+    "source_object_type": {
+      "enum": [
+        "document",
+        "page",
+        "paragraph",
+        "provision",
+        "chunk",
+        "case_party",
+        "case_judge"
+      ],
+      "title": "Source Object Type",
+      "type": "string"
+    },
+    "source_object_id": {
+      "title": "Source Object Id",
+      "type": "string"
+    },
+    "target_object_type": {
+      "enum": [
+        "document",
+        "page",
+        "paragraph",
+        "provision",
+        "chunk",
+        "case_party",
+        "case_judge"
+      ],
+      "title": "Target Object Type",
+      "type": "string"
+    },
+    "target_object_id": {
+      "title": "Target Object Id",
+      "type": "string"
+    },
+    "edge_type": {
+      "enum": [
+        "amends",
+        "amended_by",
+        "repeals",
+        "supersedes",
+        "restates",
+        "refers_to",
+        "enabled_by",
+        "comes_into_force_via",
+        "same_legal_concept_as",
+        "cites",
+        "overrules",
+        "same_party_as",
+        "same_judge_as"
+      ],
+      "title": "Edge Type",
+      "type": "string"
+    },
+    "confidence_score": {
+      "anyOf": [
+        {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Confidence Score"
+    },
+    "source_page_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Page Id"
+    },
+    "created_by": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Created By"
+    }
+  },
+  "required": [
+    "edge_id",
+    "source_object_type",
+    "source_object_id",
+    "target_object_type",
+    "target_object_id",
+    "edge_type"
+  ],
+  "title": "RelationEdge",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

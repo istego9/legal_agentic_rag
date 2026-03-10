@@ -1,0 +1,254 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DocumentManifest",
+  "description": "Canonical document metadata produced by ingestion.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "document_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "project_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "pdf_id": {
+      "type": "string"
+    },
+    "canonical_doc_id": {
+      "type": "string"
+    },
+    "content_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "doc_type": {
+      "type": "string",
+      "enum": [
+        "law",
+        "regulation",
+        "enactment_notice",
+        "case",
+        "other"
+      ]
+    },
+    "title": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "citation_title": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "law_number": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "case_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "year": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "edition_date": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date"
+    },
+    "page_count": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "duplicate_group_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "parsed",
+        "indexed",
+        "failed"
+      ]
+    },
+    "title_raw": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "title_normalized": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "short_title": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "language": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "jurisdiction": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "issued_date": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "effective_start_date": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "effective_end_date": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "repealed_date": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "is_current_version": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "version_group_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "version_sequence": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "supersedes_doc_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "superseded_by_doc_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "parser_version": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "ocr_used": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "extraction_confidence": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 1
+    },
+    "ingested_at": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "last_reprocessed_at": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "topic_tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "legal_domains": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "entity_names": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "citation_keys": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "search_text_compact": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "search_priority_score": {
+      "type": [
+        "number",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "document_id",
+    "project_id",
+    "pdf_id",
+    "canonical_doc_id",
+    "content_hash",
+    "doc_type",
+    "page_count",
+    "status"
+  ]
+}

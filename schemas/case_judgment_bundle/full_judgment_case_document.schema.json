@@ -1,0 +1,219 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "full_judgment_case_document.schema.json",
+  "title": "FullJudgmentCaseDocument",
+  "type": "object",
+  "required": [
+    "document_id",
+    "competition_pdf_id",
+    "doc_type",
+    "document_subtype",
+    "case_cluster_id",
+    "proceeding_no",
+    "court_name",
+    "court_level",
+    "decision_date",
+    "parties",
+    "operative_orders",
+    "section_map",
+    "page_count"
+  ],
+  "properties": {
+    "document_id": {
+      "type": "string"
+    },
+    "competition_pdf_id": {
+      "type": "string"
+    },
+    "canonical_slug": {
+      "type": "string"
+    },
+    "case_cluster_id": {
+      "type": "string"
+    },
+    "proceeding_no": {
+      "type": "string"
+    },
+    "related_root_matter_no": {
+      "type": "string"
+    },
+    "doc_type": {
+      "const": "case"
+    },
+    "document_category": {
+      "type": "string"
+    },
+    "document_subtype": {
+      "type": "string"
+    },
+    "case_stage": {
+      "type": "string"
+    },
+    "court_name": {
+      "type": "string"
+    },
+    "court_level": {
+      "type": "string"
+    },
+    "case_caption": {
+      "type": "string"
+    },
+    "decision_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "date_of_issue": {
+      "type": "string",
+      "format": "date"
+    },
+    "time_of_issue_local": {
+      "type": "string"
+    },
+    "issued_by": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        }
+      }
+    },
+    "issued_via_registrar": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        }
+      }
+    },
+    "parties": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name_normalized",
+          "role_in_document"
+        ],
+        "properties": {
+          "name_raw": {
+            "type": "string"
+          },
+          "name_normalized": {
+            "type": "string"
+          },
+          "role_in_document": {
+            "type": "string"
+          },
+          "cluster_roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "applications_under_determination": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "application_id",
+          "owner",
+          "application_type",
+          "status"
+        ],
+        "properties": {
+          "application_id": {
+            "type": "string"
+          },
+          "owner": {
+            "type": "string"
+          },
+          "application_type": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "granted_grounds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "operative_orders": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "item_no",
+          "order_text",
+          "order_effect_label",
+          "page_number_1"
+        ],
+        "properties": {
+          "item_no": {
+            "type": "integer"
+          },
+          "order_text": {
+            "type": "string"
+          },
+          "order_effect_label": {
+            "type": "string"
+          },
+          "page_number_1": {
+            "type": "integer"
+          }
+        }
+      }
+    },
+    "procedural_event_refs": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "authority_refs": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "issues_present": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "document_one_liner": {
+      "type": "string"
+    },
+    "document_summary": {
+      "type": "string"
+    },
+    "page_count": {
+      "type": "integer"
+    },
+    "page_map": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "section_map": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    }
+  }
+}

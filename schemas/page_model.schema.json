@@ -1,0 +1,162 @@
+{
+  "properties": {
+    "page_id": {
+      "title": "Page Id",
+      "type": "string"
+    },
+    "document_id": {
+      "title": "Document Id",
+      "type": "string"
+    },
+    "pdf_id": {
+      "title": "Pdf Id",
+      "type": "string"
+    },
+    "page_number": {
+      "minimum": 0,
+      "title": "Page Number",
+      "type": "integer"
+    },
+    "page_label_raw": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Page Label Raw"
+    },
+    "page_text_raw": {
+      "title": "Page Text Raw",
+      "type": "string"
+    },
+    "page_text_clean": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Page Text Clean"
+    },
+    "page_class": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Page Class"
+    },
+    "heading_path": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Heading Path",
+      "type": "array"
+    },
+    "contains_dates": {
+      "default": false,
+      "title": "Contains Dates",
+      "type": "boolean"
+    },
+    "contains_money": {
+      "default": false,
+      "title": "Contains Money",
+      "type": "boolean"
+    },
+    "contains_party_names": {
+      "default": false,
+      "title": "Contains Party Names",
+      "type": "boolean"
+    },
+    "contains_judges": {
+      "default": false,
+      "title": "Contains Judges",
+      "type": "boolean"
+    },
+    "contains_article_refs": {
+      "default": false,
+      "title": "Contains Article Refs",
+      "type": "boolean"
+    },
+    "contains_schedule_refs": {
+      "default": false,
+      "title": "Contains Schedule Refs",
+      "type": "boolean"
+    },
+    "contains_amendment_language": {
+      "default": false,
+      "title": "Contains Amendment Language",
+      "type": "boolean"
+    },
+    "contains_commencement_language": {
+      "default": false,
+      "title": "Contains Commencement Language",
+      "type": "boolean"
+    },
+    "dominant_section_kind": {
+      "anyOf": [
+        {
+          "enum": [
+            "cover",
+            "heading",
+            "definition",
+            "operative_provision",
+            "exception",
+            "penalty",
+            "procedure",
+            "schedule_item",
+            "cross_reference",
+            "footnote",
+            "parties",
+            "procedural_history",
+            "facts",
+            "issues",
+            "reasoning",
+            "holding",
+            "order",
+            "disposition"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Dominant Section Kind"
+    },
+    "search_text_compact": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Search Text Compact"
+    }
+  },
+  "required": [
+    "page_id",
+    "document_id",
+    "pdf_id",
+    "page_number",
+    "page_text_raw"
+  ],
+  "title": "PageModel",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

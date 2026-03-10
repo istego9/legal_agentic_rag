@@ -1,0 +1,130 @@
+{
+  "properties": {
+    "chunk_id": {
+      "title": "Chunk Id",
+      "type": "string"
+    },
+    "notice_number": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Notice Number"
+    },
+    "notice_year": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Notice Year"
+    },
+    "target_doc_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Target Doc Id"
+    },
+    "target_law_number": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Target Law Number"
+    },
+    "target_article_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Target Article Refs",
+      "type": "array"
+    },
+    "excluded_article_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Excluded Article Refs",
+      "type": "array"
+    },
+    "commencement_scope_type": {
+      "anyOf": [
+        {
+          "enum": [
+            "full",
+            "partial",
+            "staged",
+            "exception_based"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Commencement Scope Type"
+    },
+    "commencement_date": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Commencement Date"
+    },
+    "rule_type": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Rule Type"
+    },
+    "condition_text_present": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Condition Text Present"
+    }
+  },
+  "required": [
+    "chunk_id"
+  ],
+  "title": "EnactmentNoticeChunkFacet",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

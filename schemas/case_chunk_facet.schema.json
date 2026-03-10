@@ -1,0 +1,180 @@
+{
+  "properties": {
+    "chunk_id": {
+      "title": "Chunk Id",
+      "type": "string"
+    },
+    "case_number": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Case Number"
+    },
+    "neutral_citation": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Neutral Citation"
+    },
+    "court_name": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Court Name"
+    },
+    "court_level": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Court Level"
+    },
+    "decision_date": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Decision Date"
+    },
+    "section_kind_case": {
+      "anyOf": [
+        {
+          "enum": [
+            "parties",
+            "procedural_history",
+            "facts",
+            "issues",
+            "reasoning",
+            "order",
+            "disposition"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Section Kind Case"
+    },
+    "party_names": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Party Names",
+      "type": "array"
+    },
+    "party_roles_present": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Party Roles Present",
+      "type": "array"
+    },
+    "judge_names": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Judge Names",
+      "type": "array"
+    },
+    "presiding_judge": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Presiding Judge"
+    },
+    "claim_amounts": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Claim Amounts",
+      "type": "array"
+    },
+    "relief_sought": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Relief Sought",
+      "type": "array"
+    },
+    "disposition_label": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Disposition Label"
+    },
+    "outcome_side": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Outcome Side"
+    },
+    "cited_law_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Cited Law Ids",
+      "type": "array"
+    },
+    "cited_case_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Cited Case Ids",
+      "type": "array"
+    }
+  },
+  "required": [
+    "chunk_id"
+  ],
+  "title": "CaseChunkFacet",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

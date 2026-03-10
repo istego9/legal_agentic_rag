@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "workflow_state_case_parse.schema.json",
+  "title": "WorkflowStateCaseParse",
+  "type": "object",
+  "properties": {
+    "document": {
+      "type": "object"
+    },
+    "pages": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "sections": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "chunks": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "entities": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "cluster": {
+      "type": "object"
+    },
+    "qc": {
+      "type": "object"
+    },
+    "trace": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    }
+  }
+}

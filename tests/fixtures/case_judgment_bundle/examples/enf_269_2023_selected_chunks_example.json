@@ -1,0 +1,1976 @@
+[
+  {
+    "chunk_id": "enf_269_2023_ozias_ori_octavio_v_obadiah_oaklen_p001_c001",
+    "page_number_1": 1,
+    "page_number_0": 0,
+    "page_id_internal": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_1",
+    "page_id_zero_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_0",
+    "page_id_one_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_1",
+    "chunk_order_in_doc": 1,
+    "chunk_order_in_page": 1,
+    "chunk_type": "heading",
+    "section_kind_case": "header",
+    "case_number": "ENF 269/2023",
+    "case_cluster_id": "oaklen_obadiah_ARB-016-2023_cluster",
+    "document_subtype": "order_with_reasons",
+    "text_clean": "ENF 269/2023 ... THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS ... COURT OF APPEAL",
+    "chunk_summary": "Header block with case number, DIFC Courts, and Court of Appeal.",
+    "party_roles": [
+      {
+        "role": "first_applicant",
+        "name": "Ozias"
+      },
+      {
+        "role": "second_applicant",
+        "name": "Ori"
+      },
+      {
+        "role": "third_applicant",
+        "name": "Octavio"
+      },
+      {
+        "role": "defendant_judgment_debtor",
+        "name": "Obadiah"
+      },
+      {
+        "role": "claimant_judgment_creditor",
+        "name": "Oaklen"
+      }
+    ],
+    "judge_names": [
+      "Wayne Martin"
+    ],
+    "issue_tags": [],
+    "authority_refs": [],
+    "answer_candidate_types": [
+      "names",
+      "free_text"
+    ]
+  },
+  {
+    "chunk_id": "enf_269_2023_ozias_ori_octavio_v_obadiah_oaklen_p001_c002",
+    "page_number_1": 1,
+    "page_number_0": 0,
+    "page_id_internal": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_1",
+    "page_id_zero_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_0",
+    "page_id_one_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_1",
+    "chunk_order_in_doc": 2,
+    "chunk_order_in_page": 2,
+    "chunk_type": "caption_line",
+    "section_kind_case": "caption_parties_block",
+    "case_number": "ENF 269/2023",
+    "case_cluster_id": "oaklen_obadiah_ARB-016-2023_cluster",
+    "document_subtype": "order_with_reasons",
+    "text_clean": "BETWEEN (1) OZIAS (2) ORI (3) OCTAVIO ... OBADIAH ... OAKLEN",
+    "chunk_summary": "Caption parties block identifying applicants/appellants, judgment debtor, and judgment creditor.",
+    "party_roles": [
+      {
+        "role": "first_applicant",
+        "name": "Ozias"
+      },
+      {
+        "role": "second_applicant",
+        "name": "Ori"
+      },
+      {
+        "role": "third_applicant",
+        "name": "Octavio"
+      },
+      {
+        "role": "defendant_judgment_debtor",
+        "name": "Obadiah"
+      },
+      {
+        "role": "claimant_judgment_creditor",
+        "name": "Oaklen"
+      }
+    ],
+    "judge_names": [
+      "Wayne Martin"
+    ],
+    "issue_tags": [],
+    "authority_refs": [],
+    "answer_candidate_types": [
+      "names"
+    ]
+  },
+  {
+    "chunk_id": "enf_269_2023_ozias_ori_octavio_v_obadiah_oaklen_p001_c003",
+    "page_number_1": 1,
+    "page_number_0": 0,
+    "page_id_internal": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_1",
+    "page_id_zero_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_0",
+    "page_id_one_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_1",
+    "chunk_order_in_doc": 3,
+    "chunk_order_in_page": 3,
+    "chunk_type": "recital_paragraph",
+    "section_kind_case": "recital_block",
+    "case_number": "ENF 269/2023",
+    "case_cluster_id": "oaklen_obadiah_ARB-016-2023_cluster",
+    "document_subtype": "order_with_reasons",
+    "text_clean": "UPON the Claimant’s Arbitration Claim Form dated 17 August 2023 in Case No. ARB-016-2023 ... Partial Award dated 10 March 2023 ... Final Award dated 21 June 2023 ...",
+    "chunk_summary": "Recital linking the appeal document to ARB-016-2023 and the underlying arbitral awards.",
+    "party_roles": [
+      {
+        "role": "first_applicant",
+        "name": "Ozias"
+      },
+      {
+        "role": "second_applicant",
+        "name": "Ori"
+      },
+      {
+        "role": "third_applicant",
+        "name": "Octavio"
+      },
+      {
+        "role": "defendant_judgment_debtor",
+        "name": "Obadiah"
+      },
+      {
+        "role": "claimant_judgment_creditor",
+        "name": "Oaklen"
+      }
+    ],
+    "judge_names": [
+      "Wayne Martin"
+    ],
+    "issue_tags": [
+      "procedural_linkage"
+    ],
+    "authority_refs": [
+      "ARB-016-2023",
+      "Partial Award 2023-03-10",
+      "Final Award 2023-06-21"
+    ],
+    "answer_candidate_types": [
+      "date",
+      "free_text"
+    ],
+    "date_mentions": [
+      "2023-08-17",
+      "2023-03-10",
+      "2023-06-21"
+    ]
+  },
+  {
+    "chunk_id": "enf_269_2023_ozias_ori_octavio_v_obadiah_oaklen_p002_ord_001",
+    "page_number_1": 2,
+    "page_number_0": 1,
+    "page_id_internal": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_2",
+    "page_id_zero_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_1",
+    "page_id_one_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_2",
+    "chunk_order_in_doc": 4,
+    "chunk_order_in_page": 1,
+    "chunk_type": "order_item",
+    "section_kind_case": "operative_order_item",
+    "case_number": "ENF 269/2023",
+    "case_cluster_id": "oaklen_obadiah_ARB-016-2023_cluster",
+    "document_subtype": "order_with_reasons",
+    "text_clean": "The First Applicant is granted permission to appeal in respect of the proposed ﬁrst ground of appeal only.",
+    "chunk_summary": "The First Applicant is granted permission to appeal in respect of the proposed ﬁrst ground of appeal only.",
+    "party_roles": [
+      {
+        "role": "first_applicant",
+        "name": "Ozias"
+      },
+      {
+        "role": "second_applicant",
+        "name": "Ori"
+      },
+      {
+        "role": "third_applicant",
+        "name": "Octavio"
+      },
+      {
+        "role": "defendant_judgment_debtor",
+        "name": "Obadiah"
+      },
+      {
+        "role": "claimant_judgment_creditor",
+        "name": "Oaklen"
+      }
+    ],
+    "judge_names": [
+      "Wayne Martin"
+    ],
+    "issue_tags": [
+      "permission_to_appeal_threshold"
+    ],
+    "authority_refs": [],
+    "order_effect_label": "permission_granted_partial",
+    "answer_candidate_types": [
+      "boolean",
+      "free_text",
+      "date"
+    ]
+  },
+  {
+    "chunk_id": "enf_269_2023_ozias_ori_octavio_v_obadiah_oaklen_p002_ord_002",
+    "page_number_1": 2,
+    "page_number_0": 1,
+    "page_id_internal": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_2",
+    "page_id_zero_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_1",
+    "page_id_one_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_2",
+    "chunk_order_in_doc": 5,
+    "chunk_order_in_page": 2,
+    "chunk_type": "order_item",
+    "section_kind_case": "operative_order_item",
+    "case_number": "ENF 269/2023",
+    "case_cluster_id": "oaklen_obadiah_ARB-016-2023_cluster",
+    "document_subtype": "order_with_reasons",
+    "text_clean": "The operation of the Part 50 Orders relating to the First Applicant is stayed until further order.",
+    "chunk_summary": "The operation of the Part 50 Orders relating to the First Applicant is stayed until further order.",
+    "party_roles": [
+      {
+        "role": "first_applicant",
+        "name": "Ozias"
+      },
+      {
+        "role": "second_applicant",
+        "name": "Ori"
+      },
+      {
+        "role": "third_applicant",
+        "name": "Octavio"
+      },
+      {
+        "role": "defendant_judgment_debtor",
+        "name": "Obadiah"
+      },
+      {
+        "role": "claimant_judgment_creditor",
+        "name": "Oaklen"
+      }
+    ],
+    "judge_names": [
+      "Wayne Martin"
+    ],
+    "issue_tags": [],
+    "authority_refs": [
+      "Part 50 Orders"
+    ],
+    "order_effect_label": "stay_granted_partial",
+    "answer_candidate_types": [
+      "boolean",
+      "free_text",
+      "date"
+    ]
+  },
+  {
+    "chunk_id": "enf_269_2023_ozias_ori_octavio_v_obadiah_oaklen_p002_ord_003",
+    "page_number_1": 2,
+    "page_number_0": 1,
+    "page_id_internal": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_2",
+    "page_id_zero_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_1",
+    "page_id_one_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_2",
+    "chunk_order_in_doc": 6,
+    "chunk_order_in_page": 3,
+    "chunk_type": "order_item",
+    "section_kind_case": "operative_order_item",
+    "case_number": "ENF 269/2023",
+    "case_cluster_id": "oaklen_obadiah_ARB-016-2023_cluster",
+    "document_subtype": "order_with_reasons",
+    "text_clean": "The First Applicant shall ﬁle and serve his skeleton argument in support of the appeal within fourteen (14) days of the date of this Order.",
+    "chunk_summary": "The First Applicant shall ﬁle and serve his skeleton argument in support of the appeal within fourteen (14) days of the date of this Order.",
+    "party_roles": [
+      {
+        "role": "first_applicant",
+        "name": "Ozias"
+      },
+      {
+        "role": "second_applicant",
+        "name": "Ori"
+      },
+      {
+        "role": "third_applicant",
+        "name": "Octavio"
+      },
+      {
+        "role": "defendant_judgment_debtor",
+        "name": "Obadiah"
+      },
+      {
+        "role": "claimant_judgment_creditor",
+        "name": "Oaklen"
+      }
+    ],
+    "judge_names": [
+      "Wayne Martin"
+    ],
+    "issue_tags": [
+      "costs_timetable"
+    ],
+    "authority_refs": [],
+    "order_effect_label": "filing_direction",
+    "answer_candidate_types": [
+      "free_text"
+    ]
+  },
+  {
+    "chunk_id": "enf_269_2023_ozias_ori_octavio_v_obadiah_oaklen_p002_ord_004",
+    "page_number_1": 2,
+    "page_number_0": 1,
+    "page_id_internal": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_2",
+    "page_id_zero_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_1",
+    "page_id_one_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_2",
+    "chunk_order_in_doc": 7,
+    "chunk_order_in_page": 4,
+    "chunk_type": "order_item",
+    "section_kind_case": "operative_order_item",
+    "case_number": "ENF 269/2023",
+    "case_cluster_id": "oaklen_obadiah_ARB-016-2023_cluster",
+    "document_subtype": "order_with_reasons",
+    "text_clean": "The Judgment Creditor shall ﬁle and serve its skeleton argument in opposition to the appeal within fourteen (14) days of service of the First Applicant’s skeleton argument.",
+    "chunk_summary": "The Judgment Creditor shall ﬁle and serve its skeleton argument in opposition to the appeal within fourteen (14) days of service of the First Applicant’s skeleton argument.",
+    "party_roles": [
+      {
+        "role": "first_applicant",
+        "name": "Ozias"
+      },
+      {
+        "role": "second_applicant",
+        "name": "Ori"
+      },
+      {
+        "role": "third_applicant",
+        "name": "Octavio"
+      },
+      {
+        "role": "defendant_judgment_debtor",
+        "name": "Obadiah"
+      },
+      {
+        "role": "claimant_judgment_creditor",
+        "name": "Oaklen"
+      }
+    ],
+    "judge_names": [
+      "Wayne Martin"
+    ],
+    "issue_tags": [
+      "costs_timetable"
+    ],
+    "authority_refs": [],
+    "order_effect_label": "filing_direction",
+    "answer_candidate_types": [
+      "free_text"
+    ]
+  },
+  {
+    "chunk_id": "enf_269_2023_ozias_ori_octavio_v_obadiah_oaklen_p002_ord_005",
+    "page_number_1": 2,
+    "page_number_0": 1,
+    "page_id_internal": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_2",
+    "page_id_zero_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_1",
+    "page_id_one_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_2",
+    "chunk_order_in_doc": 8,
+    "chunk_order_in_page": 5,
+    "chunk_type": "order_item",
+    "section_kind_case": "operative_order_item",
+    "case_number": "ENF 269/2023",
+    "case_cluster_id": "oaklen_obadiah_ARB-016-2023_cluster",
+    "document_subtype": "order_with_reasons",
+    "text_clean": "The First Applicant shall ﬁle and serve any skeleton argument in reply within ten (10) days after the service of that skeleton.",
+    "chunk_summary": "The First Applicant shall ﬁle and serve any skeleton argument in reply within ten (10) days after the service of that skeleton.",
+    "party_roles": [
+      {
+        "role": "first_applicant",
+        "name": "Ozias"
+      },
+      {
+        "role": "second_applicant",
+        "name": "Ori"
+      },
+      {
+        "role": "third_applicant",
+        "name": "Octavio"
+      },
+      {
+        "role": "defendant_judgment_debtor",
+        "name": "Obadiah"
+      },
+      {
+        "role": "claimant_judgment_creditor",
+        "name": "Oaklen"
+      }
+    ],
+    "judge_names": [
+      "Wayne Martin"
+    ],
+    "issue_tags": [
+      "costs_timetable"
+    ],
+    "authority_refs": [],
+    "order_effect_label": "filing_direction",
+    "answer_candidate_types": [
+      "free_text"
+    ]
+  },
+  {
+    "chunk_id": "enf_269_2023_ozias_ori_octavio_v_obadiah_oaklen_p002_ord_006",
+    "page_number_1": 2,
+    "page_number_0": 1,
+    "page_id_internal": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_2",
+    "page_id_zero_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_1",
+    "page_id_one_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_2",
+    "chunk_order_in_doc": 9,
+    "chunk_order_in_page": 6,
+    "chunk_type": "order_item",
+    "section_kind_case": "operative_order_item",
+    "case_number": "ENF 269/2023",
+    "case_cluster_id": "oaklen_obadiah_ARB-016-2023_cluster",
+    "document_subtype": "order_with_reasons",
+    "text_clean": "Within ten (10) days of the date of this Order, the parties shall provide to the Registry their available dates for a hearing of the appeal in the period between 45 and 140 days after the date of this Order.",
+    "chunk_summary": "Within ten (10) days of the date of this Order, the parties shall provide to the Registry their available dates for a hearing of the appeal in the period between 45 and 140 days after the date of this Order.",
+    "party_roles": [
+      {
+        "role": "first_applicant",
+        "name": "Ozias"
+      },
+      {
+        "role": "second_applicant",
+        "name": "Ori"
+      },
+      {
+        "role": "third_applicant",
+        "name": "Octavio"
+      },
+      {
+        "role": "defendant_judgment_debtor",
+        "name": "Obadiah"
+      },
+      {
+        "role": "claimant_judgment_creditor",
+        "name": "Oaklen"
+      }
+    ],
+    "judge_names": [
+      "Wayne Martin"
+    ],
+    "issue_tags": [
+      "costs_timetable"
+    ],
+    "authority_refs": [],
+    "order_effect_label": "hearing_direction",
+    "answer_candidate_types": [
+      "boolean",
+      "free_text",
+      "date"
+    ]
+  },
+  {
+    "chunk_id": "enf_269_2023_ozias_ori_octavio_v_obadiah_oaklen_p002_ord_007",
+    "page_number_1": 2,
+    "page_number_0": 1,
+    "page_id_internal": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_2",
+    "page_id_zero_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_1",
+    "page_id_one_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_2",
+    "chunk_order_in_doc": 10,
+    "chunk_order_in_page": 7,
+    "chunk_type": "order_item",
+    "section_kind_case": "operative_order_item",
+    "case_number": "ENF 269/2023",
+    "case_cluster_id": "oaklen_obadiah_ARB-016-2023_cluster",
+    "document_subtype": "order_with_reasons",
+    "text_clean": "The Renewed Application by the Second and Third Applicants is dismissed.",
+    "chunk_summary": "The Renewed Application by the Second and Third Applicants is dismissed.",
+    "party_roles": [
+      {
+        "role": "first_applicant",
+        "name": "Ozias"
+      },
+      {
+        "role": "second_applicant",
+        "name": "Ori"
+      },
+      {
+        "role": "third_applicant",
+        "name": "Octavio"
+      },
+      {
+        "role": "defendant_judgment_debtor",
+        "name": "Obadiah"
+      },
+      {
+        "role": "claimant_judgment_creditor",
+        "name": "Oaklen"
+      }
+    ],
+    "judge_names": [
+      "Wayne Martin"
+    ],
+    "issue_tags": [
+      "costs_timetable"
+    ],
+    "authority_refs": [
+      "Part 50 Orders"
+    ],
+    "order_effect_label": "application_dismissed",
+    "answer_candidate_types": [
+      "free_text"
+    ]
+  },
+  {
+    "chunk_id": "enf_269_2023_ozias_ori_octavio_v_obadiah_oaklen_p003_ord_008",
+    "page_number_1": 3,
+    "page_number_0": 2,
+    "page_id_internal": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_3",
+    "page_id_zero_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_2",
+    "page_id_one_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_3",
+    "chunk_order_in_doc": 11,
+    "chunk_order_in_page": 1,
+    "chunk_type": "order_item",
+    "section_kind_case": "operative_order_item",
+    "case_number": "ENF 269/2023",
+    "case_cluster_id": "oaklen_obadiah_ARB-016-2023_cluster",
+    "document_subtype": "order_with_reasons",
+    "text_clean": "The Stay Application by the Second and Third Applicants is dismissed.",
+    "chunk_summary": "The Stay Application by the Second and Third Applicants is dismissed.",
+    "party_roles": [
+      {
+        "role": "first_applicant",
+        "name": "Ozias"
+      },
+      {
+        "role": "second_applicant",
+        "name": "Ori"
+      },
+      {
+        "role": "third_applicant",
+        "name": "Octavio"
+      },
+      {
+        "role": "defendant_judgment_debtor",
+        "name": "Obadiah"
+      },
+      {
+        "role": "claimant_judgment_creditor",
+        "name": "Oaklen"
+      }
+    ],
+    "judge_names": [
+      "Wayne Martin"
+    ],
+    "issue_tags": [
+      "costs_timetable"
+    ],
+    "authority_refs": [
+      "Part 50 Orders"
+    ],
+    "order_effect_label": "application_dismissed",
+    "answer_candidate_types": [
+      "free_text"
+    ]
+  },
+  {
+    "chunk_id": "enf_269_2023_ozias_ori_octavio_v_obadiah_oaklen_p003_ord_009",
+    "page_number_1": 3,
+    "page_number_0": 2,
+    "page_id_internal": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_3",
+    "page_id_zero_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_2",
+    "page_id_one_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_3",
+    "chunk_order_in_doc": 12,
+    "chunk_order_in_page": 2,
+    "chunk_type": "order_item",
+    "section_kind_case": "operative_order_item",
+    "case_number": "ENF 269/2023",
+    "case_cluster_id": "oaklen_obadiah_ARB-016-2023_cluster",
+    "document_subtype": "order_with_reasons",
+    "text_clean": "The Second and Third Applicants shall pay the Judgment Creditor’s costs of their Renewed Application and of their Stay Application. In default of agreement with respect to the quantum of those costs, they will be assessed in accordance with the orders which follow.",
+    "chunk_summary": "The Second and Third Applicants shall pay the Judgment Creditor’s costs of their Renewed Application and of their Stay Application. In default of agreement with respect to the quantum of those costs, they will be assessed in accordance with the orders which follow.",
+    "party_roles": [
+      {
+        "role": "first_applicant",
+        "name": "Ozias"
+      },
+      {
+        "role": "second_applicant",
+        "name": "Ori"
+      },
+      {
+        "role": "third_applicant",
+        "name": "Octavio"
+      },
+      {
+        "role": "defendant_judgment_debtor",
+        "name": "Obadiah"
+      },
+      {
+        "role": "claimant_judgment_creditor",
+        "name": "Oaklen"
+      }
+    ],
+    "judge_names": [
+      "Wayne Martin"
+    ],
+    "issue_tags": [
+      "costs_timetable"
+    ],
+    "authority_refs": [],
+    "order_effect_label": "costs_payable",
+    "answer_candidate_types": [
+      "free_text"
+    ]
+  },
+  {
+    "chunk_id": "enf_269_2023_ozias_ori_octavio_v_obadiah_oaklen_p003_ord_010",
+    "page_number_1": 3,
+    "page_number_0": 2,
+    "page_id_internal": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_3",
+    "page_id_zero_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_2",
+    "page_id_one_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_3",
+    "chunk_order_in_doc": 13,
+    "chunk_order_in_page": 3,
+    "chunk_type": "order_item",
+    "section_kind_case": "operative_order_item",
+    "case_number": "ENF 269/2023",
+    "case_cluster_id": "oaklen_obadiah_ARB-016-2023_cluster",
+    "document_subtype": "order_with_reasons",
+    "text_clean": "Within twenty-eight (28) days of the date of this Order, the Judgment Creditor shall ﬁle a Statement of Costs incurred in respect of the Renewed Application and the Stay Application made by the Second and Third Applicants, together with any short submissions in support of the costs claimed.",
+    "chunk_summary": "Within twenty-eight (28) days of the date of this Order, the Judgment Creditor shall ﬁle a Statement of Costs incurred in respect of the Renewed Application and the Stay Application made by the Second and Third Applicants, together with any short submissions in support of the costs claimed.",
+    "party_roles": [
+      {
+        "role": "first_applicant",
+        "name": "Ozias"
+      },
+      {
+        "role": "second_applicant",
+        "name": "Ori"
+      },
+      {
+        "role": "third_applicant",
+        "name": "Octavio"
+      },
+      {
+        "role": "defendant_judgment_debtor",
+        "name": "Obadiah"
+      },
+      {
+        "role": "claimant_judgment_creditor",
+        "name": "Oaklen"
+      }
+    ],
+    "judge_names": [
+      "Wayne Martin"
+    ],
+    "issue_tags": [
+      "costs_timetable"
+    ],
+    "authority_refs": [],
+    "order_effect_label": "filing_direction",
+    "answer_candidate_types": [
+      "free_text"
+    ]
+  },
+  {
+    "chunk_id": "enf_269_2023_ozias_ori_octavio_v_obadiah_oaklen_p003_ord_011",
+    "page_number_1": 3,
+    "page_number_0": 2,
+    "page_id_internal": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_3",
+    "page_id_zero_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_2",
+    "page_id_one_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_3",
+    "chunk_order_in_doc": 14,
+    "chunk_order_in_page": 4,
+    "chunk_type": "order_item",
+    "section_kind_case": "operative_order_item",
+    "case_number": "ENF 269/2023",
+    "case_cluster_id": "oaklen_obadiah_ARB-016-2023_cluster",
+    "document_subtype": "order_with_reasons",
+    "text_clean": "Within fourteen (14) days of service of the Statement of Costs the Second and Third Applicants shall ﬁle and serve any submissions relating to the quantum of costs claimed.",
+    "chunk_summary": "Within fourteen (14) days of service of the Statement of Costs the Second and Third Applicants shall ﬁle and serve any submissions relating to the quantum of costs claimed.",
+    "party_roles": [
+      {
+        "role": "first_applicant",
+        "name": "Ozias"
+      },
+      {
+        "role": "second_applicant",
+        "name": "Ori"
+      },
+      {
+        "role": "third_applicant",
+        "name": "Octavio"
+      },
+      {
+        "role": "defendant_judgment_debtor",
+        "name": "Obadiah"
+      },
+      {
+        "role": "claimant_judgment_creditor",
+        "name": "Oaklen"
+      }
+    ],
+    "judge_names": [
+      "Wayne Martin"
+    ],
+    "issue_tags": [
+      "costs_timetable"
+    ],
+    "authority_refs": [],
+    "order_effect_label": "filing_direction",
+    "answer_candidate_types": [
+      "free_text"
+    ]
+  },
+  {
+    "chunk_id": "enf_269_2023_ozias_ori_octavio_v_obadiah_oaklen_p003_ord_012",
+    "page_number_1": 3,
+    "page_number_0": 2,
+    "page_id_internal": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_3",
+    "page_id_zero_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_2",
+    "page_id_one_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_3",
+    "chunk_order_in_doc": 15,
+    "chunk_order_in_page": 5,
+    "chunk_type": "order_item",
+    "section_kind_case": "operative_order_item",
+    "case_number": "ENF 269/2023",
+    "case_cluster_id": "oaklen_obadiah_ARB-016-2023_cluster",
+    "document_subtype": "order_with_reasons",
+    "text_clean": "Within seven (7) days of service of any submissions in accordance with the preceding order, the Judgment Creditor shall ﬁle any submissions in reply to those submissions.",
+    "chunk_summary": "Within seven (7) days of service of any submissions in accordance with the preceding order, the Judgment Creditor shall ﬁle any submissions in reply to those submissions.",
+    "party_roles": [
+      {
+        "role": "first_applicant",
+        "name": "Ozias"
+      },
+      {
+        "role": "second_applicant",
+        "name": "Ori"
+      },
+      {
+        "role": "third_applicant",
+        "name": "Octavio"
+      },
+      {
+        "role": "defendant_judgment_debtor",
+        "name": "Obadiah"
+      },
+      {
+        "role": "claimant_judgment_creditor",
+        "name": "Oaklen"
+      }
+    ],
+    "judge_names": [
+      "Wayne Martin"
+    ],
+    "issue_tags": [
+      "costs_timetable"
+    ],
+    "authority_refs": [],
+    "order_effect_label": "filing_direction",
+    "answer_candidate_types": [
+      "free_text"
+    ]
+  },
+  {
+    "chunk_id": "enf_269_2023_ozias_ori_octavio_v_obadiah_oaklen_p003_ord_013",
+    "page_number_1": 3,
+    "page_number_0": 2,
+    "page_id_internal": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_3",
+    "page_id_zero_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_2",
+    "page_id_one_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_3",
+    "chunk_order_in_doc": 16,
+    "chunk_order_in_page": 6,
+    "chunk_type": "order_item",
+    "section_kind_case": "operative_order_item",
+    "case_number": "ENF 269/2023",
+    "case_cluster_id": "oaklen_obadiah_ARB-016-2023_cluster",
+    "document_subtype": "order_with_reasons",
+    "text_clean": "The quantum of the costs payable pursuant to these Orders shall thereafter be assessed by the Chief Justice on the papers.",
+    "chunk_summary": "The quantum of the costs payable pursuant to these Orders shall thereafter be assessed by the Chief Justice on the papers.",
+    "party_roles": [
+      {
+        "role": "first_applicant",
+        "name": "Ozias"
+      },
+      {
+        "role": "second_applicant",
+        "name": "Ori"
+      },
+      {
+        "role": "third_applicant",
+        "name": "Octavio"
+      },
+      {
+        "role": "defendant_judgment_debtor",
+        "name": "Obadiah"
+      },
+      {
+        "role": "claimant_judgment_creditor",
+        "name": "Oaklen"
+      }
+    ],
+    "judge_names": [
+      "Wayne Martin"
+    ],
+    "issue_tags": [
+      "costs_timetable"
+    ],
+    "authority_refs": [],
+    "order_effect_label": "assessment_direction",
+    "answer_candidate_types": [
+      "free_text"
+    ]
+  },
+  {
+    "chunk_id": "enf_269_2023_ozias_ori_octavio_v_obadiah_oaklen_p003_c020",
+    "page_number_1": 3,
+    "page_number_0": 2,
+    "page_id_internal": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_3",
+    "page_id_zero_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_2",
+    "page_id_one_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_3",
+    "chunk_order_in_doc": 30,
+    "chunk_order_in_page": 20,
+    "chunk_type": "issuance_metadata",
+    "section_kind_case": "issuance_block",
+    "case_number": "ENF 269/2023",
+    "case_cluster_id": "oaklen_obadiah_ARB-016-2023_cluster",
+    "document_subtype": "order_with_reasons",
+    "text_clean": "Issued by: H.E. Chief Justice Wayne Martin Date of issue: 01 July 2025 at 4pm Issued by: Delvin Sumo Assistant Registrar",
+    "chunk_summary": "Issuance block with judicial officer, issue date, time, and registrar.",
+    "party_roles": [
+      {
+        "role": "first_applicant",
+        "name": "Ozias"
+      },
+      {
+        "role": "second_applicant",
+        "name": "Ori"
+      },
+      {
+        "role": "third_applicant",
+        "name": "Octavio"
+      },
+      {
+        "role": "defendant_judgment_debtor",
+        "name": "Obadiah"
+      },
+      {
+        "role": "claimant_judgment_creditor",
+        "name": "Oaklen"
+      }
+    ],
+    "judge_names": [
+      "Wayne Martin",
+      "Delvin Sumo"
+    ],
+    "issue_tags": [],
+    "authority_refs": [],
+    "answer_candidate_types": [
+      "date",
+      "names"
+    ]
+  },
+  {
+    "chunk_id": "enf_269_2023_ozias_ori_octavio_v_obadiah_oaklen_para_001",
+    "page_number_1": 3,
+    "page_number_0": 2,
+    "page_id_internal": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_3",
+    "page_id_zero_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_2",
+    "page_id_one_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_3",
+    "chunk_order_in_doc": 31,
+    "chunk_order_in_page": null,
+    "chunk_type": "numbered_reasoning_paragraph",
+    "section_kind_case": "executive_summary",
+    "case_number": "ENF 269/2023",
+    "case_cluster_id": "oaklen_obadiah_ARB-016-2023_cluster",
+    "document_subtype": "order_with_reasons",
+    "paragraph_no": 1,
+    "ground_owner": null,
+    "ground_no": null,
+    "text_clean": "1. Mr Ozias (the “First Applicant”), Mr Ori and Mr Octavio (the “Second” and “Third Applicants”) have each ﬁled renewed applications for Permission to Appeal (“Renewed Application”) from the decision of an Enforcement Judge dismissing their Application to Set Aside Orders for their Examination under Part 50 of the Rules of the DIFC Courts (“RDC”), their ﬁrst applications for Permission to Appeal having been dismissed by a Judge of this Court. Procedural history",
+    "chunk_summary": "1. Mr Ozias (the “First Applicant”), Mr Ori and Mr Octavio (the “Second” and “Third Applicants”) have each ﬁled renewed applications for Permission to Appeal (“Renewed Application”) from the decision of an Enforcement Ju...",
+    "party_roles": [
+      {
+        "role": "first_applicant",
+        "name": "Ozias"
+      },
+      {
+        "role": "second_applicant",
+        "name": "Ori"
+      },
+      {
+        "role": "third_applicant",
+        "name": "Octavio"
+      },
+      {
+        "role": "defendant_judgment_debtor",
+        "name": "Obadiah"
+      },
+      {
+        "role": "claimant_judgment_creditor",
+        "name": "Oaklen"
+      }
+    ],
+    "judge_names": [
+      "Wayne Martin",
+      "Delvin Sumo",
+      "Nassir Al Nasser",
+      "Shamlan Al Sawalehi"
+    ],
+    "issue_tags": [
+      "permission_to_appeal_threshold"
+    ],
+    "authority_refs": [],
+    "answer_candidate_types": [
+      "free_text"
+    ]
+  },
+  {
+    "chunk_id": "enf_269_2023_ozias_ori_octavio_v_obadiah_oaklen_para_002",
+    "page_number_1": 3,
+    "page_number_0": 2,
+    "page_id_internal": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_3",
+    "page_id_zero_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_2",
+    "page_id_one_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_3",
+    "chunk_order_in_doc": 32,
+    "chunk_order_in_page": null,
+    "chunk_type": "numbered_reasoning_paragraph",
+    "section_kind_case": "procedural_history",
+    "case_number": "ENF 269/2023",
+    "case_cluster_id": "oaklen_obadiah_ARB-016-2023_cluster",
+    "document_subtype": "order_with_reasons",
+    "paragraph_no": 2,
+    "ground_owner": null,
+    "ground_no": null,
+    "text_clean": "2. The Claimant/Judgment Creditor, Oaklen (“Oaklen”) entered into a building contract with the Defendant/Judgment Debtor, (Obadiah”) for the construction of a luxury residential building in onshore Dubai called “Olene”. The building, which comprised residential units, was completed in 2021.",
+    "chunk_summary": "2. The Claimant/Judgment Creditor, Oaklen (“Oaklen”) entered into a building contract with the Defendant/Judgment Debtor, (Obadiah”) for the construction of a luxury residential building in onshore Dubai called “Olene”. ...",
+    "party_roles": [
+      {
+        "role": "first_applicant",
+        "name": "Ozias"
+      },
+      {
+        "role": "second_applicant",
+        "name": "Ori"
+      },
+      {
+        "role": "third_applicant",
+        "name": "Octavio"
+      },
+      {
+        "role": "defendant_judgment_debtor",
+        "name": "Obadiah"
+      },
+      {
+        "role": "claimant_judgment_creditor",
+        "name": "Oaklen"
+      }
+    ],
+    "judge_names": [
+      "Wayne Martin",
+      "Delvin Sumo",
+      "Nassir Al Nasser",
+      "Shamlan Al Sawalehi"
+    ],
+    "issue_tags": [],
+    "authority_refs": [],
+    "answer_candidate_types": [
+      "free_text"
+    ]
+  },
+  {
+    "chunk_id": "enf_269_2023_ozias_ori_octavio_v_obadiah_oaklen_para_004",
+    "page_number_1": 4,
+    "page_number_0": 3,
+    "page_id_internal": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_4",
+    "page_id_zero_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_3",
+    "page_id_one_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_4",
+    "chunk_order_in_doc": 33,
+    "chunk_order_in_page": null,
+    "chunk_type": "numbered_reasoning_paragraph",
+    "section_kind_case": "procedural_history",
+    "case_number": "ENF 269/2023",
+    "case_cluster_id": "oaklen_obadiah_ARB-016-2023_cluster",
+    "document_subtype": "order_with_reasons",
+    "paragraph_no": 4,
+    "ground_owner": null,
+    "ground_no": null,
+    "text_clean": "4. The Second Arbitration was commenced by Oaklen against Obadiah 9 June 2020. On 10 March 2023, a Partial Award was issued in favour of Oaklen in the amount of AED 57,803,026.17. A Final Award was issued in that Arbitration on 21 June 2023. As at 14 August 2023, the total amount of AED 73,267,151.26 was due from Obadiah to Oaklen as a result of the Second Arbitration. As no part of that Award has been satisﬁed to date, interest has continued to accrue on that amount at 5% per annum.",
+    "chunk_summary": "4. The Second Arbitration was commenced by Oaklen against Obadiah 9 June 2020. On 10 March 2023, a Partial Award was issued in favour of Oaklen in the amount of AED 57,803,026.17. A Final Award was issued in that Arbitra...",
+    "party_roles": [
+      {
+        "role": "first_applicant",
+        "name": "Ozias"
+      },
+      {
+        "role": "second_applicant",
+        "name": "Ori"
+      },
+      {
+        "role": "third_applicant",
+        "name": "Octavio"
+      },
+      {
+        "role": "defendant_judgment_debtor",
+        "name": "Obadiah"
+      },
+      {
+        "role": "claimant_judgment_creditor",
+        "name": "Oaklen"
+      }
+    ],
+    "judge_names": [
+      "Wayne Martin",
+      "Delvin Sumo",
+      "Nassir Al Nasser",
+      "Shamlan Al Sawalehi"
+    ],
+    "issue_tags": [
+      "judgment_debtor_means"
+    ],
+    "authority_refs": [],
+    "answer_candidate_types": [
+      "free_text",
+      "date",
+      "number"
+    ]
+  },
+  {
+    "chunk_id": "enf_269_2023_ozias_ori_octavio_v_obadiah_oaklen_para_005",
+    "page_number_1": 4,
+    "page_number_0": 3,
+    "page_id_internal": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_4",
+    "page_id_zero_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_3",
+    "page_id_one_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_4",
+    "chunk_order_in_doc": 34,
+    "chunk_order_in_page": null,
+    "chunk_type": "numbered_reasoning_paragraph",
+    "section_kind_case": "procedural_history",
+    "case_number": "ENF 269/2023",
+    "case_cluster_id": "oaklen_obadiah_ARB-016-2023_cluster",
+    "document_subtype": "order_with_reasons",
+    "paragraph_no": 5,
+    "ground_owner": null,
+    "ground_no": null,
+    "text_clean": "5. On 17 August 2023, Oaklen applied to this Court for an order recognizing and enforcing the Final Award in the Second Arbitration. On 6 September 2023, a Judge of the Court made orders for recognition and enforcement of the Award that were amended and reissued on 27 September 2023. Oaklen then sought and obtained, on 30 October 2023, an order from the Enforcement Judge to the effect that the Amended Order of Recognition and Enforcement was ﬁnal and executory and therefore capable of enforcement.",
+    "chunk_summary": "5. On 17 August 2023, Oaklen applied to this Court for an order recognizing and enforcing the Final Award in the Second Arbitration. On 6 September 2023, a Judge of the Court made orders for recognition and enforcement o...",
+    "party_roles": [
+      {
+        "role": "first_applicant",
+        "name": "Ozias"
+      },
+      {
+        "role": "second_applicant",
+        "name": "Ori"
+      },
+      {
+        "role": "third_applicant",
+        "name": "Octavio"
+      },
+      {
+        "role": "defendant_judgment_debtor",
+        "name": "Obadiah"
+      },
+      {
+        "role": "claimant_judgment_creditor",
+        "name": "Oaklen"
+      }
+    ],
+    "judge_names": [
+      "Wayne Martin",
+      "Delvin Sumo",
+      "Nassir Al Nasser",
+      "Shamlan Al Sawalehi"
+    ],
+    "issue_tags": [],
+    "authority_refs": [
+      "ARB-016-2023"
+    ],
+    "answer_candidate_types": [
+      "free_text",
+      "date",
+      "number"
+    ]
+  },
+  {
+    "chunk_id": "enf_269_2023_ozias_ori_octavio_v_obadiah_oaklen_para_015",
+    "page_number_1": 5,
+    "page_number_0": 4,
+    "page_id_internal": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_5",
+    "page_id_zero_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_4",
+    "page_id_one_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_5",
+    "chunk_order_in_doc": 35,
+    "chunk_order_in_page": null,
+    "chunk_type": "numbered_reasoning_paragraph",
+    "section_kind_case": "appellate_test_or_legal_standard",
+    "case_number": "ENF 269/2023",
+    "case_cluster_id": "oaklen_obadiah_ARB-016-2023_cluster",
+    "document_subtype": "order_with_reasons",
+    "paragraph_no": 15,
+    "ground_owner": null,
+    "ground_no": null,
+    "text_clean": "15. RDC 44.117 provides: “44.117 The Court of Appeal will allow an appeal from the decision of the Court of First Instance where the decision of the lower Court was: (1) Wrong; or (2) Unjust because of a serious procedural or other irregularity in the proceedings in the lower Court.”",
+    "chunk_summary": "15. RDC 44.117 provides: “44.117 The Court of Appeal will allow an appeal from the decision of the Court of First Instance where the decision of the lower Court was: (1) Wrong; or (2) Unjust because of a serious procedur...",
+    "party_roles": [
+      {
+        "role": "first_applicant",
+        "name": "Ozias"
+      },
+      {
+        "role": "second_applicant",
+        "name": "Ori"
+      },
+      {
+        "role": "third_applicant",
+        "name": "Octavio"
+      },
+      {
+        "role": "defendant_judgment_debtor",
+        "name": "Obadiah"
+      },
+      {
+        "role": "claimant_judgment_creditor",
+        "name": "Oaklen"
+      }
+    ],
+    "judge_names": [
+      "Wayne Martin",
+      "Delvin Sumo",
+      "Nassir Al Nasser",
+      "Shamlan Al Sawalehi"
+    ],
+    "issue_tags": [
+      "permission_to_appeal_threshold"
+    ],
+    "authority_refs": [
+      "RDC 44.117"
+    ],
+    "answer_candidate_types": [
+      "free_text"
+    ]
+  },
+  {
+    "chunk_id": "enf_269_2023_ozias_ori_octavio_v_obadiah_oaklen_para_027",
+    "page_number_1": 6,
+    "page_number_0": 5,
+    "page_id_internal": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_6",
+    "page_id_zero_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_5",
+    "page_id_one_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_6",
+    "chunk_order_in_doc": 36,
+    "chunk_order_in_page": null,
+    "chunk_type": "numbered_reasoning_paragraph",
+    "section_kind_case": "evidence_intro",
+    "case_number": "ENF 269/2023",
+    "case_cluster_id": "oaklen_obadiah_ARB-016-2023_cluster",
+    "document_subtype": "order_with_reasons",
+    "paragraph_no": 27,
+    "ground_owner": null,
+    "ground_no": null,
+    "text_clean": "27. The evidence in support of and in opposition to the Part 50 Orders took the form of witness statements and documents. In accordance with standard practice, no witnesses were cross-examined. It is appropriate to review the ﬁndings made by the Enforcement Judge in the context of the evidence that was before him for the purpose of assessing whether there is a real prospect that the appellate court might ﬁnd that the ﬁndings and the orders which he made were not open to him. Mr Osmar’s ﬁrst witness statement 1 2 3 4 5 6 7 [[PAGE_7]]",
+    "chunk_summary": "27. The evidence in support of and in opposition to the Part 50 Orders took the form of witness statements and documents. In accordance with standard practice, no witnesses were cross-examined. It is appropriate to revie...",
+    "party_roles": [
+      {
+        "role": "first_applicant",
+        "name": "Ozias"
+      },
+      {
+        "role": "second_applicant",
+        "name": "Ori"
+      },
+      {
+        "role": "third_applicant",
+        "name": "Octavio"
+      },
+      {
+        "role": "defendant_judgment_debtor",
+        "name": "Obadiah"
+      },
+      {
+        "role": "claimant_judgment_creditor",
+        "name": "Oaklen"
+      }
+    ],
+    "judge_names": [
+      "Wayne Martin",
+      "Delvin Sumo",
+      "Nassir Al Nasser",
+      "Shamlan Al Sawalehi"
+    ],
+    "issue_tags": [],
+    "authority_refs": [],
+    "answer_candidate_types": [
+      "free_text"
+    ]
+  },
+  {
+    "chunk_id": "enf_269_2023_ozias_ori_octavio_v_obadiah_oaklen_para_028",
+    "page_number_1": 7,
+    "page_number_0": 6,
+    "page_id_internal": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_7",
+    "page_id_zero_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_6",
+    "page_id_one_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_7",
+    "chunk_order_in_doc": 37,
+    "chunk_order_in_page": null,
+    "chunk_type": "numbered_reasoning_paragraph",
+    "section_kind_case": "party_evidence_block",
+    "case_number": "ENF 269/2023",
+    "case_cluster_id": "oaklen_obadiah_ARB-016-2023_cluster",
+    "document_subtype": "order_with_reasons",
+    "paragraph_no": 28,
+    "ground_owner": "oaklen",
+    "ground_no": null,
+    "text_clean": "28. The evidence in support of the Part 50 Orders took the form of witness statements provided by Mr Osmar, who is a legal practitioner who has been employed as a Legal Director at Oaklen, together with various documents attached to Mr Osmar’s statements.",
+    "chunk_summary": "28. The evidence in support of the Part 50 Orders took the form of witness statements provided by Mr Osmar, who is a legal practitioner who has been employed as a Legal Director at Oaklen, together with various documents...",
+    "party_roles": [
+      {
+        "role": "first_applicant",
+        "name": "Ozias"
+      },
+      {
+        "role": "second_applicant",
+        "name": "Ori"
+      },
+      {
+        "role": "third_applicant",
+        "name": "Octavio"
+      },
+      {
+        "role": "defendant_judgment_debtor",
+        "name": "Obadiah"
+      },
+      {
+        "role": "claimant_judgment_creditor",
+        "name": "Oaklen"
+      }
+    ],
+    "judge_names": [
+      "Wayne Martin",
+      "Delvin Sumo",
+      "Nassir Al Nasser",
+      "Shamlan Al Sawalehi"
+    ],
+    "issue_tags": [],
+    "authority_refs": [],
+    "answer_candidate_types": [
+      "free_text"
+    ]
+  },
+  {
+    "chunk_id": "enf_269_2023_ozias_ori_octavio_v_obadiah_oaklen_para_029",
+    "page_number_1": 7,
+    "page_number_0": 6,
+    "page_id_internal": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_7",
+    "page_id_zero_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_6",
+    "page_id_one_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_7",
+    "chunk_order_in_doc": 38,
+    "chunk_order_in_page": null,
+    "chunk_type": "numbered_reasoning_paragraph",
+    "section_kind_case": "party_evidence_block",
+    "case_number": "ENF 269/2023",
+    "case_cluster_id": "oaklen_obadiah_ARB-016-2023_cluster",
+    "document_subtype": "order_with_reasons",
+    "paragraph_no": 29,
+    "ground_owner": "oaklen",
+    "ground_no": null,
+    "text_clean": "29. In his ﬁrst statement, Mr Osmar asserted that Obadiah is a limited liability company incorporated in Dubai which Oaklen has always understood to form part of the Oleen, which is a real estate developer in the UAE which conducts business through a complex structure of companies in the UAE and overseas. Mr Osmar stated that he did not understand it to be contested by Obadiah that it is part of the Oleen and the building project which was the subject of the disputes between Oaklen and Obadiah is showcased on the Oleen’s ofﬁcial website as part of its portfolio. According to Mr Osmar, the project was managed by Oleen acting as the representative of the Employer and throughout the execution of the project, Oaklen dealt exclusively with employees of other Oleen companies, including in some instances, Mr Octavio .",
+    "chunk_summary": "29. In his ﬁrst statement, Mr Osmar asserted that Obadiah is a limited liability company incorporated in Dubai which Oaklen has always understood to form part of the Oleen, which is a real estate developer in the UAE whi...",
+    "party_roles": [
+      {
+        "role": "first_applicant",
+        "name": "Ozias"
+      },
+      {
+        "role": "second_applicant",
+        "name": "Ori"
+      },
+      {
+        "role": "third_applicant",
+        "name": "Octavio"
+      },
+      {
+        "role": "defendant_judgment_debtor",
+        "name": "Obadiah"
+      },
+      {
+        "role": "claimant_judgment_creditor",
+        "name": "Oaklen"
+      }
+    ],
+    "judge_names": [
+      "Wayne Martin",
+      "Delvin Sumo",
+      "Nassir Al Nasser",
+      "Shamlan Al Sawalehi"
+    ],
+    "issue_tags": [
+      "judgment_debtor_means"
+    ],
+    "authority_refs": [],
+    "answer_candidate_types": [
+      "free_text"
+    ]
+  },
+  {
+    "chunk_id": "enf_269_2023_ozias_ori_octavio_v_obadiah_oaklen_para_043",
+    "page_number_1": 9,
+    "page_number_0": 8,
+    "page_id_internal": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_9",
+    "page_id_zero_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_8",
+    "page_id_one_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_9",
+    "chunk_order_in_doc": 39,
+    "chunk_order_in_page": null,
+    "chunk_type": "numbered_reasoning_paragraph",
+    "section_kind_case": "party_evidence_block",
+    "case_number": "ENF 269/2023",
+    "case_cluster_id": "oaklen_obadiah_ARB-016-2023_cluster",
+    "document_subtype": "order_with_reasons",
+    "paragraph_no": 43,
+    "ground_owner": "first_applicant",
+    "ground_no": null,
+    "text_clean": "43. Mr Ozias ﬁled a witness statement in support of his Application to Set Aside the Part 50 Orders. Apart from afﬁrming his role as General Manager of Obadiah, in that statement Mr Oziassays nothing whatever in relation to his roles and responsibilities with the company. Nor does he say when he took on the role of Manager, or in what circumstances. In the statement, Mr Ozias asserts that he is not resident in the DIFC, Dubai or any part of the UAE and is resident in and a citizen of Sri Lanka. He states that he was in Sri Lanka at all relevant times when examination orders were made against him. The balance of his statement is directed to advancing legal argument in support of his Application. Mr Olivier’s ﬁrst witness statement",
+    "chunk_summary": "43. Mr Ozias ﬁled a witness statement in support of his Application to Set Aside the Part 50 Orders. Apart from afﬁrming his role as General Manager of Obadiah, in that statement Mr Oziassays nothing whatever in relation...",
+    "party_roles": [
+      {
+        "role": "first_applicant",
+        "name": "Ozias"
+      },
+      {
+        "role": "second_applicant",
+        "name": "Ori"
+      },
+      {
+        "role": "third_applicant",
+        "name": "Octavio"
+      },
+      {
+        "role": "defendant_judgment_debtor",
+        "name": "Obadiah"
+      },
+      {
+        "role": "claimant_judgment_creditor",
+        "name": "Oaklen"
+      }
+    ],
+    "judge_names": [
+      "Wayne Martin",
+      "Delvin Sumo",
+      "Nassir Al Nasser",
+      "Shamlan Al Sawalehi"
+    ],
+    "issue_tags": [
+      "extraterritorial_reach"
+    ],
+    "authority_refs": [],
+    "answer_candidate_types": [
+      "free_text"
+    ]
+  },
+  {
+    "chunk_id": "enf_269_2023_ozias_ori_octavio_v_obadiah_oaklen_para_055",
+    "page_number_1": 10,
+    "page_number_0": 9,
+    "page_id_internal": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_10",
+    "page_id_zero_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_9",
+    "page_id_one_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_10",
+    "chunk_order_in_doc": 40,
+    "chunk_order_in_page": null,
+    "chunk_type": "numbered_reasoning_paragraph",
+    "section_kind_case": "party_evidence_block",
+    "case_number": "ENF 269/2023",
+    "case_cluster_id": "oaklen_obadiah_ARB-016-2023_cluster",
+    "document_subtype": "order_with_reasons",
+    "paragraph_no": 55,
+    "ground_owner": "oaklen_reply",
+    "ground_no": null,
+    "text_clean": "55. Much of Mr Osmar’s second witness statement is concerned with responding to the argumentative assertions contained in Mr Olivier’s ﬁrst statement. However, pertinently to the issues presently under consideration, he observed that in the course of the execution proceedings brought against Obadiah in the UAE Onshore Courts in relation to the First Arbitration, Obadiah represented that it had derived AED 375m in proﬁt from the sale of units in the project. Obviously, that poses a question as to the assets (if any) derived from those proﬁts which is relevant to matters which could be the subject of examination under Part 50. 15 [[PAGE_11]]",
+    "chunk_summary": "55. Much of Mr Osmar’s second witness statement is concerned with responding to the argumentative assertions contained in Mr Olivier’s ﬁrst statement. However, pertinently to the issues presently under consideration, he ...",
+    "party_roles": [
+      {
+        "role": "first_applicant",
+        "name": "Ozias"
+      },
+      {
+        "role": "second_applicant",
+        "name": "Ori"
+      },
+      {
+        "role": "third_applicant",
+        "name": "Octavio"
+      },
+      {
+        "role": "defendant_judgment_debtor",
+        "name": "Obadiah"
+      },
+      {
+        "role": "claimant_judgment_creditor",
+        "name": "Oaklen"
+      }
+    ],
+    "judge_names": [
+      "Wayne Martin",
+      "Delvin Sumo",
+      "Nassir Al Nasser",
+      "Shamlan Al Sawalehi"
+    ],
+    "issue_tags": [
+      "part_50_examination_scope",
+      "judgment_debtor_means"
+    ],
+    "authority_refs": [],
+    "answer_candidate_types": [
+      "free_text"
+    ]
+  },
+  {
+    "chunk_id": "enf_269_2023_ozias_ori_octavio_v_obadiah_oaklen_para_061",
+    "page_number_1": 11,
+    "page_number_0": 10,
+    "page_id_internal": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_11",
+    "page_id_zero_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_10",
+    "page_id_one_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_11",
+    "chunk_order_in_doc": 41,
+    "chunk_order_in_page": null,
+    "chunk_type": "numbered_reasoning_paragraph",
+    "section_kind_case": "evidence_summary",
+    "case_number": "ENF 269/2023",
+    "case_cluster_id": "oaklen_obadiah_ARB-016-2023_cluster",
+    "document_subtype": "order_with_reasons",
+    "paragraph_no": 61,
+    "ground_owner": "court",
+    "ground_no": null,
+    "text_clean": "61. The evidence upon which Oaklen relied came from Mr Osmar, who is a senior employee of Oaklen, and the various documents to which he referred. He gave direct evidence of a meeting with Mr Octavio which he attended, and there is no reason to doubt his evidence with respect to the general nature of the dealings which Oaklen had with Oleen personnel and Mr Octavio.",
+    "chunk_summary": "61. The evidence upon which Oaklen relied came from Mr Osmar, who is a senior employee of Oaklen, and the various documents to which he referred. He gave direct evidence of a meeting with Mr Octavio which he attended, an...",
+    "party_roles": [
+      {
+        "role": "first_applicant",
+        "name": "Ozias"
+      },
+      {
+        "role": "second_applicant",
+        "name": "Ori"
+      },
+      {
+        "role": "third_applicant",
+        "name": "Octavio"
+      },
+      {
+        "role": "defendant_judgment_debtor",
+        "name": "Obadiah"
+      },
+      {
+        "role": "claimant_judgment_creditor",
+        "name": "Oaklen"
+      }
+    ],
+    "judge_names": [
+      "Wayne Martin",
+      "Delvin Sumo",
+      "Nassir Al Nasser",
+      "Shamlan Al Sawalehi"
+    ],
+    "issue_tags": [],
+    "authority_refs": [],
+    "answer_candidate_types": [
+      "free_text"
+    ]
+  },
+  {
+    "chunk_id": "enf_269_2023_ozias_ori_octavio_v_obadiah_oaklen_para_068",
+    "page_number_1": 12,
+    "page_number_0": 11,
+    "page_id_internal": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_12",
+    "page_id_zero_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_11",
+    "page_id_one_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_12",
+    "chunk_order_in_doc": 42,
+    "chunk_order_in_page": null,
+    "chunk_type": "numbered_reasoning_paragraph",
+    "section_kind_case": "lower_court_findings",
+    "case_number": "ENF 269/2023",
+    "case_cluster_id": "oaklen_obadiah_ARB-016-2023_cluster",
+    "document_subtype": "order_with_reasons",
+    "paragraph_no": 68,
+    "ground_owner": "court",
+    "ground_no": null,
+    "text_clean": "68. The Enforcement Judge’s reasons for dismissing the Applications to Set Aside the Part 50 Orders are brieﬂy expressed, following a summary of the submissions presented by the parties.",
+    "chunk_summary": "68. The Enforcement Judge’s reasons for dismissing the Applications to Set Aside the Part 50 Orders are brieﬂy expressed, following a summary of the submissions presented by the parties.",
+    "party_roles": [
+      {
+        "role": "first_applicant",
+        "name": "Ozias"
+      },
+      {
+        "role": "second_applicant",
+        "name": "Ori"
+      },
+      {
+        "role": "third_applicant",
+        "name": "Octavio"
+      },
+      {
+        "role": "defendant_judgment_debtor",
+        "name": "Obadiah"
+      },
+      {
+        "role": "claimant_judgment_creditor",
+        "name": "Oaklen"
+      }
+    ],
+    "judge_names": [
+      "Wayne Martin",
+      "Delvin Sumo",
+      "Nassir Al Nasser",
+      "Shamlan Al Sawalehi"
+    ],
+    "issue_tags": [],
+    "authority_refs": [],
+    "answer_candidate_types": [
+      "free_text"
+    ]
+  },
+  {
+    "chunk_id": "enf_269_2023_ozias_ori_octavio_v_obadiah_oaklen_para_073",
+    "page_number_1": 13,
+    "page_number_0": 12,
+    "page_id_internal": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_13",
+    "page_id_zero_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_12",
+    "page_id_one_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_13",
+    "chunk_order_in_doc": 43,
+    "chunk_order_in_page": null,
+    "chunk_type": "numbered_reasoning_paragraph",
+    "section_kind_case": "ground_statement",
+    "case_number": "ENF 269/2023",
+    "case_cluster_id": "oaklen_obadiah_ARB-016-2023_cluster",
+    "document_subtype": "order_with_reasons",
+    "paragraph_no": 73,
+    "ground_owner": "second_and_third_applicants",
+    "ground_no": "1",
+    "text_clean": "73. The ﬁrst ground of appeal advanced by the Second and Third Applicants is in the following terms: “1. The Judge erred in law and/or as a matter of statutory construction in holding that anyone who has a possibility of holding information needed to enforce a judgment or order is an “ofﬁcer” of a company or other corporation under RDC 50.2(2). The correct interpretation of RDC 50.2(2) is that an “ofﬁcer” is an individual who is likely to hold such information, alternatively, that there is a real prospect that they hold such information.”",
+    "chunk_summary": "73. The ﬁrst ground of appeal advanced by the Second and Third Applicants is in the following terms: “1. The Judge erred in law and/or as a matter of statutory construction in holding that anyone who has a possibility of...",
+    "party_roles": [
+      {
+        "role": "first_applicant",
+        "name": "Ozias"
+      },
+      {
+        "role": "second_applicant",
+        "name": "Ori"
+      },
+      {
+        "role": "third_applicant",
+        "name": "Octavio"
+      },
+      {
+        "role": "defendant_judgment_debtor",
+        "name": "Obadiah"
+      },
+      {
+        "role": "claimant_judgment_creditor",
+        "name": "Oaklen"
+      }
+    ],
+    "judge_names": [
+      "Wayne Martin",
+      "Delvin Sumo",
+      "Nassir Al Nasser",
+      "Shamlan Al Sawalehi"
+    ],
+    "issue_tags": [
+      "rdc_50_officer_definition"
+    ],
+    "authority_refs": [
+      "RDC 50.2(2)"
+    ],
+    "answer_candidate_types": [
+      "free_text"
+    ]
+  },
+  {
+    "chunk_id": "enf_269_2023_ozias_ori_octavio_v_obadiah_oaklen_para_082",
+    "page_number_1": 14,
+    "page_number_0": 13,
+    "page_id_internal": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_14",
+    "page_id_zero_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_13",
+    "page_id_one_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_14",
+    "chunk_order_in_doc": 44,
+    "chunk_order_in_page": null,
+    "chunk_type": "numbered_reasoning_paragraph",
+    "section_kind_case": "ground_statement",
+    "case_number": "ENF 269/2023",
+    "case_cluster_id": "oaklen_obadiah_ARB-016-2023_cluster",
+    "document_subtype": "order_with_reasons",
+    "paragraph_no": 82,
+    "ground_owner": "second_and_third_applicants",
+    "ground_no": "2",
+    "text_clean": "82. Ground 2 provides: “1. Further or alternatively, the Judge erred in law in determining that RDC 50 permits a wide- ranging enquiry into the debtor’s ﬁnancial affairs, such as to deem an “ofﬁcer” anyone with information relevant to (a) the debtor’s past assets; or (b) other possible methods by which the judgment creditor may obtain satisfaction of the debt such as the reversal of past transactions. Only the possession of information material to the judgment debtor’s means to satisfy the judgment, including current or future assets (or other information necessary for that purpose), is relevant in determining whether an individual is an “ofﬁcer” under RDC 50.2(2).”",
+    "chunk_summary": "82. Ground 2 provides: “1. Further or alternatively, the Judge erred in law in determining that RDC 50 permits a wide- ranging enquiry into the debtor’s ﬁnancial affairs, such as to deem an “ofﬁcer” anyone with informati...",
+    "party_roles": [
+      {
+        "role": "first_applicant",
+        "name": "Ozias"
+      },
+      {
+        "role": "second_applicant",
+        "name": "Ori"
+      },
+      {
+        "role": "third_applicant",
+        "name": "Octavio"
+      },
+      {
+        "role": "defendant_judgment_debtor",
+        "name": "Obadiah"
+      },
+      {
+        "role": "claimant_judgment_creditor",
+        "name": "Oaklen"
+      }
+    ],
+    "judge_names": [
+      "Wayne Martin",
+      "Delvin Sumo",
+      "Nassir Al Nasser",
+      "Shamlan Al Sawalehi"
+    ],
+    "issue_tags": [
+      "part_50_examination_scope"
+    ],
+    "authority_refs": [
+      "RDC 50.2(2)"
+    ],
+    "answer_candidate_types": [
+      "free_text"
+    ]
+  },
+  {
+    "chunk_id": "enf_269_2023_ozias_ori_octavio_v_obadiah_oaklen_para_090",
+    "page_number_1": 15,
+    "page_number_0": 14,
+    "page_id_internal": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_15",
+    "page_id_zero_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_14",
+    "page_id_one_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_15",
+    "chunk_order_in_doc": 45,
+    "chunk_order_in_page": null,
+    "chunk_type": "numbered_reasoning_paragraph",
+    "section_kind_case": "ground_statement",
+    "case_number": "ENF 269/2023",
+    "case_cluster_id": "oaklen_obadiah_ARB-016-2023_cluster",
+    "document_subtype": "order_with_reasons",
+    "paragraph_no": 90,
+    "ground_owner": "second_and_third_applicants",
+    "ground_no": "3_or_4",
+    "text_clean": "90. Ground 3 provides: “1. In the alternative to Grounds 1 and 2, the Judge erred in law in holding, without qualiﬁcation, that an “ofﬁcer” is anyone who may be in possession of information needed to enforce a judgment or be able to obtain and provide it. On the true construction of RDC 50.2(2), an “ofﬁcer” must also hold some current and deﬁnable ‘ofﬁce’ or position in the judgment debtor, notwithstanding the Court of Appeal’s decision in Oskar [2024] DIFC CA 009 (“Oskar”): see RDC 50.5(4)(b).”",
+    "chunk_summary": "90. Ground 3 provides: “1. In the alternative to Grounds 1 and 2, the Judge erred in law in holding, without qualiﬁcation, that an “ofﬁcer” is anyone who may be in possession of information needed to enforce a judgment o...",
+    "party_roles": [
+      {
+        "role": "first_applicant",
+        "name": "Ozias"
+      },
+      {
+        "role": "second_applicant",
+        "name": "Ori"
+      },
+      {
+        "role": "third_applicant",
+        "name": "Octavio"
+      },
+      {
+        "role": "defendant_judgment_debtor",
+        "name": "Obadiah"
+      },
+      {
+        "role": "claimant_judgment_creditor",
+        "name": "Oaklen"
+      }
+    ],
+    "judge_names": [
+      "Wayne Martin",
+      "Delvin Sumo",
+      "Nassir Al Nasser",
+      "Shamlan Al Sawalehi"
+    ],
+    "issue_tags": [
+      "rdc_50_officer_definition",
+      "de_facto_officer"
+    ],
+    "authority_refs": [
+      "RDC 50.2(2)",
+      "Oskar"
+    ],
+    "answer_candidate_types": [
+      "free_text"
+    ]
+  },
+  {
+    "chunk_id": "enf_269_2023_ozias_ori_octavio_v_obadiah_oaklen_para_096",
+    "page_number_1": 16,
+    "page_number_0": 15,
+    "page_id_internal": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_16",
+    "page_id_zero_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_15",
+    "page_id_one_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_16",
+    "chunk_order_in_doc": 46,
+    "chunk_order_in_page": null,
+    "chunk_type": "numbered_reasoning_paragraph",
+    "section_kind_case": "party_specific_conclusion",
+    "case_number": "ENF 269/2023",
+    "case_cluster_id": "oaklen_obadiah_ARB-016-2023_cluster",
+    "document_subtype": "order_with_reasons",
+    "paragraph_no": 96,
+    "ground_owner": "second_and_third_applicants",
+    "ground_no": null,
+    "text_clean": "96. None of the grounds of appeal advanced by the Second and Third Applicants has any prospect of success, nor do any of the grounds advanced provide any compelling reason for the grant of permission to appeal. Three of the four grounds proposed proceed upon a false premise and the fourth invites the Court of Appeal to overturn a very recent decision for reasons which do not establish any likelihood of that occurring.",
+    "chunk_summary": "96. None of the grounds of appeal advanced by the Second and Third Applicants has any prospect of success, nor do any of the grounds advanced provide any compelling reason for the grant of permission to appeal. Three of ...",
+    "party_roles": [
+      {
+        "role": "first_applicant",
+        "name": "Ozias"
+      },
+      {
+        "role": "second_applicant",
+        "name": "Ori"
+      },
+      {
+        "role": "third_applicant",
+        "name": "Octavio"
+      },
+      {
+        "role": "defendant_judgment_debtor",
+        "name": "Obadiah"
+      },
+      {
+        "role": "claimant_judgment_creditor",
+        "name": "Oaklen"
+      }
+    ],
+    "judge_names": [
+      "Wayne Martin",
+      "Delvin Sumo",
+      "Nassir Al Nasser",
+      "Shamlan Al Sawalehi"
+    ],
+    "issue_tags": [
+      "permission_to_appeal_threshold"
+    ],
+    "authority_refs": [],
+    "answer_candidate_types": [
+      "free_text"
+    ]
+  },
+  {
+    "chunk_id": "enf_269_2023_ozias_ori_octavio_v_obadiah_oaklen_para_098",
+    "page_number_1": 16,
+    "page_number_0": 15,
+    "page_id_internal": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_16",
+    "page_id_zero_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_15",
+    "page_id_one_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_16",
+    "chunk_order_in_doc": 47,
+    "chunk_order_in_page": null,
+    "chunk_type": "numbered_reasoning_paragraph",
+    "section_kind_case": "ground_statement",
+    "case_number": "ENF 269/2023",
+    "case_cluster_id": "oaklen_obadiah_ARB-016-2023_cluster",
+    "document_subtype": "order_with_reasons",
+    "paragraph_no": 98,
+    "ground_owner": "first_applicant",
+    "ground_no": "1_and_2",
+    "text_clean": "98. Grounds 1 and 2 of the First Applicant’s grounds of appeal are in the following terms: “1. The Judge erred in law and/or as a matter of statutory construction in holding that the Court has jurisdiction to make an order under RDC 50.2(2) against an individual outside the UAE who is not a party to the proceedings. RDC 50.2 confers no such jurisdiction.",
+    "chunk_summary": "98. Grounds 1 and 2 of the First Applicant’s grounds of appeal are in the following terms: “1. The Judge erred in law and/or as a matter of statutory construction in holding that the Court has jurisdiction to make an ord...",
+    "party_roles": [
+      {
+        "role": "first_applicant",
+        "name": "Ozias"
+      },
+      {
+        "role": "second_applicant",
+        "name": "Ori"
+      },
+      {
+        "role": "third_applicant",
+        "name": "Octavio"
+      },
+      {
+        "role": "defendant_judgment_debtor",
+        "name": "Obadiah"
+      },
+      {
+        "role": "claimant_judgment_creditor",
+        "name": "Oaklen"
+      }
+    ],
+    "judge_names": [
+      "Wayne Martin",
+      "Delvin Sumo",
+      "Nassir Al Nasser",
+      "Shamlan Al Sawalehi"
+    ],
+    "issue_tags": [
+      "extraterritorial_reach"
+    ],
+    "authority_refs": [
+      "RDC 50.2(2)"
+    ],
+    "answer_candidate_types": [
+      "free_text"
+    ]
+  },
+  {
+    "chunk_id": "enf_269_2023_ozias_ori_octavio_v_obadiah_oaklen_para_106",
+    "page_number_1": 17,
+    "page_number_0": 16,
+    "page_id_internal": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_17",
+    "page_id_zero_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_16",
+    "page_id_one_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_17",
+    "chunk_order_in_doc": 48,
+    "chunk_order_in_page": null,
+    "chunk_type": "numbered_reasoning_paragraph",
+    "section_kind_case": "ground_reasoning",
+    "case_number": "ENF 269/2023",
+    "case_cluster_id": "oaklen_obadiah_ARB-016-2023_cluster",
+    "document_subtype": "order_with_reasons",
+    "paragraph_no": 106,
+    "ground_owner": "court",
+    "ground_no": "1",
+    "text_clean": "106. Notwithstanding the many obstacles in the path of the success of this ground of appeal, the question of whether a relatively recent decision of the highest Court of England Wales should be applied to the interpretation of Part 50 of the Rules of this Court raises an issue of some importance with respect to the ambit of the jurisdiction of this Court. For that reason, I have concluded that there is a compelling reason why permission to appeal should be granted in respect of ground 1.",
+    "chunk_summary": "106. Notwithstanding the many obstacles in the path of the success of this ground of appeal, the question of whether a relatively recent decision of the highest Court of England Wales should be applied to the interpretat...",
+    "party_roles": [
+      {
+        "role": "first_applicant",
+        "name": "Ozias"
+      },
+      {
+        "role": "second_applicant",
+        "name": "Ori"
+      },
+      {
+        "role": "third_applicant",
+        "name": "Octavio"
+      },
+      {
+        "role": "defendant_judgment_debtor",
+        "name": "Obadiah"
+      },
+      {
+        "role": "claimant_judgment_creditor",
+        "name": "Oaklen"
+      }
+    ],
+    "judge_names": [
+      "Wayne Martin",
+      "Delvin Sumo",
+      "Nassir Al Nasser",
+      "Shamlan Al Sawalehi"
+    ],
+    "issue_tags": [
+      "extraterritorial_reach",
+      "permission_to_appeal_threshold"
+    ],
+    "authority_refs": [],
+    "answer_candidate_types": [
+      "free_text"
+    ]
+  },
+  {
+    "chunk_id": "enf_269_2023_ozias_ori_octavio_v_obadiah_oaklen_para_112",
+    "page_number_1": 18,
+    "page_number_0": 17,
+    "page_id_internal": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_18",
+    "page_id_zero_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_17",
+    "page_id_one_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_18",
+    "chunk_order_in_doc": 49,
+    "chunk_order_in_page": null,
+    "chunk_type": "numbered_reasoning_paragraph",
+    "section_kind_case": "ground_statement",
+    "case_number": "ENF 269/2023",
+    "case_cluster_id": "oaklen_obadiah_ARB-016-2023_cluster",
+    "document_subtype": "order_with_reasons",
+    "paragraph_no": 112,
+    "ground_owner": "first_applicant",
+    "ground_no": "3",
+    "text_clean": "112. Ground 3 of the First Applicant’s grounds of appeal is in the following terms: “3.In the alternative to Grounds 1 and 2 above, the Judge erred in law and in principle by failing to deal with or even to record Mr Ozias’ submission that the categories of disclosure and information sought by the Amended Examination Order went beyond the information necessary to enforce the judgment debt against Obadiah , in circumstances where the purpose of RDC 50 is to obtain such information, not to facilitate a wide-ranging enquiry into the debtor’s ﬁnancial transactions (which would more properly be the subject of insolvency proceedings).”",
+    "chunk_summary": "112. Ground 3 of the First Applicant’s grounds of appeal is in the following terms: “3.In the alternative to Grounds 1 and 2 above, the Judge erred in law and in principle by failing to deal with or even to record Mr Ozi...",
+    "party_roles": [
+      {
+        "role": "first_applicant",
+        "name": "Ozias"
+      },
+      {
+        "role": "second_applicant",
+        "name": "Ori"
+      },
+      {
+        "role": "third_applicant",
+        "name": "Octavio"
+      },
+      {
+        "role": "defendant_judgment_debtor",
+        "name": "Obadiah"
+      },
+      {
+        "role": "claimant_judgment_creditor",
+        "name": "Oaklen"
+      }
+    ],
+    "judge_names": [
+      "Wayne Martin",
+      "Delvin Sumo",
+      "Nassir Al Nasser",
+      "Shamlan Al Sawalehi"
+    ],
+    "issue_tags": [
+      "part_50_examination_scope"
+    ],
+    "authority_refs": [
+      "RDC 50"
+    ],
+    "answer_candidate_types": [
+      "free_text"
+    ]
+  },
+  {
+    "chunk_id": "enf_269_2023_ozias_ori_octavio_v_obadiah_oaklen_para_116",
+    "page_number_1": 19,
+    "page_number_0": 18,
+    "page_id_internal": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_19",
+    "page_id_zero_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_18",
+    "page_id_one_based": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_19",
+    "chunk_order_in_doc": 50,
+    "chunk_order_in_page": null,
+    "chunk_type": "numbered_reasoning_paragraph",
+    "section_kind_case": "party_specific_conclusion",
+    "case_number": "ENF 269/2023",
+    "case_cluster_id": "oaklen_obadiah_ARB-016-2023_cluster",
+    "document_subtype": "order_with_reasons",
+    "paragraph_no": 116,
+    "ground_owner": "first_applicant",
+    "ground_no": "1",
+    "text_clean": "116. For the reasons given, the First Applicant’s Renewed Application will be granted but limited to the ﬁrst ground of appeal. That ground raises a relatively short point of construction of the RDC, and the appeal can be prepared for hearing relatively quickly, given that the issues have already been extensively canvassed in the skeletons served by the parties. Given the delays which have already occurred in relation to the conduct of these examinations, it is appropriate to order a timetable which will facilitate the hearing and disposition of the appeal within the shortest practicable time.",
+    "chunk_summary": "116. For the reasons given, the First Applicant’s Renewed Application will be granted but limited to the ﬁrst ground of appeal. That ground raises a relatively short point of construction of the RDC, and the appeal can b...",
+    "party_roles": [
+      {
+        "role": "first_applicant",
+        "name": "Ozias"
+      },
+      {
+        "role": "second_applicant",
+        "name": "Ori"
+      },
+      {
+        "role": "third_applicant",
+        "name": "Octavio"
+      },
+      {
+        "role": "defendant_judgment_debtor",
+        "name": "Obadiah"
+      },
+      {
+        "role": "claimant_judgment_creditor",
+        "name": "Oaklen"
+      }
+    ],
+    "judge_names": [
+      "Wayne Martin",
+      "Delvin Sumo",
+      "Nassir Al Nasser",
+      "Shamlan Al Sawalehi"
+    ],
+    "issue_tags": [
+      "permission_to_appeal_threshold",
+      "extraterritorial_reach"
+    ],
+    "authority_refs": [],
+    "answer_candidate_types": [
+      "free_text"
+    ]
+  }
+]

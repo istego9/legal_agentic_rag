@@ -1,0 +1,13 @@
+# Configure project commands.
+# Used by python scripts/agentfirst.py verify.
+
+commands:
+  format_check: ".venv/bin/python -m py_compile $(find apps/api/src services packages scripts tests -name '*.py' -type f)"
+  lint: ".venv/bin/python -m compileall apps/api/src services packages scripts tests"
+  test: "PYTHONPATH=apps/api/src:. .venv/bin/python -m pytest tests/contracts tests/integration tests/scorer_regression && cd apps/web && npm run test"
+  typecheck: "cd apps/web && npm run build"
+  build: "cd apps/web && npm run build"
+
+notes:
+  - "Verification covers the extracted Legal RAG backend and product web console."
+  - "Control-panel/workboard validation remains intentionally excluded."

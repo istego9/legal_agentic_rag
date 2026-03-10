@@ -1,0 +1,2670 @@
+openapi: 3.1.0
+info:
+  title: Legal Agentic RAG Internal Platform API
+  version: 0.1.0
+  description: Spec-first API for corpus ingestion, QA runtime, evaluation, gold annotation,
+    and synthetic dataset generation.
+servers:
+- url: https://api.example.internal
+tags:
+- name: Health
+- name: Corpus
+- name: QA
+- name: Runs
+- name: Evaluation
+- name: Gold
+- name: Synthetic
+- name: Config
+paths:
+  /v1/health:
+    get:
+      tags:
+      - Health
+      summary: Service health and version
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  version:
+                    type: string
+                required:
+                - status
+                - version
+  /v1/corpus/import-zip:
+    post:
+      tags:
+      - Corpus
+      summary: Import ZIP of PDFs and start preprocessing
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  job_id:
+                    type: string
+                    format: uuid
+                  status:
+                    type: string
+                required:
+                - job_id
+                - status
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                project_id:
+                  type: string
+                  format: uuid
+                blob_url:
+                  type: string
+                  format: uri
+                parse_policy:
+                  type: string
+                  enum:
+                  - fast
+                  - balanced
+                  - max_quality
+                dedupe_enabled:
+                  type: boolean
+              required:
+              - project_id
+              - blob_url
+              - parse_policy
+              - dedupe_enabled
+  /v1/corpus/documents:
+    get:
+      tags:
+      - Corpus
+      summary: List ingested documents
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DocumentManifest'
+                  total:
+                    type: integer
+                required:
+                - items
+                - total
+  /v1/corpus/documents/{documentId}:
+    get:
+      tags:
+      - Corpus
+      summary: Get one document manifest
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentManifest'
+      parameters:
+      - name: documentId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: Internal document UUID
+  /v1/corpus/pages/{pageId}:
+    get:
+      tags:
+      - Corpus
+      summary: Get one canonical page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  page_id:
+                    type: string
+                  text:
+                    type: string
+                  page_class:
+                    type: string
+                  entities:
+                    type: array
+                    items:
+                      type: string
+                  source_page_id:
+                    type: string
+                required:
+                - page_id
+                - text
+                - page_class
+                - source_page_id
+      parameters:
+      - name: pageId
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Canonical page ID
+  /v1/corpus/paragraphs/{paragraphId}:
+    get:
+      tags:
+      - Corpus
+      summary: Get one paragraph chunk
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParagraphChunk'
+      parameters:
+      - name: paragraphId
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Paragraph ID
+  /v1/corpus/search:
+    post:
+      tags:
+      - Corpus
+      summary: Search corpus paragraphs and pages
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CorpusSearchResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CorpusSearchRequest'
+  /v1/qa/ask:
+    post:
+      tags:
+      - QA
+      summary: Answer a single question and return normalized output
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueryRequest'
+  /v1/qa/ask-batch:
+    post:
+      tags:
+      - QA
+      summary: Answer a batch of questions asynchronously
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  run_id:
+                    type: string
+                    format: uuid
+                  status:
+                    type: string
+                required:
+                - run_id
+                - status
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                project_id:
+                  type: string
+                  format: uuid
+                dataset_id:
+                  type: string
+                  format: uuid
+                question_ids:
+                  type: array
+                  items:
+                    type: string
+                runtime_policy:
+                  type: object
+              required:
+              - project_id
+              - dataset_id
+              - question_ids
+              - runtime_policy
+  /v1/runs/{runId}:
+    get:
+      tags:
+      - Runs
+      summary: Get one inference run
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  run_id:
+                    type: string
+                    format: uuid
+                  dataset_id:
+                    type: string
+                    format: uuid
+                  status:
+                    type: string
+                  question_count:
+                    type: integer
+                  created_at:
+                    type: string
+                    format: date-time
+                required:
+                - run_id
+                - dataset_id
+                - status
+                - question_count
+                - created_at
+      parameters:
+      - name: runId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: Inference run UUID
+  /v1/runs/{runId}/questions/{questionId}:
+    get:
+      tags:
+      - Runs
+      summary: Get one prediction inside a run
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryResponse'
+      parameters:
+      - name: runId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: Inference run UUID
+      - name: questionId
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Question ID
+  /v1/runs/{runId}/export-submission:
+    post:
+      tags:
+      - Runs
+      summary: Export competition submission JSON
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  artifact_url:
+                    type: string
+                    format: uri
+                  question_count:
+                    type: integer
+                required:
+                - artifact_url
+                - question_count
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                page_index_base:
+                  type: integer
+                  enum:
+                  - 0
+                  - 1
+              required:
+              - page_index_base
+      parameters:
+      - name: runId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: Inference run UUID
+  /v1/eval/runs:
+    post:
+      tags:
+      - Evaluation
+      summary: Launch evaluation of a run against a gold dataset
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvalRun'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                run_id:
+                  type: string
+                  format: uuid
+                gold_dataset_id:
+                  type: string
+                  format: uuid
+                scoring_policy_version:
+                  type: string
+                judge_policy_version:
+                  type: string
+              required:
+              - run_id
+              - gold_dataset_id
+              - scoring_policy_version
+              - judge_policy_version
+  /v1/eval/runs/{evalRunId}:
+    get:
+      tags:
+      - Evaluation
+      summary: Get evaluation run status and metrics
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvalRun'
+      parameters:
+      - name: evalRunId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: Evaluation run UUID
+  /v1/eval/runs/{evalRunId}/report:
+    get:
+      tags:
+      - Evaluation
+      summary: Get full evaluation report with question-level breakdown
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  eval_run:
+                    $ref: '#/components/schemas/EvalRun'
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        question_id:
+                          type: string
+                        answer_score:
+                          type: number
+                        grounding_score:
+                          type: number
+                        telemetry_factor:
+                          type: number
+                        ttft_factor:
+                          type: number
+                        overall_proxy:
+                          type: number
+                        error_tags:
+                          type: array
+                          items:
+                            type: string
+                      required:
+                      - question_id
+                      - answer_score
+                      - grounding_score
+                      - telemetry_factor
+                      - ttft_factor
+                      - overall_proxy
+                      - error_tags
+                required:
+                - eval_run
+                - items
+      parameters:
+      - name: evalRunId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: Evaluation run UUID
+  /v1/eval/compare:
+    post:
+      tags:
+      - Evaluation
+      summary: Compare two evaluation runs
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  left_eval_run_id:
+                    type: string
+                    format: uuid
+                  right_eval_run_id:
+                    type: string
+                    format: uuid
+                  metric_deltas:
+                    type: object
+                  question_deltas:
+                    type: array
+                    items:
+                      type: object
+                required:
+                - left_eval_run_id
+                - right_eval_run_id
+                - metric_deltas
+                - question_deltas
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                left_eval_run_id:
+                  type: string
+                  format: uuid
+                right_eval_run_id:
+                  type: string
+                  format: uuid
+              required:
+              - left_eval_run_id
+              - right_eval_run_id
+  /v1/eval/calibrate-judge:
+    post:
+      tags:
+      - Evaluation
+      summary: Calibrate or benchmark free-text judge prompts/models
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  job_id:
+                    type: string
+                    format: uuid
+                  status:
+                    type: string
+                required:
+                - job_id
+                - status
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                gold_dataset_id:
+                  type: string
+                  format: uuid
+                sample_size:
+                  type: integer
+                  minimum: 10
+                judge_policy_version:
+                  type: string
+              required:
+              - gold_dataset_id
+              - sample_size
+              - judge_policy_version
+  /v1/gold/datasets:
+    post:
+      tags:
+      - Gold
+      summary: Create a gold dataset
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoldDataset'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                project_id:
+                  type: string
+                  format: uuid
+                name:
+                  type: string
+                version:
+                  type: string
+                base_dataset_id:
+                  type:
+                  - string
+                  - 'null'
+                  format: uuid
+              required:
+              - project_id
+              - name
+              - version
+  /v1/gold/datasets/{goldDatasetId}:
+    get:
+      tags:
+      - Gold
+      summary: Get one gold dataset
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoldDataset'
+      parameters:
+      - name: goldDatasetId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: Gold dataset UUID
+  /v1/gold/datasets/{goldDatasetId}/questions:
+    post:
+      tags:
+      - Gold
+      summary: Create or import a gold question
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoldQuestion'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoldQuestion'
+      parameters:
+      - name: goldDatasetId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: Gold dataset UUID
+  /v1/gold/questions/{goldQuestionId}:
+    patch:
+      tags:
+      - Gold
+      summary: Update one gold question
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoldQuestion'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoldQuestion'
+      parameters:
+      - name: goldQuestionId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: Gold question UUID
+  /v1/gold/questions/{goldQuestionId}/source-sets:
+    post:
+      tags:
+      - Gold
+      summary: Add an alternative sufficient source set
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  source_set_id:
+                    type: string
+                    format: uuid
+                required:
+                - source_set_id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                is_primary:
+                  type: boolean
+                page_ids:
+                  type: array
+                  items:
+                    type: string
+                  uniqueItems: true
+                notes:
+                  type:
+                  - string
+                  - 'null'
+              required:
+              - is_primary
+              - page_ids
+      parameters:
+      - name: goldQuestionId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: Gold question UUID
+  /v1/gold/questions/{goldQuestionId}/review:
+    post:
+      tags:
+      - Gold
+      summary: Submit review decision for a gold question
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                required:
+                - status
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                decision:
+                  type: string
+                  enum:
+                  - approve
+                  - changes_requested
+                  - lock
+                comment:
+                  type:
+                  - string
+                  - 'null'
+              required:
+              - decision
+      parameters:
+      - name: goldQuestionId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: Gold question UUID
+  /v1/gold/datasets/{goldDatasetId}/lock:
+    post:
+      tags:
+      - Gold
+      summary: Lock a gold dataset version
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                required:
+                - status
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                reason:
+                  type:
+                  - string
+                  - 'null'
+      parameters:
+      - name: goldDatasetId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: Gold dataset UUID
+  /v1/gold/datasets/{goldDatasetId}/export:
+    get:
+      tags:
+      - Gold
+      summary: Export gold dataset JSON
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  artifact_url:
+                    type: string
+                    format: uri
+                required:
+                - artifact_url
+      parameters:
+      - name: goldDatasetId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: Gold dataset UUID
+  /v1/synth/jobs:
+    post:
+      tags:
+      - Synthetic
+      summary: Create a synthetic generation job
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyntheticJob'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SyntheticJob'
+  /v1/synth/jobs/{jobId}:
+    get:
+      tags:
+      - Synthetic
+      summary: Get synthetic generation job status
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyntheticJob'
+      parameters:
+      - name: jobId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: Synthetic job UUID
+  /v1/synth/jobs/{jobId}/preview:
+    post:
+      tags:
+      - Synthetic
+      summary: Preview candidate questions before publication
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        candidate_id:
+                          type: string
+                          format: uuid
+                        question:
+                          type: string
+                        answer_type:
+                          type: string
+                        source_pages:
+                          type: array
+                          items:
+                            type: string
+                      required:
+                      - candidate_id
+                      - question
+                      - answer_type
+                      - source_pages
+                required:
+                - items
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                limit:
+                  type: integer
+                  minimum: 1
+                  maximum: 100
+              required:
+              - limit
+      parameters:
+      - name: jobId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: Synthetic job UUID
+  /v1/synth/items/{candidateId}/approve:
+    post:
+      tags:
+      - Synthetic
+      summary: Approve, reject, or edit a synthetic candidate
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                required:
+                - status
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                decision:
+                  type: string
+                  enum:
+                  - approve
+                  - reject
+                  - edit
+                edited_question:
+                  type:
+                  - string
+                  - 'null'
+                edited_answer:
+                  type:
+                  - string
+                  - number
+                  - boolean
+                  - 'null'
+                  - array
+                edited_source_pages:
+                  type:
+                  - array
+                  - 'null'
+                  items:
+                    type: string
+              required:
+              - decision
+      parameters:
+      - name: candidateId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: Synthetic candidate UUID
+  /v1/synth/jobs/{jobId}/publish:
+    post:
+      tags:
+      - Synthetic
+      summary: Publish approved synthetic candidates as a dataset
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  dataset_id:
+                    type: string
+                    format: uuid
+                  artifact_url:
+                    type: string
+                    format: uri
+                required:
+                - dataset_id
+                - artifact_url
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                dataset_name:
+                  type: string
+                version:
+                  type: string
+              required:
+              - dataset_name
+              - version
+      parameters:
+      - name: jobId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: Synthetic job UUID
+  /v1/config/scoring-policies:
+    get:
+      tags:
+      - Config
+      summary: List scoring policies
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                required:
+                - items
+    post:
+      tags:
+      - Config
+      summary: Create or update scoring policy
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                required:
+                - status
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                policy_version:
+                  type: string
+                policy_type:
+                  type: string
+                  enum:
+                  - contest_emulation
+                  - internal_strict
+                beta:
+                  type: number
+                  minimum: 0
+                ttft_curve:
+                  type: object
+                telemetry_policy:
+                  type: string
+              required:
+              - policy_version
+              - policy_type
+              - beta
+              - ttft_curve
+              - telemetry_policy
+components:
+  schemas:
+    PageRef:
+      title: PageRef
+      description: Canonical PDF page reference used in evaluation and submission.
+      type: object
+      additionalProperties: false
+      properties:
+        project_id:
+          type: string
+          format: uuid
+        document_id:
+          type: string
+          format: uuid
+        pdf_id:
+          type: string
+          pattern: ^[A-Za-z0-9._-]+$
+        page_num:
+          type: integer
+          minimum: 0
+        page_index_base:
+          type: integer
+          enum:
+          - 0
+          - 1
+        source_page_id:
+          type: string
+          pattern: ^[A-Za-z0-9._-]+_[0-9]+$
+        used:
+          type: boolean
+        evidence_role:
+          type: string
+          enum:
+          - primary
+          - supporting
+          - title
+          - lineage
+          - negative_check
+        score:
+          type: number
+          minimum: 0
+          maximum: 1
+      required:
+      - pdf_id
+      - page_num
+      - page_index_base
+      - source_page_id
+      - used
+    Telemetry:
+      title: Telemetry
+      description: Per-answer telemetry captured for competition submission and internal
+        evaluation.
+      type: object
+      additionalProperties: false
+      properties:
+        request_started_at:
+          type: string
+          format: date-time
+        first_token_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        completed_at:
+          type: string
+          format: date-time
+        ttft_ms:
+          type: integer
+          minimum: 0
+        total_response_ms:
+          type: integer
+          minimum: 0
+        time_per_output_token_ms:
+          type:
+          - number
+          - 'null'
+          minimum: 0
+        input_tokens:
+          type: integer
+          minimum: 0
+        output_tokens:
+          type: integer
+          minimum: 0
+        model_name:
+          type: string
+        route_name:
+          type: string
+        judge_model_name:
+          type:
+          - string
+          - 'null'
+        search_profile:
+          type: string
+        telemetry_complete:
+          type: boolean
+        trace_id:
+          type: string
+      required:
+      - request_started_at
+      - completed_at
+      - ttft_ms
+      - total_response_ms
+      - input_tokens
+      - output_tokens
+      - model_name
+      - route_name
+      - telemetry_complete
+    Question:
+      title: Question
+      description: Competition or internal question unit.
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        dataset_id:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        question:
+          type: string
+          minLength: 1
+        answer_type:
+          type: string
+          enum:
+          - boolean
+          - number
+          - date
+          - name
+          - names
+          - free_text
+        source:
+          type: string
+          enum:
+          - public_competition
+          - private_competition
+          - internal_gold
+          - synthetic
+          - manual
+        difficulty:
+          type: string
+          enum:
+          - easy
+          - medium
+          - hard
+          - adversarial
+        route_hint:
+          type:
+          - string
+          - 'null'
+          enum:
+          - article_lookup
+          - single_case_extraction
+          - cross_case_compare
+          - cross_law_compare
+          - history_lineage
+          - no_answer
+          - null
+        tags:
+          type: array
+          items:
+            type: string
+          uniqueItems: true
+      required:
+      - id
+      - question
+      - answer_type
+    QueryRequest:
+      title: QueryRequest
+      description: Single question inference request.
+      type: object
+      additionalProperties: false
+      properties:
+        project_id:
+          type: string
+          format: uuid
+        question:
+          $ref: '#/$defs/question'
+        runtime_policy:
+          type: object
+          additionalProperties: false
+          properties:
+            use_llm:
+              type: boolean
+            max_candidate_pages:
+              type: integer
+              minimum: 1
+              maximum: 100
+            max_context_paragraphs:
+              type: integer
+              minimum: 1
+              maximum: 64
+            page_index_base_export:
+              type: integer
+              enum:
+              - 0
+              - 1
+            scoring_policy_version:
+              type: string
+            allow_dense_fallback:
+              type: boolean
+            return_debug_trace:
+              type: boolean
+          required:
+          - use_llm
+          - max_candidate_pages
+          - max_context_paragraphs
+          - page_index_base_export
+          - scoring_policy_version
+          - allow_dense_fallback
+      required:
+      - project_id
+      - question
+      - runtime_policy
+      $defs:
+        question:
+          $schema: https://json-schema.org/draft/2020-12/schema
+          title: Question
+          description: Competition or internal question unit.
+          type: object
+          additionalProperties: false
+          properties:
+            id:
+              type: string
+            dataset_id:
+              type:
+              - string
+              - 'null'
+              format: uuid
+            question:
+              type: string
+              minLength: 1
+            answer_type:
+              type: string
+              enum:
+              - boolean
+              - number
+              - date
+              - name
+              - names
+              - free_text
+            source:
+              type: string
+              enum:
+              - public_competition
+              - private_competition
+              - internal_gold
+              - synthetic
+              - manual
+            difficulty:
+              type: string
+              enum:
+              - easy
+              - medium
+              - hard
+              - adversarial
+            route_hint:
+              type:
+              - string
+              - 'null'
+              enum:
+              - article_lookup
+              - single_case_extraction
+              - cross_case_compare
+              - cross_law_compare
+              - history_lineage
+              - no_answer
+              - null
+            tags:
+              type: array
+              items:
+                type: string
+              uniqueItems: true
+          required:
+          - id
+          - question
+          - answer_type
+    QueryResponse:
+      title: QueryResponse
+      description: Normalized answer plus sources and debug metadata.
+      type: object
+      additionalProperties: false
+      properties:
+        question_id:
+          type: string
+        answer:
+          type:
+          - string
+          - number
+          - boolean
+          - 'null'
+          - array
+        answer_normalized:
+          type:
+          - string
+          - 'null'
+        answer_type:
+          type: string
+          enum:
+          - boolean
+          - number
+          - date
+          - name
+          - names
+          - free_text
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+        route_name:
+          type: string
+        abstained:
+          type: boolean
+        sources:
+          type: array
+          items:
+            $ref: '#/$defs/page_ref'
+        telemetry:
+          $ref: '#/$defs/telemetry'
+        debug:
+          type: object
+          additionalProperties: false
+          properties:
+            entities:
+              type: array
+              items:
+                type: object
+            candidate_pages:
+              type: array
+              items:
+                $ref: '#/$defs/page_ref'
+            policy_version:
+              type: string
+            trace_url:
+              type:
+              - string
+              - 'null'
+          required:
+          - policy_version
+      required:
+      - question_id
+      - answer
+      - answer_type
+      - confidence
+      - route_name
+      - abstained
+      - sources
+      - telemetry
+      $defs:
+        page_ref:
+          $schema: https://json-schema.org/draft/2020-12/schema
+          title: PageRef
+          description: Canonical PDF page reference used in evaluation and submission.
+          type: object
+          additionalProperties: false
+          properties:
+            project_id:
+              type: string
+              format: uuid
+            document_id:
+              type: string
+              format: uuid
+            pdf_id:
+              type: string
+              pattern: ^[A-Za-z0-9._-]+$
+            page_num:
+              type: integer
+              minimum: 0
+            page_index_base:
+              type: integer
+              enum:
+              - 0
+              - 1
+            source_page_id:
+              type: string
+              pattern: ^[A-Za-z0-9._-]+_[0-9]+$
+            used:
+              type: boolean
+            evidence_role:
+              type: string
+              enum:
+              - primary
+              - supporting
+              - title
+              - lineage
+              - negative_check
+            score:
+              type: number
+              minimum: 0
+              maximum: 1
+          required:
+          - pdf_id
+          - page_num
+          - page_index_base
+          - source_page_id
+          - used
+        telemetry:
+          $schema: https://json-schema.org/draft/2020-12/schema
+          title: Telemetry
+          description: Per-answer telemetry captured for competition submission and
+            internal evaluation.
+          type: object
+          additionalProperties: false
+          properties:
+            request_started_at:
+              type: string
+              format: date-time
+            first_token_at:
+              type:
+              - string
+              - 'null'
+              format: date-time
+            completed_at:
+              type: string
+              format: date-time
+            ttft_ms:
+              type: integer
+              minimum: 0
+            total_response_ms:
+              type: integer
+              minimum: 0
+            time_per_output_token_ms:
+              type:
+              - number
+              - 'null'
+              minimum: 0
+            input_tokens:
+              type: integer
+              minimum: 0
+            output_tokens:
+              type: integer
+              minimum: 0
+            model_name:
+              type: string
+            route_name:
+              type: string
+            judge_model_name:
+              type:
+              - string
+              - 'null'
+            search_profile:
+              type: string
+            telemetry_complete:
+              type: boolean
+            trace_id:
+              type: string
+          required:
+          - request_started_at
+          - completed_at
+          - ttft_ms
+          - total_response_ms
+          - input_tokens
+          - output_tokens
+          - model_name
+          - route_name
+          - telemetry_complete
+    SubmissionAnswer:
+      title: SubmissionAnswer
+      description: Per-question object written into competition JSON submission.
+      type: object
+      additionalProperties: false
+      properties:
+        question_id:
+          type: string
+        answer:
+          type:
+          - string
+          - number
+          - boolean
+          - 'null'
+          - array
+        sources:
+          type: array
+          items:
+            type: string
+            pattern: ^[A-Za-z0-9._-]+_[0-9]+$
+        telemetry:
+          $ref: '#/$defs/telemetry'
+      required:
+      - question_id
+      - answer
+      - sources
+      - telemetry
+      $defs:
+        telemetry:
+          $schema: https://json-schema.org/draft/2020-12/schema
+          title: Telemetry
+          description: Per-answer telemetry captured for competition submission and
+            internal evaluation.
+          type: object
+          additionalProperties: false
+          properties:
+            request_started_at:
+              type: string
+              format: date-time
+            first_token_at:
+              type:
+              - string
+              - 'null'
+              format: date-time
+            completed_at:
+              type: string
+              format: date-time
+            ttft_ms:
+              type: integer
+              minimum: 0
+            total_response_ms:
+              type: integer
+              minimum: 0
+            time_per_output_token_ms:
+              type:
+              - number
+              - 'null'
+              minimum: 0
+            input_tokens:
+              type: integer
+              minimum: 0
+            output_tokens:
+              type: integer
+              minimum: 0
+            model_name:
+              type: string
+            route_name:
+              type: string
+            judge_model_name:
+              type:
+              - string
+              - 'null'
+            search_profile:
+              type: string
+            telemetry_complete:
+              type: boolean
+            trace_id:
+              type: string
+          required:
+          - request_started_at
+          - completed_at
+          - ttft_ms
+          - total_response_ms
+          - input_tokens
+          - output_tokens
+          - model_name
+          - route_name
+          - telemetry_complete
+    GoldQuestion:
+      title: GoldQuestion
+      description: Reviewed gold annotation entry with canonical answer and one or
+        more sufficient source sets.
+      type: object
+      additionalProperties: false
+      properties:
+        gold_question_id:
+          type: string
+          format: uuid
+        question_id:
+          type: string
+        gold_dataset_id:
+          type: string
+          format: uuid
+        canonical_answer:
+          type:
+          - string
+          - number
+          - boolean
+          - 'null'
+          - array
+        acceptable_answers:
+          type: array
+          items:
+            type:
+            - string
+            - number
+            - boolean
+            - 'null'
+            - array
+        answer_type:
+          type: string
+          enum:
+          - boolean
+          - number
+          - date
+          - name
+          - names
+          - free_text
+        source_sets:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              source_set_id:
+                type: string
+                format: uuid
+              is_primary:
+                type: boolean
+              page_ids:
+                type: array
+                items:
+                  type: string
+                minItems: 0
+                uniqueItems: true
+              notes:
+                type:
+                - string
+                - 'null'
+            required:
+            - source_set_id
+            - is_primary
+            - page_ids
+          minItems: 1
+        review_status:
+          type: string
+          enum:
+          - draft
+          - reviewed
+          - locked
+        reviewers:
+          type: array
+          items:
+            type: string
+        notes:
+          type:
+          - string
+          - 'null'
+      required:
+      - gold_question_id
+      - question_id
+      - gold_dataset_id
+      - canonical_answer
+      - answer_type
+      - source_sets
+      - review_status
+    GoldDataset:
+      title: GoldDataset
+      description: Versioned gold dataset definition.
+      type: object
+      additionalProperties: false
+      properties:
+        gold_dataset_id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        version:
+          type: string
+        status:
+          type: string
+          enum:
+          - draft
+          - review
+          - locked
+          - archived
+        base_dataset_id:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        question_count:
+          type: integer
+          minimum: 0
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+      - gold_dataset_id
+      - project_id
+      - name
+      - version
+      - status
+      - question_count
+      - created_at
+      - updated_at
+    EvalRun:
+      title: EvalRun
+      description: Evaluation run against a gold dataset.
+      type: object
+      additionalProperties: false
+      properties:
+        eval_run_id:
+          type: string
+          format: uuid
+        run_id:
+          type: string
+          format: uuid
+        gold_dataset_id:
+          type: string
+          format: uuid
+        scoring_policy_version:
+          type: string
+        judge_policy_version:
+          type: string
+        status:
+          type: string
+          enum:
+          - queued
+          - running
+          - completed
+          - failed
+        metrics:
+          type: object
+          additionalProperties: false
+          properties:
+            answer_score_mean:
+              type: number
+            grounding_score_mean:
+              type: number
+            telemetry_factor:
+              type: number
+            ttft_factor:
+              type: number
+            overall_score:
+              type: number
+            source_precision:
+              type: number
+            source_recall:
+              type: number
+            source_f_beta:
+              type: number
+            no_answer_precision:
+              type: number
+            no_answer_recall:
+              type: number
+            p50_ttft_ms:
+              type: integer
+            p95_ttft_ms:
+              type: integer
+          required:
+          - answer_score_mean
+          - grounding_score_mean
+          - telemetry_factor
+          - ttft_factor
+          - overall_score
+          - source_precision
+          - source_recall
+          - source_f_beta
+      required:
+      - eval_run_id
+      - run_id
+      - gold_dataset_id
+      - scoring_policy_version
+      - judge_policy_version
+      - status
+      - metrics
+    SyntheticJob:
+      title: SyntheticJob
+      description: Synthetic dataset generation job.
+      type: object
+      additionalProperties: false
+      properties:
+        job_id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum:
+          - queued
+          - running
+          - review
+          - published
+          - failed
+          - cancelled
+        source_scope:
+          type: object
+          additionalProperties: false
+          properties:
+            document_ids:
+              type: array
+              items:
+                type: string
+            doc_types:
+              type: array
+              items:
+                type: string
+            date_range:
+              type:
+              - object
+              - 'null'
+              additionalProperties: false
+              properties:
+                from:
+                  type: string
+                  format: date
+                to:
+                  type: string
+                  format: date
+              required:
+              - from
+              - to
+          required:
+          - document_ids
+          - doc_types
+        generation_policy:
+          type: object
+          additionalProperties: false
+          properties:
+            target_count:
+              type: integer
+              minimum: 1
+            answer_type_mix:
+              type: object
+              additionalProperties:
+                type: number
+                minimum: 0
+                maximum: 1
+            route_mix:
+              type: object
+              additionalProperties:
+                type: number
+                minimum: 0
+                maximum: 1
+            adversarial_ratio:
+              type: number
+              minimum: 0
+              maximum: 1
+            paraphrase_ratio:
+              type: number
+              minimum: 0
+              maximum: 1
+            require_human_review:
+              type: boolean
+          required:
+          - target_count
+          - answer_type_mix
+          - route_mix
+          - adversarial_ratio
+          - paraphrase_ratio
+          - require_human_review
+      required:
+      - job_id
+      - project_id
+      - status
+      - source_scope
+      - generation_policy
+    DocumentManifest:
+      title: DocumentManifest
+      description: Canonical document metadata produced by ingestion.
+      type: object
+      additionalProperties: false
+      properties:
+        document_id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        pdf_id:
+          type: string
+        canonical_doc_id:
+          type: string
+        content_hash:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+        doc_type:
+          type: string
+          enum:
+          - law
+          - regulation
+          - enactment_notice
+          - case
+          - other
+        title:
+          type:
+          - string
+          - 'null'
+        citation_title:
+          type:
+          - string
+          - 'null'
+        law_number:
+          type:
+          - string
+          - 'null'
+        case_id:
+          type:
+          - string
+          - 'null'
+        year:
+          type:
+          - integer
+          - 'null'
+        edition_date:
+          type:
+          - string
+          - 'null'
+          format: date
+        page_count:
+          type: integer
+          minimum: 1
+        duplicate_group_id:
+          type:
+          - string
+          - 'null'
+        status:
+          type: string
+          enum:
+          - parsed
+          - indexed
+          - failed
+        title_raw:
+          type:
+          - string
+          - 'null'
+        title_normalized:
+          type:
+          - string
+          - 'null'
+        short_title:
+          type:
+          - string
+          - 'null'
+        language:
+          type:
+          - string
+          - 'null'
+        jurisdiction:
+          type:
+          - string
+          - 'null'
+        issued_date:
+          type:
+          - string
+          - 'null'
+        effective_start_date:
+          type:
+          - string
+          - 'null'
+        effective_end_date:
+          type:
+          - string
+          - 'null'
+        is_current_version:
+          type:
+          - boolean
+          - 'null'
+        version_group_id:
+          type:
+          - string
+          - 'null'
+        version_sequence:
+          type:
+          - integer
+          - 'null'
+        supersedes_doc_id:
+          type:
+          - string
+          - 'null'
+        superseded_by_doc_id:
+          type:
+          - string
+          - 'null'
+        parser_version:
+          type:
+          - string
+          - 'null'
+        ocr_used:
+          type:
+          - boolean
+          - 'null'
+        extraction_confidence:
+          type:
+          - number
+          - 'null'
+          minimum: 0
+          maximum: 1
+        ingested_at:
+          type:
+          - string
+          - 'null'
+        last_reprocessed_at:
+          type:
+          - string
+          - 'null'
+        topic_tags:
+          type: array
+          items:
+            type: string
+        legal_domains:
+          type: array
+          items:
+            type: string
+        entity_names:
+          type: array
+          items:
+            type: string
+        citation_keys:
+          type: array
+          items:
+            type: string
+        search_text_compact:
+          type:
+          - string
+          - 'null'
+        search_priority_score:
+          type:
+          - number
+          - 'null'
+      required:
+      - document_id
+      - project_id
+      - pdf_id
+      - canonical_doc_id
+      - content_hash
+      - doc_type
+      - page_count
+      - status
+    ParagraphChunk:
+      title: ParagraphChunk
+      description: Atomic retrieval unit stored with rich metadata.
+      type: object
+      additionalProperties: false
+      properties:
+        paragraph_id:
+          type: string
+        page_id:
+          type: string
+        document_id:
+          type: string
+        paragraph_index:
+          type: integer
+          minimum: 0
+        heading_path:
+          type: array
+          items:
+            type: string
+        text:
+          type: string
+        summary_tag:
+          type:
+          - string
+          - 'null'
+        paragraph_class:
+          type: string
+        entities:
+          type: array
+          items:
+            type: string
+        article_refs:
+          type: array
+          items:
+            type: string
+        law_refs:
+          type: array
+          items:
+            type: string
+        case_refs:
+          type: array
+          items:
+            type: string
+        dates:
+          type: array
+          items:
+            type: string
+        money_mentions:
+          type: array
+          items:
+            type: string
+        version_lineage_id:
+          type:
+          - string
+          - 'null'
+        embedding_vector_id:
+          type:
+          - string
+          - 'null'
+        chunk_type:
+          type:
+          - string
+          - 'null'
+        chunk_index_on_page:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+        char_start:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+        char_end:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+        text_clean:
+          type:
+          - string
+          - 'null'
+        text_compact:
+          type:
+          - string
+          - 'null'
+        retrieval_text:
+          type:
+          - string
+          - 'null'
+        section_kind:
+          type:
+          - string
+          - 'null'
+        entity_names_normalized:
+          type: array
+          items:
+            type: string
+        schedule_refs:
+          type: array
+          items:
+            type: string
+        roles:
+          type: array
+          items:
+            type: string
+        topic_tags:
+          type: array
+          items:
+            type: string
+        legal_action_tags:
+          type: array
+          items:
+            type: string
+        effective_start_date:
+          type:
+          - string
+          - 'null'
+        effective_end_date:
+          type:
+          - string
+          - 'null'
+        is_current_version:
+          type:
+          - boolean
+          - 'null'
+        canonical_concept_id:
+          type:
+          - string
+          - 'null'
+        historical_relation_type:
+          type:
+          - string
+          - 'null'
+        exact_terms:
+          type: array
+          items:
+            type: string
+        search_keywords:
+          type: array
+          items:
+            type: string
+        rank_hints:
+          type: array
+          items:
+            type: string
+        answer_candidate_types:
+          type: array
+          items:
+            type: string
+        confidence_score:
+          type:
+          - number
+          - 'null'
+          minimum: 0
+          maximum: 1
+        parser_flags:
+          type: array
+          items:
+            type: string
+        extraction_method:
+          type:
+          - string
+          - 'null'
+        tagging_model_version:
+          type:
+          - string
+          - 'null'
+        last_tagged_at:
+          type:
+          - string
+          - 'null'
+      required:
+      - paragraph_id
+      - page_id
+      - document_id
+      - paragraph_index
+      - heading_path
+      - text
+      - paragraph_class
+    SearchFilters:
+      title: SearchFilters
+      type: object
+      additionalProperties: false
+      properties:
+        doc_type:
+          type:
+          - string
+          - 'null'
+          enum:
+          - law
+          - regulation
+          - enactment_notice
+          - case
+          - other
+        status:
+          type:
+          - string
+          - 'null'
+        effective_start_date:
+          type:
+          - string
+          - 'null'
+        effective_end_date:
+          type:
+          - string
+          - 'null'
+        is_current_version:
+          type:
+          - boolean
+          - 'null'
+        law_number:
+          type:
+          - string
+          - 'null'
+        article_number:
+          type:
+          - string
+          - 'null'
+        regulation_number:
+          type:
+          - string
+          - 'null'
+        notice_number:
+          type:
+          - string
+          - 'null'
+        case_number:
+          type:
+          - string
+          - 'null'
+        court_name:
+          type:
+          - string
+          - 'null'
+        target_doc_id:
+          type:
+          - string
+          - 'null'
+        version_lineage_id:
+          type:
+          - string
+          - 'null'
+        canonical_concept_id:
+          type:
+          - string
+          - 'null'
+        edge_type:
+          type:
+          - string
+          - 'null'
+          enum:
+          - amends
+          - amended_by
+          - repeals
+          - supersedes
+          - restates
+          - refers_to
+          - enabled_by
+          - comes_into_force_via
+          - same_legal_concept_as
+          - cites
+          - overrules
+          - same_party_as
+          - same_judge_as
+        enabled_by_law_id:
+          type:
+          - string
+          - 'null'
+        provision_kind:
+          type:
+          - string
+          - 'null'
+          enum:
+          - definition
+          - right
+          - obligation
+          - prohibition
+          - exemption
+          - penalty
+          - procedure
+          - administrative_power
+          - interpretation
+        decision_date:
+          type:
+          - string
+          - 'null'
+    CorpusSearchRequest:
+      title: CorpusSearchRequest
+      type: object
+      additionalProperties: false
+      properties:
+        project_id:
+          type: string
+          format: uuid
+        query:
+          type: string
+          minLength: 1
+        search_profile:
+          type: string
+        top_k:
+          type: integer
+          minimum: 1
+          maximum: 100
+        filters:
+          anyOf:
+          - $ref: '#/components/schemas/SearchFilters'
+          - type: 'null'
+      required:
+      - project_id
+      - query
+      - search_profile
+      - top_k
+    ChunkSearchDocument:
+      title: ChunkSearchDocument
+      type: object
+      additionalProperties: false
+      properties:
+        chunk_id:
+          type: string
+        document_id:
+          type: string
+        pdf_id:
+          type: string
+        page_id:
+          type: string
+        page_number:
+          type: integer
+        doc_type:
+          type: string
+          enum:
+          - law
+          - regulation
+          - enactment_notice
+          - case
+          - other
+        title_normalized:
+          type:
+          - string
+          - 'null'
+        short_title:
+          type:
+          - string
+          - 'null'
+        jurisdiction:
+          type:
+          - string
+          - 'null'
+        status:
+          type:
+          - string
+          - 'null'
+        is_current_version:
+          type:
+          - boolean
+          - 'null'
+        effective_start_date:
+          type:
+          - string
+          - 'null'
+        effective_end_date:
+          type:
+          - string
+          - 'null'
+        heading_path:
+          type: array
+          items:
+            type: string
+        section_kind:
+          type:
+          - string
+          - 'null'
+        text_clean:
+          type: string
+        retrieval_text:
+          type: string
+        entity_names:
+          type: array
+          items:
+            type: string
+        article_refs:
+          type: array
+          items:
+            type: string
+        dates:
+          type: array
+          items:
+            type: string
+        money_values:
+          type: array
+          items:
+            type: string
+        exact_terms:
+          type: array
+          items:
+            type: string
+        search_keywords:
+          type: array
+          items:
+            type: string
+        version_lineage_id:
+          type:
+          - string
+          - 'null'
+        canonical_concept_id:
+          type:
+          - string
+          - 'null'
+        historical_relation_type:
+          type:
+          - string
+          - 'null'
+        law_number:
+          type:
+          - string
+          - 'null'
+        regulation_number:
+          type:
+          - string
+          - 'null'
+        notice_number:
+          type:
+          - string
+          - 'null'
+        case_number:
+          type:
+          - string
+          - 'null'
+        court_name:
+          type:
+          - string
+          - 'null'
+        decision_date:
+          type:
+          - string
+          - 'null'
+        article_number:
+          type:
+          - string
+          - 'null'
+        section_ref:
+          type:
+          - string
+          - 'null'
+        provision_kind:
+          type:
+          - string
+          - 'null'
+          enum:
+          - definition
+          - right
+          - obligation
+          - prohibition
+          - exemption
+          - penalty
+          - procedure
+          - administrative_power
+          - interpretation
+        enabled_by_law_id:
+          type:
+          - string
+          - 'null'
+        target_doc_id:
+          type:
+          - string
+          - 'null'
+        target_article_refs:
+          type: array
+          items:
+            type: string
+        commencement_date:
+          type:
+          - string
+          - 'null'
+        commencement_scope_type:
+          type:
+          - string
+          - 'null'
+        judge_names:
+          type: array
+          items:
+            type: string
+        party_names_normalized:
+          type: array
+          items:
+            type: string
+        final_disposition:
+          type:
+          - string
+          - 'null'
+        edge_types:
+          type: array
+          items:
+            type: string
+      required:
+      - chunk_id
+      - document_id
+      - pdf_id
+      - page_id
+      - page_number
+      - doc_type
+      - text_clean
+      - retrieval_text
+    CorpusSearchItem:
+      title: CorpusSearchItem
+      type: object
+      additionalProperties: false
+      properties:
+        paragraph_id:
+          type: string
+        page_id:
+          type: string
+        score:
+          type: number
+        snippet:
+          type: string
+        source_page_id:
+          type: string
+        pdf_id:
+          type: string
+        page_num:
+          type: integer
+        document_id:
+          type: string
+        chunk_projection:
+          anyOf:
+          - $ref: '#/components/schemas/ChunkSearchDocument'
+          - type: 'null'
+      required:
+      - paragraph_id
+      - page_id
+      - score
+      - snippet
+      - source_page_id
+      - pdf_id
+      - page_num
+      - document_id
+    CorpusSearchResponse:
+      title: CorpusSearchResponse
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CorpusSearchItem'
+      required:
+      - items
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+- bearerAuth: []

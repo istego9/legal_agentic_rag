@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "full_judgment_case_page.schema.json",
+  "title": "FullJudgmentCasePage",
+  "type": "object",
+  "required": [
+    "page_number_1",
+    "page_class"
+  ],
+  "properties": {
+    "page_number_1": {
+      "type": "integer"
+    },
+    "page_number_0": {
+      "type": "integer"
+    },
+    "page_id_internal": {
+      "type": "string"
+    },
+    "page_id_zero_based": {
+      "type": "string"
+    },
+    "page_id_one_based": {
+      "type": "string"
+    },
+    "page_class": {
+      "type": "string"
+    },
+    "contains": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

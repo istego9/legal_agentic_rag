@@ -1,0 +1,295 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ParagraphChunk",
+  "description": "Atomic retrieval unit stored with rich metadata.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "paragraph_id": {
+      "type": "string"
+    },
+    "page_id": {
+      "type": "string"
+    },
+    "document_id": {
+      "type": "string"
+    },
+    "paragraph_index": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "heading_path": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "text": {
+      "type": "string"
+    },
+    "summary_tag": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "paragraph_class": {
+      "type": "string"
+    },
+    "entities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "article_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "law_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "case_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dates": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "money_mentions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "version_lineage_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "embedding_vector_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "chunk_type": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "chunk_index_on_page": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "char_start": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "char_end": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "text_clean": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "text_compact": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "retrieval_text": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "heading_path_full": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "section_kind": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "structural_level": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "parent_section_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "prev_chunk_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "next_chunk_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "entity_names_normalized": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "schedule_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "roles": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "topic_tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "legal_action_tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "effective_start_date": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "effective_end_date": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "is_current_version": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "canonical_concept_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "historical_relation_type": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "exact_terms": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "search_keywords": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "rank_hints": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "answer_candidate_types": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "confidence_score": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 1
+    },
+    "parser_flags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "extraction_method": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "tagging_model_version": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "last_tagged_at": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "paragraph_id",
+    "page_id",
+    "document_id",
+    "paragraph_index",
+    "heading_path",
+    "text",
+    "paragraph_class"
+  ]
+}

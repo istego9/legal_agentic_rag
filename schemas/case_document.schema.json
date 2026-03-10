@@ -1,0 +1,310 @@
+{
+  "properties": {
+    "document_id": {
+      "title": "Document Id",
+      "type": "string"
+    },
+    "case_number": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Case Number"
+    },
+    "neutral_citation": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Neutral Citation"
+    },
+    "court_name": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Court Name"
+    },
+    "court_level": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Court Level"
+    },
+    "chamber_or_division": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Chamber Or Division"
+    },
+    "jurisdiction": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Jurisdiction"
+    },
+    "filing_date": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Filing Date"
+    },
+    "hearing_date": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Hearing Date"
+    },
+    "decision_date": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Decision Date"
+    },
+    "judgment_date": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Judgment Date"
+    },
+    "claimant_names": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Claimant Names",
+      "type": "array"
+    },
+    "respondent_names": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Respondent Names",
+      "type": "array"
+    },
+    "appellant_names": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Appellant Names",
+      "type": "array"
+    },
+    "defendant_names": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Defendant Names",
+      "type": "array"
+    },
+    "party_names_normalized": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Party Names Normalized",
+      "type": "array"
+    },
+    "judge_names": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Judge Names",
+      "type": "array"
+    },
+    "presiding_judge": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Presiding Judge"
+    },
+    "panel_size": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Panel Size"
+    },
+    "procedural_stage": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Procedural Stage"
+    },
+    "cause_of_action": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Cause Of Action"
+    },
+    "legal_topics": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Legal Topics",
+      "type": "array"
+    },
+    "claim_amounts": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Claim Amounts",
+      "type": "array"
+    },
+    "relief_sought": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Relief Sought",
+      "type": "array"
+    },
+    "issues_present": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Issues Present",
+      "type": "array"
+    },
+    "final_disposition": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Final Disposition"
+    },
+    "outcome_for_claimant": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Outcome For Claimant"
+    },
+    "outcome_for_respondent": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Outcome For Respondent"
+    },
+    "cited_law_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Cited Law Ids",
+      "type": "array"
+    },
+    "cited_article_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Cited Article Refs",
+      "type": "array"
+    },
+    "cited_case_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Cited Case Ids",
+      "type": "array"
+    }
+  },
+  "required": [
+    "document_id"
+  ],
+  "title": "CaseDocument",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

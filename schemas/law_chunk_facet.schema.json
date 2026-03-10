@@ -1,0 +1,195 @@
+{
+  "properties": {
+    "chunk_id": {
+      "title": "Chunk Id",
+      "type": "string"
+    },
+    "law_number": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Law Number"
+    },
+    "law_year": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Law Year"
+    },
+    "article_number": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Article Number"
+    },
+    "article_number_normalized": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Article Number Normalized"
+    },
+    "article_title": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Article Title"
+    },
+    "part_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Part Ref"
+    },
+    "chapter_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Chapter Ref"
+    },
+    "section_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Section Ref"
+    },
+    "schedule_number": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Schedule Number"
+    },
+    "schedule_title": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Schedule Title"
+    },
+    "definition_term": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Definition Term"
+    },
+    "provision_kind": {
+      "anyOf": [
+        {
+          "enum": [
+            "definition",
+            "right",
+            "obligation",
+            "prohibition",
+            "exemption",
+            "penalty",
+            "procedure",
+            "administrative_power",
+            "interpretation"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Provision Kind"
+    },
+    "administering_authority": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Administering Authority"
+    },
+    "amends_law_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Amends Law Ids",
+      "type": "array"
+    },
+    "amended_by_doc_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Amended By Doc Ids",
+      "type": "array"
+    }
+  },
+  "required": [
+    "chunk_id"
+  ],
+  "title": "LawChunkFacet",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

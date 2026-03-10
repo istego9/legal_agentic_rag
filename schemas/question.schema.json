@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Question",
+  "description": "Competition or internal question unit.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "dataset_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uuid"
+    },
+    "question": {
+      "type": "string",
+      "minLength": 1
+    },
+    "answer_type": {
+      "type": "string",
+      "enum": [
+        "boolean",
+        "number",
+        "date",
+        "name",
+        "names",
+        "free_text"
+      ]
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "public_competition",
+        "private_competition",
+        "internal_gold",
+        "synthetic",
+        "manual"
+      ]
+    },
+    "difficulty": {
+      "type": "string",
+      "enum": [
+        "easy",
+        "medium",
+        "hard",
+        "adversarial"
+      ]
+    },
+    "route_hint": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "article_lookup",
+        "single_case_extraction",
+        "cross_case_compare",
+        "cross_law_compare",
+        "history_lineage",
+        "no_answer",
+        null
+      ]
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "id",
+    "question",
+    "answer_type"
+  ]
+}

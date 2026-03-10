@@ -1,0 +1,25 @@
+# Dedicated site block for legal.build.
+# Safe to include into an existing Caddy setup via `import` from main Caddyfile.
+
+legal.build {
+  encode zstd gzip
+
+  # Track traffic with structured logs for audit/debug.
+  log {
+    output file ./logs/legal.build.access.log {
+      roll_size 50MiB
+      roll_keep 10
+      roll_keep_for 720h
+    }
+    format json
+  }
+
+  @api path /v1/* /docs* /openapi.json
+  handle @api {
+    reverse_proxy 127.0.0.1:8000
+  }
+
+  handle {
+    reverse_proxy 127.0.0.1:5173
+  }
+}

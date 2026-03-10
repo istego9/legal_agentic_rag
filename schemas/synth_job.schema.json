@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SyntheticJob",
+  "description": "Synthetic dataset generation job.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "job_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "project_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "queued",
+        "running",
+        "review",
+        "published",
+        "failed",
+        "cancelled"
+      ]
+    },
+    "source_scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "document_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "doc_types": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "date_range": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "from": {
+              "type": "string",
+              "format": "date"
+            },
+            "to": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          "required": [
+            "from",
+            "to"
+          ]
+        }
+      },
+      "required": [
+        "document_ids",
+        "doc_types"
+      ]
+    },
+    "generation_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "target_count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "answer_type_mix": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        },
+        "route_mix": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        },
+        "adversarial_ratio": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "paraphrase_ratio": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "require_human_review": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "target_count",
+        "answer_type_mix",
+        "route_mix",
+        "adversarial_ratio",
+        "paraphrase_ratio",
+        "require_human_review"
+      ]
+    }
+  },
+  "required": [
+    "job_id",
+    "project_id",
+    "status",
+    "source_scope",
+    "generation_policy"
+  ]
+}

@@ -1,0 +1,553 @@
+{
+  "properties": {
+    "chunk_id": {
+      "title": "Chunk Id",
+      "type": "string"
+    },
+    "document_id": {
+      "title": "Document Id",
+      "type": "string"
+    },
+    "pdf_id": {
+      "title": "Pdf Id",
+      "type": "string"
+    },
+    "page_id": {
+      "title": "Page Id",
+      "type": "string"
+    },
+    "page_number": {
+      "minimum": 0,
+      "title": "Page Number",
+      "type": "integer"
+    },
+    "doc_type": {
+      "enum": [
+        "law",
+        "regulation",
+        "enactment_notice",
+        "case",
+        "other"
+      ],
+      "title": "Doc Type",
+      "type": "string"
+    },
+    "title_normalized": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Title Normalized"
+    },
+    "short_title": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Short Title"
+    },
+    "jurisdiction": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Jurisdiction"
+    },
+    "status": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Status"
+    },
+    "is_current_version": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Is Current Version"
+    },
+    "effective_start_date": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Effective Start Date"
+    },
+    "effective_end_date": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Effective End Date"
+    },
+    "heading_path": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Heading Path",
+      "type": "array"
+    },
+    "section_kind": {
+      "anyOf": [
+        {
+          "enum": [
+            "cover",
+            "heading",
+            "definition",
+            "operative_provision",
+            "exception",
+            "penalty",
+            "procedure",
+            "schedule_item",
+            "cross_reference",
+            "footnote",
+            "parties",
+            "procedural_history",
+            "facts",
+            "issues",
+            "reasoning",
+            "holding",
+            "order",
+            "disposition"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Section Kind"
+    },
+    "text_clean": {
+      "title": "Text Clean",
+      "type": "string"
+    },
+    "retrieval_text": {
+      "title": "Retrieval Text",
+      "type": "string"
+    },
+    "entity_names": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Entity Names",
+      "type": "array"
+    },
+    "article_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Article Refs",
+      "type": "array"
+    },
+    "dates": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Dates",
+      "type": "array"
+    },
+    "money_values": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Money Values",
+      "type": "array"
+    },
+    "exact_terms": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Exact Terms",
+      "type": "array"
+    },
+    "search_keywords": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Search Keywords",
+      "type": "array"
+    },
+    "version_lineage_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Version Lineage Id"
+    },
+    "canonical_concept_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Canonical Concept Id"
+    },
+    "historical_relation_type": {
+      "anyOf": [
+        {
+          "enum": [
+            "original",
+            "amended",
+            "restated",
+            "repealed",
+            "superseded"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Historical Relation Type"
+    },
+    "law_number": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Law Number"
+    },
+    "law_year": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Law Year"
+    },
+    "regulation_number": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Regulation Number"
+    },
+    "regulation_year": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Regulation Year"
+    },
+    "notice_number": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Notice Number"
+    },
+    "notice_year": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Notice Year"
+    },
+    "case_number": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Case Number"
+    },
+    "court_name": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Court Name"
+    },
+    "decision_date": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Decision Date"
+    },
+    "article_number": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Article Number"
+    },
+    "section_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Section Ref"
+    },
+    "schedule_number": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Schedule Number"
+    },
+    "provision_kind": {
+      "anyOf": [
+        {
+          "enum": [
+            "definition",
+            "right",
+            "obligation",
+            "prohibition",
+            "exemption",
+            "penalty",
+            "procedure",
+            "administrative_power",
+            "interpretation"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Provision Kind"
+    },
+    "administering_authority": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Administering Authority"
+    },
+    "enabled_by_law_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Enabled By Law Id"
+    },
+    "target_doc_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Target Doc Id"
+    },
+    "target_article_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Target Article Refs",
+      "type": "array"
+    },
+    "commencement_date": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Commencement Date"
+    },
+    "commencement_scope_type": {
+      "anyOf": [
+        {
+          "enum": [
+            "full",
+            "partial",
+            "staged",
+            "exception_based"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Commencement Scope Type"
+    },
+    "judge_names": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Judge Names",
+      "type": "array"
+    },
+    "party_names_normalized": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Party Names Normalized",
+      "type": "array"
+    },
+    "final_disposition": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Final Disposition"
+    },
+    "edge_types": {
+      "items": {
+        "enum": [
+          "amends",
+          "amended_by",
+          "repeals",
+          "supersedes",
+          "restates",
+          "refers_to",
+          "enabled_by",
+          "comes_into_force_via",
+          "same_legal_concept_as",
+          "cites",
+          "overrules",
+          "same_party_as",
+          "same_judge_as"
+        ],
+        "type": "string"
+      },
+      "title": "Edge Types",
+      "type": "array"
+    }
+  },
+  "required": [
+    "chunk_id",
+    "document_id",
+    "pdf_id",
+    "page_id",
+    "page_number",
+    "doc_type",
+    "text_clean",
+    "retrieval_text"
+  ],
+  "title": "ChunkSearchDocument",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

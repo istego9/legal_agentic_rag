@@ -1,0 +1,149 @@
+{
+  "properties": {
+    "chunk_id": {
+      "title": "Chunk Id",
+      "type": "string"
+    },
+    "regulation_number": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Regulation Number"
+    },
+    "regulation_year": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Regulation Year"
+    },
+    "regulation_type": {
+      "anyOf": [
+        {
+          "enum": [
+            "rule",
+            "regulation",
+            "order",
+            "direction",
+            "practice_direction"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Regulation Type"
+    },
+    "enabled_by_law_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Enabled By Law Id"
+    },
+    "enabled_by_article_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Enabled By Article Refs",
+      "type": "array"
+    },
+    "provision_number": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Provision Number"
+    },
+    "provision_kind": {
+      "anyOf": [
+        {
+          "enum": [
+            "definition",
+            "right",
+            "obligation",
+            "prohibition",
+            "exemption",
+            "penalty",
+            "procedure",
+            "administrative_power",
+            "interpretation"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Provision Kind"
+    },
+    "regulated_entities": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Regulated Entities",
+      "type": "array"
+    },
+    "compliance_subjects": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Compliance Subjects",
+      "type": "array"
+    },
+    "reporting_requirement_present": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Reporting Requirement Present"
+    },
+    "filing_requirement_present": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Filing Requirement Present"
+    }
+  },
+  "required": [
+    "chunk_id"
+  ],
+  "title": "RegulationChunkFacet",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

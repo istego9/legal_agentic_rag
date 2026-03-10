@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="560" viewBox="0 0 1080 560">
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#4b5563"/></marker></defs>
+<rect x="0" y="0" width="1080" height="560" fill="#f8fafc"/>
+<text x="16" y="24" font-family="DejaVu Sans, sans-serif" font-size="18" font-weight="700" fill="#0f172a">ERD-3. Gold annotation, review, and synthetic datasets</text>
+<text x="16" y="44" font-family="DejaVu Sans, sans-serif" font-size="11.5" fill="#475569">Gold and synthetic content are versioned, reviewable, and auditable.</text>
+
+    <path d="M240,114.0 L265.0,114.0 L265.0,122.0 L290,122.0" fill="none" stroke="#4b5563" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <text x="269.0" y="114.0" font-family="DejaVu Sans, sans-serif" font-size="10.5" fill="#4b5563">1..n</text>
+    
+
+    <path d="M520,122.0 L545.0,122.0 L545.0,114.0 L570,114.0" fill="none" stroke="#4b5563" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <text x="549.0" y="114.0" font-family="DejaVu Sans, sans-serif" font-size="10.5" fill="#4b5563">1..n</text>
+    
+
+    <path d="M790,114.0 L815.0,114.0 L815.0,106.0 L840,106.0" fill="none" stroke="#4b5563" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <text x="819.0" y="106.0" font-family="DejaVu Sans, sans-serif" font-size="10.5" fill="#4b5563">1..n</text>
+    
+
+    <path d="M520,122.0 L545.0,122.0 L545.0,294.0 L570,294.0" fill="none" stroke="#4b5563" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <text x="549.0" y="204.0" font-family="DejaVu Sans, sans-serif" font-size="10.5" fill="#4b5563">1..n</text>
+    
+
+    <path d="M240,332.0 L265.0,332.0 L265.0,340.0 L290,340.0" fill="none" stroke="#4b5563" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <text x="269.0" y="332.0" font-family="DejaVu Sans, sans-serif" font-size="10.5" fill="#4b5563">1..n</text>
+    
+
+    <path d="M520,340.0 L680.0,340.0 L680.0,294.0 L840,294.0" fill="none" stroke="#4b5563" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <text x="684.0" y="313.0" font-family="DejaVu Sans, sans-serif" font-size="10.5" fill="#4b5563">1..n</text>
+    
+
+    <path d="M405.0,204 L542.5,204 L542.5,400 L680.0,400" fill="none" stroke="#4b5563" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <text x="546.5" y="298.0" font-family="DejaVu Sans, sans-serif" font-size="10.5" fill="#4b5563">audit</text>
+    
+
+    <path d="M520,340.0 L545.0,340.0 L545.0,466.0 L570,466.0" fill="none" stroke="#4b5563" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <text x="549.0" y="399.0" font-family="DejaVu Sans, sans-serif" font-size="10.5" fill="#4b5563">audit</text>
+    
+<rect x="20" y="40" width="220" height="148" rx="8" ry="8" fill="#ffffff" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="20" y="40" width="220" height="28" rx="8" ry="8" fill="#1f3a5f" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="20" y="60" width="220" height="8" fill="#1f3a5f" stroke="none"/>
+<text x="30" y="59" font-family="DejaVu Sans, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">gold_datasets</text>
+<text x="30" y="84" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">gold_dataset_id PK</text>
+<text x="30" y="100" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">project_id FK</text>
+<text x="30" y="116" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">base_dataset_id</text>
+<text x="30" y="132" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">version</text>
+<text x="30" y="148" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">status</text>
+<rect x="290" y="40" width="230" height="164" rx="8" ry="8" fill="#ffffff" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="290" y="40" width="230" height="28" rx="8" ry="8" fill="#1f3a5f" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="290" y="60" width="230" height="8" fill="#1f3a5f" stroke="none"/>
+<text x="300" y="59" font-family="DejaVu Sans, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">gold_questions</text>
+<text x="300" y="84" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">gold_question_id PK</text>
+<text x="300" y="100" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">gold_dataset_id FK</text>
+<text x="300" y="116" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">question_id</text>
+<text x="300" y="132" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">canonical_answer</text>
+<text x="300" y="148" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">review_status</text>
+<text x="300" y="164" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">notes</text>
+<rect x="570" y="40" width="220" height="148" rx="8" ry="8" fill="#ffffff" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="570" y="40" width="220" height="28" rx="8" ry="8" fill="#1f3a5f" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="570" y="60" width="220" height="8" fill="#1f3a5f" stroke="none"/>
+<text x="580" y="59" font-family="DejaVu Sans, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">gold_source_sets</text>
+<text x="580" y="84" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">source_set_id PK</text>
+<text x="580" y="100" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">gold_question_id FK</text>
+<text x="580" y="116" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">is_primary</text>
+<text x="580" y="132" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">notes</text>
+<rect x="840" y="40" width="220" height="132" rx="8" ry="8" fill="#ffffff" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="840" y="40" width="220" height="28" rx="8" ry="8" fill="#1f3a5f" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="840" y="60" width="220" height="8" fill="#1f3a5f" stroke="none"/>
+<text x="850" y="59" font-family="DejaVu Sans, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">gold_source_pages</text>
+<text x="850" y="84" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">source_set_id FK</text>
+<text x="850" y="100" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">page_id FK</text>
+<text x="850" y="116" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">ordinal</text>
+<rect x="570" y="220" width="220" height="148" rx="8" ry="8" fill="#ffffff" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="570" y="220" width="220" height="28" rx="8" ry="8" fill="#1f3a5f" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="570" y="240" width="220" height="8" fill="#1f3a5f" stroke="none"/>
+<text x="580" y="239" font-family="DejaVu Sans, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">gold_reviews</text>
+<text x="580" y="264" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">review_id PK</text>
+<text x="580" y="280" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">gold_question_id FK</text>
+<text x="580" y="296" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">reviewer_id</text>
+<text x="580" y="312" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">decision</text>
+<text x="580" y="328" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">comment</text>
+<rect x="20" y="250" width="220" height="164" rx="8" ry="8" fill="#ffffff" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="20" y="250" width="220" height="28" rx="8" ry="8" fill="#1f3a5f" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="20" y="270" width="220" height="8" fill="#1f3a5f" stroke="none"/>
+<text x="30" y="269" font-family="DejaVu Sans, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">synth_jobs</text>
+<text x="30" y="294" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">job_id PK</text>
+<text x="30" y="310" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">project_id FK</text>
+<text x="30" y="326" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">policy_json</text>
+<text x="30" y="342" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">status</text>
+<text x="30" y="358" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">created_by</text>
+<text x="30" y="374" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">created_at</text>
+<rect x="290" y="250" width="230" height="180" rx="8" ry="8" fill="#ffffff" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="290" y="250" width="230" height="28" rx="8" ry="8" fill="#1f3a5f" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="290" y="270" width="230" height="8" fill="#1f3a5f" stroke="none"/>
+<text x="300" y="269" font-family="DejaVu Sans, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">synth_candidates</text>
+<text x="300" y="294" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">candidate_id PK</text>
+<text x="300" y="310" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">job_id FK</text>
+<text x="300" y="326" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">question_text</text>
+<text x="300" y="342" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">answer_type</text>
+<text x="300" y="358" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">difficulty</text>
+<text x="300" y="374" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">status</text>
+<text x="300" y="390" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">provenance_json</text>
+<rect x="840" y="220" width="220" height="148" rx="8" ry="8" fill="#ffffff" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="840" y="220" width="220" height="28" rx="8" ry="8" fill="#1f3a5f" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="840" y="240" width="220" height="8" fill="#1f3a5f" stroke="none"/>
+<text x="850" y="239" font-family="DejaVu Sans, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">synth_evidence</text>
+<text x="850" y="264" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">candidate_id FK</text>
+<text x="850" y="280" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">page_id FK</text>
+<text x="850" y="296" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">role</text>
+<text x="850" y="312" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">confidence</text>
+<rect x="570" y="400" width="220" height="132" rx="8" ry="8" fill="#ffffff" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="570" y="400" width="220" height="28" rx="8" ry="8" fill="#1f3a5f" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="570" y="420" width="220" height="8" fill="#1f3a5f" stroke="none"/>
+<text x="580" y="419" font-family="DejaVu Sans, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">audit_log</text>
+<text x="580" y="444" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">audit_id PK</text>
+<text x="580" y="460" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">actor_id</text>
+<text x="580" y="476" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">object_type</text>
+<text x="580" y="492" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">object_id</text>
+<text x="580" y="508" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">action</text>
+</svg>

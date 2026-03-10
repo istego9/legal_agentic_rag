@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "EvalRun",
+  "description": "Evaluation run against a gold dataset.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "eval_run_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "run_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "gold_dataset_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "scoring_policy_version": {
+      "type": "string"
+    },
+    "judge_policy_version": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "queued",
+        "running",
+        "completed",
+        "failed"
+      ]
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "answer_score_mean": {
+          "type": "number"
+        },
+        "grounding_score_mean": {
+          "type": "number"
+        },
+        "telemetry_factor": {
+          "type": "number"
+        },
+        "ttft_factor": {
+          "type": "number"
+        },
+        "overall_score": {
+          "type": "number"
+        },
+        "source_precision": {
+          "type": "number"
+        },
+        "source_recall": {
+          "type": "number"
+        },
+        "source_f_beta": {
+          "type": "number"
+        },
+        "no_answer_precision": {
+          "type": "number"
+        },
+        "no_answer_recall": {
+          "type": "number"
+        },
+        "p50_ttft_ms": {
+          "type": "integer"
+        },
+        "p95_ttft_ms": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "answer_score_mean",
+        "grounding_score_mean",
+        "telemetry_factor",
+        "ttft_factor",
+        "overall_score",
+        "source_precision",
+        "source_recall",
+        "source_f_beta"
+      ]
+    }
+  },
+  "required": [
+    "eval_run_id",
+    "run_id",
+    "gold_dataset_id",
+    "scoring_policy_version",
+    "judge_policy_version",
+    "status",
+    "metrics"
+  ]
+}

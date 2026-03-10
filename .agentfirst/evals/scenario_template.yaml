@@ -1,0 +1,13 @@
+name: "example_scenario"
+description: "Что проверяем (поведенчески)."
+risk: "low|medium|high"
+preconditions:
+  - "какой стейт нужен"
+steps:
+  - action: "run"
+    command: "python scripts/agentfirst.py verify"
+assertions:
+  - type: "exit_code"
+    equals: 0
+artifacts:
+  - "path/to/report"

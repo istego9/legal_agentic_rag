@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="470" viewBox="0 0 1080 470">
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#4b5563"/></marker></defs>
+<rect x="0" y="0" width="1080" height="470" fill="#f8fafc"/>
+<text x="16" y="24" font-family="DejaVu Sans, sans-serif" font-size="18" font-weight="700" fill="#0f172a">ERD-2. Datasets, runs, predictions, evaluation</text>
+<text x="16" y="44" font-family="DejaVu Sans, sans-serif" font-size="11.5" fill="#475569">Evaluation operates over versioned runs and versioned scoring policies.</text>
+
+    <path d="M230,114.0 L255.0,114.0 L255.0,122.0 L280,122.0" fill="none" stroke="#4b5563" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <text x="259.0" y="114.0" font-family="DejaVu Sans, sans-serif" font-size="10.5" fill="#4b5563">1..n</text>
+    
+
+    <path d="M125.0,188 L125.0,188 L125.0,250 L125.0,250" fill="none" stroke="#4b5563" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <text x="129.0" y="215.0" font-family="DejaVu Sans, sans-serif" font-size="10.5" fill="#4b5563">1..n</text>
+    
+
+    <path d="M230,324.0 L255.0,324.0 L255.0,340.0 L280,340.0" fill="none" stroke="#4b5563" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <text x="259.0" y="328.0" font-family="DejaVu Sans, sans-serif" font-size="10.5" fill="#4b5563">1..n</text>
+    
+
+    <path d="M400.0,204 L400.0,204 L400.0,250 L400.0,250" fill="none" stroke="#4b5563" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <text x="404.0" y="223.0" font-family="DejaVu Sans, sans-serif" font-size="10.5" fill="#4b5563">1..n</text>
+    
+
+    <path d="M520,340.0 L545.0,340.0 L545.0,324.0 L570,324.0" fill="none" stroke="#4b5563" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <text x="549.0" y="328.0" font-family="DejaVu Sans, sans-serif" font-size="10.5" fill="#4b5563">1..n</text>
+    
+
+    <path d="M400.0,250 L540.0,250 L540.0,204 L680.0,204" fill="none" stroke="#4b5563" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <text x="544.0" y="223.0" font-family="DejaVu Sans, sans-serif" font-size="10.5" fill="#4b5563">1..1</text>
+    
+
+    <path d="M230,324.0 L535.0,324.0 L535.0,122.0 L840,122.0" fill="none" stroke="#4b5563" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <text x="539.0" y="219.0" font-family="DejaVu Sans, sans-serif" font-size="10.5" fill="#4b5563">1..n</text>
+    
+
+    <path d="M945.0,204 L945.0,204 L945.0,250 L945.0,250" fill="none" stroke="#4b5563" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <text x="949.0" y="223.0" font-family="DejaVu Sans, sans-serif" font-size="10.5" fill="#4b5563">1..n</text>
+    
+<rect x="20" y="40" width="210" height="148" rx="8" ry="8" fill="#ffffff" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="20" y="40" width="210" height="28" rx="8" ry="8" fill="#1f3a5f" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="20" y="60" width="210" height="8" fill="#1f3a5f" stroke="none"/>
+<text x="30" y="59" font-family="DejaVu Sans, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">datasets</text>
+<text x="30" y="84" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">dataset_id PK</text>
+<text x="30" y="100" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">project_id FK</text>
+<text x="30" y="116" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">kind</text>
+<text x="30" y="132" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">name</text>
+<text x="30" y="148" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">version</text>
+<text x="30" y="164" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">status</text>
+<rect x="280" y="40" width="240" height="164" rx="8" ry="8" fill="#ffffff" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="280" y="40" width="240" height="28" rx="8" ry="8" fill="#1f3a5f" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="280" y="60" width="240" height="8" fill="#1f3a5f" stroke="none"/>
+<text x="290" y="59" font-family="DejaVu Sans, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">questions</text>
+<text x="290" y="84" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">question_id PK</text>
+<text x="290" y="100" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">dataset_id FK</text>
+<text x="290" y="116" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">question_text</text>
+<text x="290" y="132" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">answer_type</text>
+<text x="290" y="148" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">route_hint</text>
+<text x="290" y="164" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">difficulty</text>
+<text x="290" y="180" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">source</text>
+<rect x="20" y="250" width="210" height="148" rx="8" ry="8" fill="#ffffff" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="20" y="250" width="210" height="28" rx="8" ry="8" fill="#1f3a5f" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="20" y="270" width="210" height="8" fill="#1f3a5f" stroke="none"/>
+<text x="30" y="269" font-family="DejaVu Sans, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">runs</text>
+<text x="30" y="294" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">run_id PK</text>
+<text x="30" y="310" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">project_id FK</text>
+<text x="30" y="326" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">dataset_id FK</text>
+<text x="30" y="342" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">model_policy</text>
+<text x="30" y="358" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">status</text>
+<text x="30" y="374" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">created_at</text>
+<rect x="280" y="250" width="240" height="180" rx="8" ry="8" fill="#ffffff" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="280" y="250" width="240" height="28" rx="8" ry="8" fill="#1f3a5f" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="280" y="270" width="240" height="8" fill="#1f3a5f" stroke="none"/>
+<text x="290" y="269" font-family="DejaVu Sans, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">predictions</text>
+<text x="290" y="294" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">prediction_id PK</text>
+<text x="290" y="310" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">run_id FK</text>
+<text x="290" y="326" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">question_id FK</text>
+<text x="290" y="342" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">answer_json</text>
+<text x="290" y="358" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">answer_normalized</text>
+<text x="290" y="374" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">route_name</text>
+<text x="290" y="390" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">confidence</text>
+<text x="290" y="406" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">abstained</text>
+<rect x="570" y="250" width="220" height="148" rx="8" ry="8" fill="#ffffff" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="570" y="250" width="220" height="28" rx="8" ry="8" fill="#1f3a5f" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="570" y="270" width="220" height="8" fill="#1f3a5f" stroke="none"/>
+<text x="580" y="269" font-family="DejaVu Sans, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">prediction_sources</text>
+<text x="580" y="294" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">prediction_id FK</text>
+<text x="580" y="310" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">page_id FK</text>
+<text x="580" y="326" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">rank</text>
+<text x="580" y="342" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">used</text>
+<text x="580" y="358" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">evidence_role</text>
+<rect x="570" y="40" width="220" height="164" rx="8" ry="8" fill="#ffffff" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="570" y="40" width="220" height="28" rx="8" ry="8" fill="#1f3a5f" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="570" y="60" width="220" height="8" fill="#1f3a5f" stroke="none"/>
+<text x="580" y="59" font-family="DejaVu Sans, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">prediction_telemetry</text>
+<text x="580" y="84" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">prediction_id PK/FK</text>
+<text x="580" y="100" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">ttft_ms</text>
+<text x="580" y="116" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">total_response_ms</text>
+<text x="580" y="132" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">input_tokens</text>
+<text x="580" y="148" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">output_tokens</text>
+<text x="580" y="164" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">model_name</text>
+<text x="580" y="180" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">telemetry_complete</text>
+<rect x="840" y="40" width="210" height="164" rx="8" ry="8" fill="#ffffff" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="840" y="40" width="210" height="28" rx="8" ry="8" fill="#1f3a5f" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="840" y="60" width="210" height="8" fill="#1f3a5f" stroke="none"/>
+<text x="850" y="59" font-family="DejaVu Sans, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">eval_runs</text>
+<text x="850" y="84" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">eval_run_id PK</text>
+<text x="850" y="100" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">run_id FK</text>
+<text x="850" y="116" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">gold_dataset_id FK</text>
+<text x="850" y="132" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">policy_version</text>
+<text x="850" y="148" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">judge_version</text>
+<text x="850" y="164" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">status</text>
+<text x="850" y="180" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">overall_score</text>
+<rect x="840" y="250" width="210" height="180" rx="8" ry="8" fill="#ffffff" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="840" y="250" width="210" height="28" rx="8" ry="8" fill="#1f3a5f" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="840" y="270" width="210" height="8" fill="#1f3a5f" stroke="none"/>
+<text x="850" y="269" font-family="DejaVu Sans, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">eval_results</text>
+<text x="850" y="294" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">eval_result_id PK</text>
+<text x="850" y="310" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">eval_run_id FK</text>
+<text x="850" y="326" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">question_id FK</text>
+<text x="850" y="342" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">answer_score</text>
+<text x="850" y="358" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">grounding_score</text>
+<text x="850" y="374" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">telemetry_factor</text>
+<text x="850" y="390" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">ttft_factor</text>
+<text x="850" y="406" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">error_tags</text>
+</svg>

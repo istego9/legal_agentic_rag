@@ -1,0 +1,461 @@
+{
+  "properties": {
+    "chunk_id": {
+      "title": "Chunk Id",
+      "type": "string"
+    },
+    "document_id": {
+      "title": "Document Id",
+      "type": "string"
+    },
+    "pdf_id": {
+      "title": "Pdf Id",
+      "type": "string"
+    },
+    "page_id": {
+      "title": "Page Id",
+      "type": "string"
+    },
+    "page_number": {
+      "minimum": 0,
+      "title": "Page Number",
+      "type": "integer"
+    },
+    "chunk_type": {
+      "default": "paragraph",
+      "enum": [
+        "paragraph",
+        "heading",
+        "list_item",
+        "table_row",
+        "footnote"
+      ],
+      "title": "Chunk Type",
+      "type": "string"
+    },
+    "chunk_index_on_page": {
+      "minimum": 0,
+      "title": "Chunk Index On Page",
+      "type": "integer"
+    },
+    "char_start": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Char Start"
+    },
+    "char_end": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Char End"
+    },
+    "text_raw": {
+      "title": "Text Raw",
+      "type": "string"
+    },
+    "text_clean": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Text Clean"
+    },
+    "text_compact": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Text Compact"
+    },
+    "retrieval_text": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Retrieval Text"
+    },
+    "embedding_text": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Embedding Text"
+    },
+    "heading_path": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Heading Path",
+      "type": "array"
+    },
+    "section_kind": {
+      "anyOf": [
+        {
+          "enum": [
+            "cover",
+            "heading",
+            "definition",
+            "operative_provision",
+            "exception",
+            "penalty",
+            "procedure",
+            "schedule_item",
+            "cross_reference",
+            "footnote",
+            "parties",
+            "procedural_history",
+            "facts",
+            "issues",
+            "reasoning",
+            "holding",
+            "order",
+            "disposition"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Section Kind"
+    },
+    "structural_level": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Structural Level"
+    },
+    "parent_section_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Parent Section Id"
+    },
+    "prev_chunk_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Prev Chunk Id"
+    },
+    "next_chunk_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Next Chunk Id"
+    },
+    "entity_names": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Entity Names",
+      "type": "array"
+    },
+    "entity_names_normalized": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Entity Names Normalized",
+      "type": "array"
+    },
+    "article_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Article Refs",
+      "type": "array"
+    },
+    "schedule_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Schedule Refs",
+      "type": "array"
+    },
+    "law_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Law Refs",
+      "type": "array"
+    },
+    "case_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Case Refs",
+      "type": "array"
+    },
+    "dates": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Dates",
+      "type": "array"
+    },
+    "money_values": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Money Values",
+      "type": "array"
+    },
+    "roles": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Roles",
+      "type": "array"
+    },
+    "topic_tags": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Topic Tags",
+      "type": "array"
+    },
+    "legal_action_tags": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Legal Action Tags",
+      "type": "array"
+    },
+    "effective_start_date": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Effective Start Date"
+    },
+    "effective_end_date": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Effective End Date"
+    },
+    "is_current_version": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Is Current Version"
+    },
+    "version_lineage_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Version Lineage Id"
+    },
+    "canonical_concept_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Canonical Concept Id"
+    },
+    "historical_relation_type": {
+      "anyOf": [
+        {
+          "enum": [
+            "original",
+            "amended",
+            "restated",
+            "repealed",
+            "superseded"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Historical Relation Type"
+    },
+    "exact_terms": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Exact Terms",
+      "type": "array"
+    },
+    "search_keywords": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Search Keywords",
+      "type": "array"
+    },
+    "rank_hints": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Rank Hints",
+      "type": "array"
+    },
+    "answer_candidate_types": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Answer Candidate Types",
+      "type": "array"
+    },
+    "confidence_score": {
+      "anyOf": [
+        {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Confidence Score"
+    },
+    "parser_flags": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Parser Flags",
+      "type": "array"
+    },
+    "extraction_method": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Extraction Method"
+    },
+    "tagging_model_version": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Tagging Model Version"
+    },
+    "last_tagged_at": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Last Tagged At"
+    }
+  },
+  "required": [
+    "chunk_id",
+    "document_id",
+    "pdf_id",
+    "page_id",
+    "page_number",
+    "chunk_index_on_page",
+    "text_raw"
+  ],
+  "title": "ChunkBase",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

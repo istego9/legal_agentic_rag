@@ -1,0 +1,14 @@
+name: HQ21 Style Gates
+
+on:
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  style:
+    uses: istego9/hq21-style/.github/workflows/style-gates.yml@v1
+    with:
+      project-path: apps/web
+      build-command: npm run build
+    secrets:
+      hq21-npm-token: ${{ secrets.HQ21_PACKAGES_READ_TOKEN }}

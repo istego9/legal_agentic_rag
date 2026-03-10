@@ -1,0 +1,51 @@
+# AgentFirst policies (domain-agnostic defaults)
+
+autonomy_levels:
+  L0:
+    description: "Suggest only. No code changes."
+    can_open_pr: false
+    can_merge: false
+    requires_approvals: ["any_command", "network_egress", "secrets", "infra_change", "prod_action"]
+  L1:
+    description: "Can draft changes + open PR. Merge only by human."
+    can_open_pr: true
+    can_merge: false
+    requires_approvals: ["network_egress", "secrets", "infra_change", "prod_action"]
+  L2:
+    description: "Can iterate on PR, run tests, request agent reviews. Human approves merge."
+    can_open_pr: true
+    can_merge: false
+    requires_approvals: ["secrets", "infra_change", "prod_action"]
+  L3:
+    description: "Can auto-merge low-risk changes after passing evals + agent reviews."
+    can_open_pr: true
+    can_merge: true
+    allowed_risk: ["low"]
+    requires_approvals: ["secrets", "infra_change", "prod_action"]
+  L4:
+    description: "Full autonomy in sandbox/staging. Production changes require explicit approval."
+    can_open_pr: true
+    can_merge: true
+    allowed_risk: ["low","medium"]
+    requires_approvals: ["prod_action", "secrets"]
+
+approvals:
+  any_command:
+    examples: ["rm -rf", "curl | bash", "install scripts"]
+  network_egress:
+    examples: ["fetching external deps outside normal package manager"]
+  secrets:
+    examples: ["reading env vars containing tokens", "accessing secret store"]
+  infra_change:
+    examples: ["terraform apply", "k8s deploy"]
+  prod_action:
+    examples: ["migrations on prod", "feature flag rollout"]
+
+# Optional: define what "low risk" means for your org
+risk_policy:
+  low:
+    examples: ["docs-only", "lint fixes", "test-only", "non-functional refactor"]
+  medium:
+    examples: ["feature behind flag", "new endpoint with tests"]
+  high:
+    examples: ["auth changes", "payments", "data migrations", "security-critical code"]

@@ -1,0 +1,178 @@
+{
+  "case_cluster_id": "oaklen_obadiah_ARB-016-2023_cluster",
+  "root_matter_number": "ARB-016-2023",
+  "root_matter_type": "arbitration_enforcement_cluster",
+  "style_of_cause_root": "Oaklen v Obadiah",
+  "source_availability": {
+    "direct_root_order_available": false,
+    "best_available_anchor_document_id": "doc_enf_269_2023_order_with_reasons",
+    "note": "Publicly accessible and uploaded anchor document references ARB-016-2023 directly."
+  },
+  "entities": [
+    {
+      "entity_id": "ent_oaklen",
+      "name_raw": "OAKLEN",
+      "name_normalized": "Oaklen",
+      "cluster_roles": [
+        "claimant",
+        "judgment_creditor",
+        "award_creditor"
+      ]
+    },
+    {
+      "entity_id": "ent_obadiah",
+      "name_raw": "OBADIAH",
+      "name_normalized": "Obadiah",
+      "cluster_roles": [
+        "defendant",
+        "judgment_debtor",
+        "award_debtor"
+      ]
+    },
+    {
+      "entity_id": "ent_ozias",
+      "name_raw": "OZIAS",
+      "name_normalized": "Ozias",
+      "cluster_roles": [
+        "first_applicant",
+        "appellant_respondent",
+        "manager_of_obadiah"
+      ]
+    },
+    {
+      "entity_id": "ent_ori",
+      "name_raw": "ORI",
+      "name_normalized": "Ori",
+      "cluster_roles": [
+        "second_applicant",
+        "appellant_respondent"
+      ]
+    },
+    {
+      "entity_id": "ent_octavio",
+      "name_raw": "OCTAVIO",
+      "name_normalized": "Octavio",
+      "cluster_roles": [
+        "third_applicant",
+        "appellant_respondent",
+        "alleged_de_facto_officer"
+      ]
+    }
+  ],
+  "events": [
+    {
+      "event_id": "evt_2020_06_09_second_arbitration_commenced",
+      "event_type": "arbitration_commenced",
+      "date": "2020-06-09",
+      "description": "Second Arbitration commenced by Oaklen against Obadiah"
+    },
+    {
+      "event_id": "evt_2023_03_10_partial_award",
+      "event_type": "partial_award",
+      "date": "2023-03-10",
+      "amount": {
+        "currency": "AED",
+        "value": 57803026.17
+      },
+      "description": "Partial Award issued in favour of Oaklen"
+    },
+    {
+      "event_id": "evt_2023_06_21_final_award",
+      "event_type": "final_award",
+      "date": "2023-06-21",
+      "description": "Final Award issued"
+    },
+    {
+      "event_id": "evt_2023_08_17_arb_claim_form",
+      "event_type": "arb_claim_form",
+      "date": "2023-08-17",
+      "proceeding_no": "ARB-016-2023",
+      "description": "Arbitration Claim Form filed for recognition and enforcement"
+    },
+    {
+      "event_id": "evt_2023_09_06_recognition_order",
+      "event_type": "recognition_order",
+      "date": "2023-09-06",
+      "proceeding_no": "ARB-016-2023",
+      "description": "Amended recognition and enforcement order made"
+    },
+    {
+      "event_id": "evt_2023_09_27_recognition_order_reissued",
+      "event_type": "recognition_order_reissued",
+      "date": "2023-09-27",
+      "proceeding_no": "ARB-016-2023",
+      "description": "Recognition order re-issued"
+    },
+    {
+      "event_id": "evt_2023_10_30_final_executory_order",
+      "event_type": "executory_order",
+      "date": "2023-10-30",
+      "description": "Order declaring amended recognition order final and executory"
+    },
+    {
+      "event_id": "evt_2024_10_14_part50_application",
+      "event_type": "part50_application",
+      "date": "2024-10-14",
+      "description": "Part 50 Examination Application"
+    },
+    {
+      "event_id": "evt_2024_10_21_part50_orders",
+      "event_type": "part50_orders",
+      "date": "2024-10-21",
+      "description": "Amended Examination Order / Part 50 Orders"
+    },
+    {
+      "event_id": "evt_2025_01_31_first_set_aside_dismissed",
+      "event_type": "set_aside_dismissed",
+      "date": "2025-01-31",
+      "description": "First set-aside applications dismissed"
+    },
+    {
+      "event_id": "evt_2025_02_13_second_set_aside_dismissed",
+      "event_type": "set_aside_dismissed",
+      "date": "2025-02-13",
+      "description": "Second set-aside application dismissed"
+    },
+    {
+      "event_id": "evt_2025_07_01_enf_269_order",
+      "event_type": "appellate_order_with_reasons",
+      "date": "2025-07-01",
+      "proceeding_no": "ENF 269/2023",
+      "description": "Order with Reasons by Chief Justice Wayne Martin"
+    }
+  ],
+  "proceedings": [
+    {
+      "proceeding_no": "ARB-016-2023",
+      "proceeding_type": "recognition_and_enforcement",
+      "status": "modeled_from_downstream_references",
+      "document_ids": []
+    },
+    {
+      "proceeding_no": "ENF 269/2023",
+      "proceeding_type": "renewed_permission_to_appeal_and_stay",
+      "status": "fully_modeled",
+      "document_ids": [
+        "doc_enf_269_2023_order_with_reasons"
+      ]
+    }
+  ],
+  "documents": [
+    {
+      "document_id": "doc_enf_269_2023_order_with_reasons",
+      "competition_pdf_id": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2",
+      "canonical_slug": "enf_269_2023_ozias_ori_octavio_v_obadiah_oaklen",
+      "proceeding_no": "ENF 269/2023",
+      "document_subtype": "order_with_reasons",
+      "decision_date": "2025-07-01"
+    }
+  ],
+  "issue_tags": [
+    "rdc_50_officer_definition",
+    "part_50_examination_scope",
+    "extraterritorial_reach",
+    "permission_to_appeal_threshold",
+    "de_facto_officer",
+    "costs_timetable"
+  ]
+}

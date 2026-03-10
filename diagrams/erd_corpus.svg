@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1060" height="430" viewBox="0 0 1060 430">
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#4b5563"/></marker></defs>
+<rect x="0" y="0" width="1060" height="430" fill="#f8fafc"/>
+<text x="16" y="24" font-family="DejaVu Sans, sans-serif" font-size="18" font-weight="700" fill="#0f172a">ERD-1. Corpus, chunks, entities, lineage</text>
+<text x="16" y="44" font-family="DejaVu Sans, sans-serif" font-size="11.5" fill="#475569">Canonical source unit is page; canonical retrieval unit is paragraph.</text>
+
+    <path d="M210,130.0 L230.0,130.0 L230.0,114.0 L250,114.0" fill="none" stroke="#4b5563" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <text x="234.0" y="118.0" font-family="DejaVu Sans, sans-serif" font-size="10.5" fill="#4b5563">1..n</text>
+    
+
+    <path d="M470,114.0 L495.0,114.0 L495.0,114.0 L520,114.0" fill="none" stroke="#4b5563" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <text x="499.0" y="110.0" font-family="DejaVu Sans, sans-serif" font-size="10.5" fill="#4b5563">1..n</text>
+    
+
+    <path d="M740,114.0 L765.0,114.0 L765.0,130.0 L790,130.0" fill="none" stroke="#4b5563" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <text x="769.0" y="118.0" font-family="DejaVu Sans, sans-serif" font-size="10.5" fill="#4b5563">1..n</text>
+    
+
+    <path d="M905.0,220 L905.0,220 L905.0,260 L905.0,260" fill="none" stroke="#4b5563" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <text x="909.0" y="236.0" font-family="DejaVu Sans, sans-serif" font-size="10.5" fill="#4b5563">1..n</text>
+    
+
+    <path d="M740,326.0 L765.0,326.0 L765.0,326.0 L790,326.0" fill="none" stroke="#4b5563" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <text x="769.0" y="322.0" font-family="DejaVu Sans, sans-serif" font-size="10.5" fill="#4b5563">1..n</text>
+    
+
+    <path d="M250,114.0 L360.0,114.0 L360.0,314.0 L470,314.0" fill="none" stroke="#4b5563" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <text x="364.0" y="210.0" font-family="DejaVu Sans, sans-serif" font-size="10.5" fill="#4b5563">1..n</text>
+    
+
+    <path d="M250,314.0 L230.0,314.0 L230.0,314.0 L210,314.0" fill="none" stroke="#4b5563" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <text x="234.0" y="310.0" font-family="DejaVu Sans, sans-serif" font-size="10.5" fill="#4b5563">1..n</text>
+    
+<rect x="20" y="70" width="190" height="120" rx="8" ry="8" fill="#ffffff" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="20" y="70" width="190" height="28" rx="8" ry="8" fill="#1f3a5f" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="20" y="90" width="190" height="8" fill="#1f3a5f" stroke="none"/>
+<text x="30" y="89" font-family="DejaVu Sans, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">projects</text>
+<text x="30" y="114" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">project_id PK</text>
+<text x="30" y="130" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">name</text>
+<text x="30" y="146" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">region</text>
+<text x="30" y="162" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">runtime_policy_version</text>
+<rect x="250" y="40" width="220" height="148" rx="8" ry="8" fill="#ffffff" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="250" y="40" width="220" height="28" rx="8" ry="8" fill="#1f3a5f" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="250" y="60" width="220" height="8" fill="#1f3a5f" stroke="none"/>
+<text x="260" y="59" font-family="DejaVu Sans, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">documents</text>
+<text x="260" y="84" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">document_id PK</text>
+<text x="260" y="100" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">project_id FK</text>
+<text x="260" y="116" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">pdf_id</text>
+<text x="260" y="132" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">canonical_doc_id</text>
+<text x="260" y="148" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">doc_type</text>
+<text x="260" y="164" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">title</text>
+<text x="260" y="180" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">content_hash</text>
+<rect x="520" y="40" width="220" height="148" rx="8" ry="8" fill="#ffffff" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="520" y="40" width="220" height="28" rx="8" ry="8" fill="#1f3a5f" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="520" y="60" width="220" height="8" fill="#1f3a5f" stroke="none"/>
+<text x="530" y="59" font-family="DejaVu Sans, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">pages</text>
+<text x="530" y="84" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">page_id PK</text>
+<text x="530" y="100" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">document_id FK</text>
+<text x="530" y="116" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">page_num</text>
+<text x="530" y="132" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">page_class</text>
+<text x="530" y="148" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">source_page_id</text>
+<text x="530" y="164" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">text_sha256</text>
+<rect x="790" y="40" width="230" height="180" rx="8" ry="8" fill="#ffffff" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="790" y="40" width="230" height="28" rx="8" ry="8" fill="#1f3a5f" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="790" y="60" width="230" height="8" fill="#1f3a5f" stroke="none"/>
+<text x="800" y="59" font-family="DejaVu Sans, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">paragraphs</text>
+<text x="800" y="84" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">paragraph_id PK</text>
+<text x="800" y="100" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">page_id FK</text>
+<text x="800" y="116" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">paragraph_index</text>
+<text x="800" y="132" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">heading_path</text>
+<text x="800" y="148" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">paragraph_class</text>
+<text x="800" y="164" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">summary_tag</text>
+<text x="800" y="180" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">text</text>
+<rect x="520" y="260" width="220" height="132" rx="8" ry="8" fill="#ffffff" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="520" y="260" width="220" height="28" rx="8" ry="8" fill="#1f3a5f" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="520" y="280" width="220" height="8" fill="#1f3a5f" stroke="none"/>
+<text x="530" y="279" font-family="DejaVu Sans, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">entities</text>
+<text x="530" y="304" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">entity_id PK</text>
+<text x="530" y="320" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">entity_type</text>
+<text x="530" y="336" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">canonical_name</text>
+<text x="530" y="352" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">alias_json</text>
+<rect x="790" y="260" width="230" height="132" rx="8" ry="8" fill="#ffffff" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="790" y="260" width="230" height="28" rx="8" ry="8" fill="#1f3a5f" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="790" y="280" width="230" height="8" fill="#1f3a5f" stroke="none"/>
+<text x="800" y="279" font-family="DejaVu Sans, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">paragraph_entities</text>
+<text x="800" y="304" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">paragraph_id FK</text>
+<text x="800" y="320" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">entity_id FK</text>
+<text x="800" y="336" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">mention_text</text>
+<text x="800" y="352" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">role</text>
+<text x="800" y="368" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">span_start/end</text>
+<rect x="250" y="240" width="220" height="148" rx="8" ry="8" fill="#ffffff" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="250" y="240" width="220" height="28" rx="8" ry="8" fill="#1f3a5f" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="250" y="260" width="220" height="8" fill="#1f3a5f" stroke="none"/>
+<text x="260" y="259" font-family="DejaVu Sans, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">provisions</text>
+<text x="260" y="284" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">provision_id PK</text>
+<text x="260" y="300" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">document_id FK</text>
+<text x="260" y="316" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">article_ref</text>
+<text x="260" y="332" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">section_ref</text>
+<text x="260" y="348" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">lineage_id</text>
+<text x="260" y="364" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">effective_from</text>
+<rect x="20" y="240" width="190" height="148" rx="8" ry="8" fill="#ffffff" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="20" y="240" width="190" height="28" rx="8" ry="8" fill="#1f3a5f" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="20" y="260" width="190" height="8" fill="#1f3a5f" stroke="none"/>
+<text x="30" y="259" font-family="DejaVu Sans, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">provision_edges</text>
+<text x="30" y="284" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">edge_id PK</text>
+<text x="30" y="300" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">src_provision_id FK</text>
+<text x="30" y="316" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">dst_provision_id FK</text>
+<text x="30" y="332" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">edge_type</text>
+<text x="30" y="348" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">confidence</text>
+</svg>

@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1220" height="470" viewBox="0 0 1220 470">
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#4b5563"/></marker></defs>
+<rect x="0" y="0" width="1220" height="470" fill="#f8fafc"/>
+<text x="16" y="24" font-family="DejaVu Sans, sans-serif" font-size="18" font-weight="700" fill="#0f172a">System architecture</text>
+<text x="16" y="44" font-family="DejaVu Sans, sans-serif" font-size="11.5" fill="#475569">Logical decomposition. Physical deployment may start as a modular monolith, but subservices keep contracts isolated.</text>
+
+    <path d="M180,126.0 L200.0,126.0 L200.0,142.0 L220,142.0" fill="none" stroke="#4b5563" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <text x="204.0" y="130.0" font-family="DejaVu Sans, sans-serif" font-size="10.5" fill="#4b5563">start</text>
+    
+
+    <path d="M400,142.0 L425.0,142.0 L425.0,106.0 L450,106.0" fill="none" stroke="#4b5563" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <text x="429.0" y="120.0" font-family="DejaVu Sans, sans-serif" font-size="10.5" fill="#4b5563">write</text>
+    
+
+    <path d="M400,142.0 L425.0,142.0 L425.0,268.0 L450,268.0" fill="none" stroke="#4b5563" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <text x="429.0" y="201.0" font-family="DejaVu Sans, sans-serif" font-size="10.5" fill="#4b5563">index</text>
+    
+
+    <path d="M680,162.0 L655.0,162.0 L655.0,106.0 L630,106.0" fill="none" stroke="#4b5563" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <text x="659.0" y="130.0" font-family="DejaVu Sans, sans-serif" font-size="10.5" fill="#4b5563">metadata</text>
+    
+
+    <path d="M680,162.0 L655.0,162.0 L655.0,268.0 L630,268.0" fill="none" stroke="#4b5563" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <text x="659.0" y="211.0" font-family="DejaVu Sans, sans-serif" font-size="10.5" fill="#4b5563">query</text>
+    
+
+    <path d="M900,162.0 L930.0,162.0 L930.0,106.0 L960,106.0" fill="none" stroke="#4b5563" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <text x="934.0" y="130.0" font-family="DejaVu Sans, sans-serif" font-size="10.5" fill="#4b5563">predictions</text>
+    
+
+    <path d="M1070.0,210 L1070.0,210 L1070.0,180 L1070.0,180" fill="none" stroke="#4b5563" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <text x="1074.0" y="191.0" font-family="DejaVu Sans, sans-serif" font-size="10.5" fill="#4b5563">gold</text>
+    
+
+    <path d="M900,364.0 L930.0,364.0 L930.0,284.0 L960,284.0" fill="none" stroke="#4b5563" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <text x="934.0" y="320.0" font-family="DejaVu Sans, sans-serif" font-size="10.5" fill="#4b5563">publish</text>
+    
+
+    <path d="M400,366.0 L680.0,366.0 L680.0,284.0 L960,284.0" fill="none" stroke="#4b5563" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <text x="684.0" y="321.0" font-family="DejaVu Sans, sans-serif" font-size="10.5" fill="#4b5563">annotate</text>
+    
+
+    <path d="M400,366.0 L680.0,366.0 L680.0,106.0 L960,106.0" fill="none" stroke="#4b5563" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <text x="684.0" y="232.0" font-family="DejaVu Sans, sans-serif" font-size="10.5" fill="#4b5563">review</text>
+    
+
+    <path d="M400,366.0 L540.0,366.0 L540.0,364.0 L680,364.0" fill="none" stroke="#4b5563" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <text x="544.0" y="361.0" font-family="DejaVu Sans, sans-serif" font-size="10.5" fill="#4b5563">create</text>
+    
+<rect x="20" y="80" width="160" height="92" rx="8" ry="8" fill="#fff" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="20" y="80" width="160" height="28" rx="8" ry="8" fill="#1f3a5f" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="20" y="100" width="160" height="8" fill="#1f3a5f" stroke="none"/>
+<text x="30" y="99" font-family="DejaVu Sans, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">Corpus intake</text>
+<text x="30" y="124" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">ZIP/PDF upload</text>
+<text x="30" y="140" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">manifest scan</text>
+<text x="30" y="156" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">dedupe hash</text>
+<rect x="220" y="80" width="180" height="124" rx="8" ry="8" fill="#fff" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="220" y="80" width="180" height="28" rx="8" ry="8" fill="#1f3a5f" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="220" y="100" width="180" height="8" fill="#1f3a5f" stroke="none"/>
+<text x="230" y="99" font-family="DejaVu Sans, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">Offline ingest</text>
+<text x="230" y="124" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">PDF parse/OCR fallback</text>
+<text x="230" y="140" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">page + paragraph split</text>
+<text x="230" y="156" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">rule tags + LLM tags</text>
+<text x="230" y="172" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">lineage extraction</text>
+<rect x="450" y="40" width="180" height="132" rx="8" ry="8" fill="#fff" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="450" y="40" width="180" height="28" rx="8" ry="8" fill="#1f3a5f" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="450" y="60" width="180" height="8" fill="#1f3a5f" stroke="none"/>
+<text x="460" y="59" font-family="DejaVu Sans, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">Storage layer</text>
+<text x="460" y="84" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">Azure Blob / file store</text>
+<text x="460" y="100" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">PostgreSQL metadata</text>
+<text x="460" y="116" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">Redis job/status</text>
+<text x="460" y="132" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">audit + traces</text>
+<rect x="450" y="210" width="180" height="116" rx="8" ry="8" fill="#fff" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="450" y="210" width="180" height="28" rx="8" ry="8" fill="#1f3a5f" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="450" y="230" width="180" height="8" fill="#1f3a5f" stroke="none"/>
+<text x="460" y="229" font-family="DejaVu Sans, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">Retrieval layer</text>
+<text x="460" y="254" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">Typesense/Vespa</text>
+<text x="460" y="270" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">lexical + hybrid</text>
+<text x="460" y="286" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">page filter + ranking</text>
+<rect x="680" y="80" width="220" height="164" rx="8" ry="8" fill="#fff" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="680" y="80" width="220" height="28" rx="8" ry="8" fill="#1f3a5f" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="680" y="100" width="220" height="8" fill="#1f3a5f" stroke="none"/>
+<text x="690" y="99" font-family="DejaVu Sans, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">Online runtime</text>
+<text x="690" y="124" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">API gateway</text>
+<text x="690" y="140" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">route classifier</text>
+<text x="690" y="156" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">entity resolver</text>
+<text x="690" y="172" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">typed solvers</text>
+<text x="690" y="188" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">evidence selector</text>
+<text x="690" y="204" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">answer normalizer</text>
+<rect x="960" y="32" width="220" height="148" rx="8" ry="8" fill="#fff" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="960" y="32" width="220" height="28" rx="8" ry="8" fill="#1f3a5f" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="960" y="52" width="220" height="8" fill="#1f3a5f" stroke="none"/>
+<text x="970" y="51" font-family="DejaVu Sans, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">Eval subservice</text>
+<text x="970" y="76" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">contest score emulator</text>
+<text x="970" y="92" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">deterministic scorers</text>
+<text x="970" y="108" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">LLM judge</text>
+<text x="970" y="124" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">run compare + reports</text>
+<rect x="960" y="210" width="220" height="148" rx="8" ry="8" fill="#fff" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="960" y="210" width="220" height="28" rx="8" ry="8" fill="#1f3a5f" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="960" y="230" width="220" height="8" fill="#1f3a5f" stroke="none"/>
+<text x="970" y="229" font-family="DejaVu Sans, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">Gold dataset subservice</text>
+<text x="970" y="254" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">gold CRUD</text>
+<text x="970" y="270" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">source-set editor</text>
+<text x="970" y="286" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">review + lock workflow</text>
+<text x="970" y="302" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">export versioned gold</text>
+<rect x="680" y="290" width="220" height="148" rx="8" ry="8" fill="#fff" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="680" y="290" width="220" height="28" rx="8" ry="8" fill="#1f3a5f" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="680" y="310" width="220" height="8" fill="#1f3a5f" stroke="none"/>
+<text x="690" y="309" font-family="DejaVu Sans, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">Synthetic dataset subservice</text>
+<text x="690" y="334" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">template families</text>
+<text x="690" y="350" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">paraphrase + adversarial</text>
+<text x="690" y="366" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">verification pipeline</text>
+<text x="690" y="382" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">publish synthetic set</text>
+<rect x="220" y="300" width="180" height="132" rx="8" ry="8" fill="#fff" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="220" y="300" width="180" height="28" rx="8" ry="8" fill="#1f3a5f" stroke="#1f2937" stroke-width="1.4"/>
+<rect x="220" y="320" width="180" height="8" fill="#1f3a5f" stroke="none"/>
+<text x="230" y="319" font-family="DejaVu Sans, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">Research UI</text>
+<text x="230" y="344" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">Dataset Manager</text>
+<text x="230" y="360" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">Question Workbench</text>
+<text x="230" y="376" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">PDF Evidence Viewer</text>
+<text x="230" y="392" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#111827">Eval Dashboard</text>
+</svg>

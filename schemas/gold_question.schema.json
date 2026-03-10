@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GoldQuestion",
+  "description": "Reviewed gold annotation entry with canonical answer and one or more sufficient source sets.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "gold_question_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "question_id": {
+      "type": "string"
+    },
+    "gold_dataset_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "canonical_answer": {
+      "type": [
+        "string",
+        "number",
+        "boolean",
+        "null",
+        "array"
+      ]
+    },
+    "acceptable_answers": {
+      "type": "array",
+      "items": {
+        "type": [
+          "string",
+          "number",
+          "boolean",
+          "null",
+          "array"
+        ]
+      }
+    },
+    "answer_type": {
+      "type": "string",
+      "enum": [
+        "boolean",
+        "number",
+        "date",
+        "name",
+        "names",
+        "free_text"
+      ]
+    },
+    "source_sets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "source_set_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "is_primary": {
+            "type": "boolean"
+          },
+          "page_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 0,
+            "uniqueItems": true
+          },
+          "notes": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "source_set_id",
+          "is_primary",
+          "page_ids"
+        ]
+      },
+      "minItems": 1
+    },
+    "review_status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "reviewed",
+        "locked"
+      ]
+    },
+    "reviewers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "notes": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "gold_question_id",
+    "question_id",
+    "gold_dataset_id",
+    "canonical_answer",
+    "answer_type",
+    "source_sets",
+    "review_status"
+  ]
+}

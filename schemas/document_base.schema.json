@@ -1,0 +1,374 @@
+{
+  "properties": {
+    "document_id": {
+      "title": "Document Id",
+      "type": "string"
+    },
+    "project_id": {
+      "title": "Project Id",
+      "type": "string"
+    },
+    "pdf_id": {
+      "title": "Pdf Id",
+      "type": "string"
+    },
+    "canonical_doc_id": {
+      "title": "Canonical Doc Id",
+      "type": "string"
+    },
+    "doc_type": {
+      "enum": [
+        "law",
+        "regulation",
+        "enactment_notice",
+        "case",
+        "other"
+      ],
+      "title": "Doc Type",
+      "type": "string"
+    },
+    "source_file_name": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source File Name"
+    },
+    "source_sha256": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Source Sha256",
+      "type": "string"
+    },
+    "duplicate_group_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Duplicate Group Id"
+    },
+    "title_raw": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Title Raw"
+    },
+    "title_normalized": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Title Normalized"
+    },
+    "short_title": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Short Title"
+    },
+    "citation_title": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Citation Title"
+    },
+    "language": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Language"
+    },
+    "jurisdiction": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Jurisdiction"
+    },
+    "issued_date": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Issued Date"
+    },
+    "effective_start_date": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Effective Start Date"
+    },
+    "effective_end_date": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Effective End Date"
+    },
+    "repealed_date": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Repealed Date"
+    },
+    "is_current_version": {
+      "default": true,
+      "title": "Is Current Version",
+      "type": "boolean"
+    },
+    "version_group_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Version Group Id"
+    },
+    "version_sequence": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Version Sequence"
+    },
+    "supersedes_doc_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Supersedes Doc Id"
+    },
+    "superseded_by_doc_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Superseded By Doc Id"
+    },
+    "page_count": {
+      "minimum": 1,
+      "title": "Page Count",
+      "type": "integer"
+    },
+    "parser_version": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Parser Version"
+    },
+    "ocr_used": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Ocr Used"
+    },
+    "extraction_confidence": {
+      "anyOf": [
+        {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Extraction Confidence"
+    },
+    "ingested_at": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Ingested At"
+    },
+    "last_reprocessed_at": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Last Reprocessed At"
+    },
+    "topic_tags": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Topic Tags",
+      "type": "array"
+    },
+    "legal_domains": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Legal Domains",
+      "type": "array"
+    },
+    "entity_names": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Entity Names",
+      "type": "array"
+    },
+    "citation_keys": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Citation Keys",
+      "type": "array"
+    },
+    "search_text_compact": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Search Text Compact"
+    },
+    "search_priority_score": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Search Priority Score"
+    },
+    "status": {
+      "default": "parsed",
+      "enum": [
+        "parsed",
+        "indexed",
+        "failed"
+      ],
+      "title": "Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "document_id",
+    "project_id",
+    "pdf_id",
+    "canonical_doc_id",
+    "doc_type",
+    "source_sha256",
+    "page_count"
+  ],
+  "title": "DocumentBase",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

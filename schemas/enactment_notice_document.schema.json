@@ -1,0 +1,242 @@
+{
+  "properties": {
+    "document_id": {
+      "title": "Document Id",
+      "type": "string"
+    },
+    "notice_number": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Notice Number"
+    },
+    "notice_year": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Notice Year"
+    },
+    "notice_type": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Notice Type"
+    },
+    "issuing_authority": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Issuing Authority"
+    },
+    "target_doc_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Target Doc Id"
+    },
+    "target_doc_type": {
+      "anyOf": [
+        {
+          "enum": [
+            "law",
+            "regulation",
+            "enactment_notice",
+            "case",
+            "other"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Target Doc Type"
+    },
+    "target_title": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Target Title"
+    },
+    "target_law_number": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Target Law Number"
+    },
+    "target_law_year": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Target Law Year"
+    },
+    "commencement_scope_type": {
+      "anyOf": [
+        {
+          "enum": [
+            "full",
+            "partial",
+            "staged",
+            "exception_based"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Commencement Scope Type"
+    },
+    "commencement_date": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Commencement Date"
+    },
+    "commencement_date_text_raw": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Commencement Date Text Raw"
+    },
+    "target_article_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Target Article Refs",
+      "type": "array"
+    },
+    "excluded_article_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Excluded Article Refs",
+      "type": "array"
+    },
+    "conditions_precedent": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Conditions Precedent",
+      "type": "array"
+    },
+    "territorial_scope": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Territorial Scope"
+    },
+    "exception_text_present": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Exception Text Present"
+    },
+    "overrides_prior_notice_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Overrides Prior Notice Ids",
+      "type": "array"
+    },
+    "related_notice_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Related Notice Ids",
+      "type": "array"
+    },
+    "linked_version_group_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Linked Version Group Id"
+    }
+  },
+  "required": [
+    "document_id"
+  ],
+  "title": "EnactmentNoticeDocument",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

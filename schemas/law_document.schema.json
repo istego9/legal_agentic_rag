@@ -1,0 +1,317 @@
+{
+  "properties": {
+    "document_id": {
+      "title": "Document Id",
+      "type": "string"
+    },
+    "law_number": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Law Number"
+    },
+    "law_year": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Law Year"
+    },
+    "law_family_code": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Law Family Code"
+    },
+    "instrument_kind": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Instrument Kind"
+    },
+    "administering_authority": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Administering Authority"
+    },
+    "promulgation_date": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Promulgation Date"
+    },
+    "commencement_date": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Commencement Date"
+    },
+    "last_consolidated_date": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Last Consolidated Date"
+    },
+    "status": {
+      "anyOf": [
+        {
+          "enum": [
+            "in_force",
+            "partially_in_force",
+            "repealed",
+            "superseded"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Status"
+    },
+    "parent_law_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Parent Law Id"
+    },
+    "amends_law_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Amends Law Ids",
+      "type": "array"
+    },
+    "amended_by_doc_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Amended By Doc Ids",
+      "type": "array"
+    },
+    "part_count": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Part Count"
+    },
+    "chapter_count": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Chapter Count"
+    },
+    "section_count": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Section Count"
+    },
+    "article_count": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Article Count"
+    },
+    "schedule_count": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Schedule Count"
+    },
+    "definition_term_count": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Definition Term Count"
+    },
+    "defined_terms": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Defined Terms",
+      "type": "array"
+    },
+    "regulated_subjects": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Regulated Subjects",
+      "type": "array"
+    },
+    "obligation_categories": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Obligation Categories",
+      "type": "array"
+    },
+    "penalty_categories": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Penalty Categories",
+      "type": "array"
+    },
+    "procedure_categories": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Procedure Categories",
+      "type": "array"
+    },
+    "exceptions_present": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Exceptions Present"
+    },
+    "cross_references": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Cross References",
+      "type": "array"
+    },
+    "concept_lineage_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Concept Lineage Ids",
+      "type": "array"
+    },
+    "edition_scope": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Edition Scope"
+    },
+    "effective_logic_type": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Effective Logic Type"
+    }
+  },
+  "required": [
+    "document_id"
+  ],
+  "title": "LawDocument",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

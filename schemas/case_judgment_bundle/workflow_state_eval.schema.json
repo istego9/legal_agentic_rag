@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "workflow_state_eval.schema.json",
+  "title": "WorkflowStateEval",
+  "type": "object",
+  "properties": {
+    "dataset_id": {
+      "type": "string"
+    },
+    "prediction_batch_id": {
+      "type": "string"
+    },
+    "gold_batch_id": {
+      "type": "string"
+    },
+    "metrics": {
+      "type": "object",
+      "properties": {
+        "doc_type_accuracy": {
+          "type": "number"
+        },
+        "section_assignment_f1": {
+          "type": "number"
+        },
+        "field_exact_match": {
+          "type": "number"
+        },
+        "chunk_projection_completeness": {
+          "type": "number"
+        },
+        "answer_accuracy": {
+          "type": "number"
+        },
+        "source_precision": {
+          "type": "number"
+        },
+        "source_recall": {
+          "type": "number"
+        },
+        "source_fbeta_2_5": {
+          "type": "number"
+        }
+      }
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "trace": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    }
+  }
+}

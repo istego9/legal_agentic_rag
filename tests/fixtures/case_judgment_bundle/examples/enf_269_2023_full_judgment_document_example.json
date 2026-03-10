@@ -1,0 +1,638 @@
+{
+  "document_id": "doc_enf_269_2023_order_with_reasons",
+  "competition_pdf_id": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2",
+  "canonical_slug": "enf_269_2023_ozias_ori_octavio_v_obadiah_oaklen",
+  "case_cluster_id": "oaklen_obadiah_ARB-016-2023_cluster",
+  "proceeding_no": "ENF 269/2023",
+  "related_root_matter_no": "ARB-016-2023",
+  "doc_type": "case",
+  "document_category": "enforcement_orders",
+  "document_subtype": "order_with_reasons",
+  "case_stage": "renewed_permission_to_appeal_and_stay",
+  "court_name": "The Dubai International Financial Centre Courts",
+  "court_level": "Court of Appeal",
+  "case_caption": "(1) Ozias (2) Ori (3) Octavio v (1) Obadiah (2) Oaklen",
+  "decision_date": "2025-07-01",
+  "date_of_issue": "2025-07-01",
+  "time_of_issue_local": "4pm",
+  "issued_by": {
+    "name": "Wayne Martin",
+    "role": "Chief Justice"
+  },
+  "issued_via_registrar": {
+    "name": "Delvin Sumo",
+    "role": "Assistant Registrar"
+  },
+  "parties": [
+    {
+      "name_raw": "OZIAS",
+      "name_normalized": "Ozias",
+      "role_in_document": "first_applicant",
+      "cluster_roles": [
+        "first_applicant",
+        "appellant_respondent",
+        "manager_of_obadiah"
+      ]
+    },
+    {
+      "name_raw": "ORI",
+      "name_normalized": "Ori",
+      "role_in_document": "second_applicant",
+      "cluster_roles": [
+        "second_applicant",
+        "appellant_respondent"
+      ]
+    },
+    {
+      "name_raw": "OCTAVIO",
+      "name_normalized": "Octavio",
+      "role_in_document": "third_applicant",
+      "cluster_roles": [
+        "third_applicant",
+        "appellant_respondent",
+        "alleged_de_facto_officer"
+      ]
+    },
+    {
+      "name_raw": "OBADIAH",
+      "name_normalized": "Obadiah",
+      "role_in_document": "defendant_judgment_debtor",
+      "cluster_roles": [
+        "defendant",
+        "judgment_debtor",
+        "award_debtor"
+      ]
+    },
+    {
+      "name_raw": "OAKLEN",
+      "name_normalized": "Oaklen",
+      "role_in_document": "claimant_judgment_creditor",
+      "cluster_roles": [
+        "claimant",
+        "judgment_creditor",
+        "award_creditor"
+      ]
+    }
+  ],
+  "applications_under_determination": [
+    {
+      "application_id": "app_first_applicant_renewed",
+      "owner": "first_applicant",
+      "application_type": "renewed_permission_to_appeal",
+      "status": "granted_in_part",
+      "granted_grounds": [
+        "1"
+      ]
+    },
+    {
+      "application_id": "app_first_applicant_stay",
+      "owner": "first_applicant",
+      "application_type": "stay_application",
+      "status": "granted"
+    },
+    {
+      "application_id": "app_second_third_renewed",
+      "owner": "second_and_third_applicants",
+      "application_type": "renewed_permission_to_appeal",
+      "status": "dismissed"
+    },
+    {
+      "application_id": "app_second_third_stay",
+      "owner": "second_and_third_applicants",
+      "application_type": "stay_application",
+      "status": "dismissed"
+    }
+  ],
+  "operative_orders": [
+    {
+      "item_no": 1,
+      "order_text": "The First Applicant is granted permission to appeal in respect of the proposed ﬁrst ground of appeal only.",
+      "order_effect_label": "permission_granted_partial",
+      "page_number_1": 2
+    },
+    {
+      "item_no": 2,
+      "order_text": "The operation of the Part 50 Orders relating to the First Applicant is stayed until further order.",
+      "order_effect_label": "stay_granted_partial",
+      "page_number_1": 2
+    },
+    {
+      "item_no": 3,
+      "order_text": "The First Applicant shall ﬁle and serve his skeleton argument in support of the appeal within fourteen (14) days of the date of this Order.",
+      "order_effect_label": "filing_direction",
+      "page_number_1": 2
+    },
+    {
+      "item_no": 4,
+      "order_text": "The Judgment Creditor shall ﬁle and serve its skeleton argument in opposition to the appeal within fourteen (14) days of service of the First Applicant’s skeleton argument.",
+      "order_effect_label": "filing_direction",
+      "page_number_1": 2
+    },
+    {
+      "item_no": 5,
+      "order_text": "The First Applicant shall ﬁle and serve any skeleton argument in reply within ten (10) days after the service of that skeleton.",
+      "order_effect_label": "filing_direction",
+      "page_number_1": 2
+    },
+    {
+      "item_no": 6,
+      "order_text": "Within ten (10) days of the date of this Order, the parties shall provide to the Registry their available dates for a hearing of the appeal in the period between 45 and 140 days after the date of this Order.",
+      "order_effect_label": "hearing_direction",
+      "page_number_1": 2
+    },
+    {
+      "item_no": 7,
+      "order_text": "The Renewed Application by the Second and Third Applicants is dismissed.",
+      "order_effect_label": "application_dismissed",
+      "page_number_1": 2
+    },
+    {
+      "item_no": 8,
+      "order_text": "The Stay Application by the Second and Third Applicants is dismissed.",
+      "order_effect_label": "application_dismissed",
+      "page_number_1": 3
+    },
+    {
+      "item_no": 9,
+      "order_text": "The Second and Third Applicants shall pay the Judgment Creditor’s costs of their Renewed Application and of their Stay Application. In default of agreement with respect to the quantum of those costs, they will be assessed in accordance with the orders which follow.",
+      "order_effect_label": "costs_payable",
+      "page_number_1": 3
+    },
+    {
+      "item_no": 10,
+      "order_text": "Within twenty-eight (28) days of the date of this Order, the Judgment Creditor shall ﬁle a Statement of Costs incurred in respect of the Renewed Application and the Stay Application made by the Second and Third Applicants, together with any short submissions in support of the costs claimed.",
+      "order_effect_label": "filing_direction",
+      "page_number_1": 3
+    },
+    {
+      "item_no": 11,
+      "order_text": "Within fourteen (14) days of service of the Statement of Costs the Second and Third Applicants shall ﬁle and serve any submissions relating to the quantum of costs claimed.",
+      "order_effect_label": "filing_direction",
+      "page_number_1": 3
+    },
+    {
+      "item_no": 12,
+      "order_text": "Within seven (7) days of service of any submissions in accordance with the preceding order, the Judgment Creditor shall ﬁle any submissions in reply to those submissions.",
+      "order_effect_label": "filing_direction",
+      "page_number_1": 3
+    },
+    {
+      "item_no": 13,
+      "order_text": "The quantum of the costs payable pursuant to these Orders shall thereafter be assessed by the Chief Justice on the papers.",
+      "order_effect_label": "assessment_direction",
+      "page_number_1": 3
+    }
+  ],
+  "procedural_event_refs": [
+    {
+      "date": "2023-08-17",
+      "event_type": "arbitration_claim_form",
+      "refers_to_case_no": "ARB-016-2023"
+    },
+    {
+      "date": "2023-09-06",
+      "event_type": "amended_order",
+      "refers_to_case_no": "ARB-016-2023"
+    },
+    {
+      "date": "2023-09-27",
+      "event_type": "amended_order_reissued",
+      "refers_to_case_no": "ARB-016-2023"
+    },
+    {
+      "date": "2024-10-14",
+      "event_type": "part_50_examination_application"
+    },
+    {
+      "date": "2024-10-21",
+      "event_type": "amended_examination_order"
+    },
+    {
+      "date": "2025-01-31",
+      "event_type": "set_aside_dismissal"
+    },
+    {
+      "date": "2025-02-13",
+      "event_type": "second_set_aside_dismissal"
+    }
+  ],
+  "authority_refs": [
+    {
+      "authority_type": "RDC_rule",
+      "authority": "RDC 44.117"
+    },
+    {
+      "authority_type": "RDC_rule",
+      "authority": "RDC 44.5"
+    },
+    {
+      "authority_type": "RDC_rule",
+      "authority": "RDC 44.19"
+    },
+    {
+      "authority_type": "RDC_rule",
+      "authority": "RDC 50.2(2)"
+    },
+    {
+      "authority_type": "case_authority",
+      "authority": "Oskar"
+    },
+    {
+      "authority_type": "case_authority",
+      "authority": "China State"
+    },
+    {
+      "authority_type": "case_authority",
+      "authority": "Masri"
+    },
+    {
+      "authority_type": "case_authority",
+      "authority": "McCormack"
+    },
+    {
+      "authority_type": "case_authority",
+      "authority": "Bloomsbury International"
+    }
+  ],
+  "issues_present": [
+    "rdc_50_officer_definition",
+    "part_50_examination_scope",
+    "extraterritorial_reach",
+    "permission_to_appeal_threshold",
+    "de_facto_officer",
+    "costs_timetable"
+  ],
+  "document_one_liner": "Court of Appeal order with reasons granting the First Applicant permission to appeal only on Ground 1, staying the Part 50 orders as to him, and dismissing the renewed applications and stay requests of the Second and Third Applicants.",
+  "document_summary": "This is a complex appellate enforcement order with reasons in which the DIFC Court of Appeal considered renewed applications for permission to appeal and related stay requests arising from Part 50 examination orders made in enforcement proceedings linked to ARB-016-2023. The Court dismissed all proposed grounds advanced by the Second and Third Applicants, but granted the First Applicant permission to appeal on a narrow jurisdictional point concerning the reach of Part 50 to individuals outside the UAE, while otherwise rejecting his case.",
+  "page_count": 19,
+  "page_map": [
+    {
+      "page_number_1": 1,
+      "page_class": "cover_and_caption",
+      "contains": [
+        "case_number",
+        "court",
+        "parties",
+        "judge",
+        "document_title"
+      ]
+    },
+    {
+      "page_number_1": 2,
+      "page_class": "recitals_and_operatives",
+      "contains": [
+        "recitals",
+        "operative_order_items"
+      ]
+    },
+    {
+      "page_number_1": 3,
+      "page_class": "issuance_and_reasons_start",
+      "contains": [
+        "operative_order_items",
+        "issuance_block",
+        "reasons_start",
+        "summary"
+      ]
+    },
+    {
+      "page_number_1": 4,
+      "page_class": "reasons_continuation",
+      "contains": [
+        "procedural_history"
+      ]
+    },
+    {
+      "page_number_1": 5,
+      "page_class": "reasons_continuation",
+      "contains": [
+        "procedural_history",
+        "appellate_test_or_legal_standard"
+      ]
+    },
+    {
+      "page_number_1": 6,
+      "page_class": "reasons_continuation",
+      "contains": [
+        "appellate_test_or_legal_standard",
+        "evidence_intro"
+      ]
+    },
+    {
+      "page_number_1": 7,
+      "page_class": "reasons_continuation",
+      "contains": [
+        "party_evidence_block"
+      ]
+    },
+    {
+      "page_number_1": 8,
+      "page_class": "reasons_continuation",
+      "contains": [
+        "party_evidence_block"
+      ]
+    },
+    {
+      "page_number_1": 9,
+      "page_class": "reasons_continuation",
+      "contains": [
+        "party_evidence_block"
+      ]
+    },
+    {
+      "page_number_1": 10,
+      "page_class": "reasons_continuation",
+      "contains": [
+        "party_evidence_block"
+      ]
+    },
+    {
+      "page_number_1": 11,
+      "page_class": "reasons_continuation",
+      "contains": [
+        "party_evidence_block",
+        "evidence_summary"
+      ]
+    },
+    {
+      "page_number_1": 12,
+      "page_class": "reasons_continuation",
+      "contains": [
+        "evidence_summary",
+        "lower_court_findings"
+      ]
+    },
+    {
+      "page_number_1": 13,
+      "page_class": "reasons_continuation",
+      "contains": [
+        "lower_court_findings",
+        "ground_statement_and_reasoning"
+      ]
+    },
+    {
+      "page_number_1": 14,
+      "page_class": "reasons_continuation",
+      "contains": [
+        "ground_statement_and_reasoning"
+      ]
+    },
+    {
+      "page_number_1": 15,
+      "page_class": "reasons_continuation",
+      "contains": [
+        "ground_statement_and_reasoning"
+      ]
+    },
+    {
+      "page_number_1": 16,
+      "page_class": "reasons_continuation",
+      "contains": [
+        "party_specific_conclusion",
+        "ground_statement_and_reasoning"
+      ]
+    },
+    {
+      "page_number_1": 17,
+      "page_class": "reasons_continuation",
+      "contains": [
+        "ground_statement_and_reasoning"
+      ]
+    },
+    {
+      "page_number_1": 18,
+      "page_class": "reasons_continuation",
+      "contains": [
+        "ground_statement_and_reasoning"
+      ]
+    },
+    {
+      "page_number_1": 19,
+      "page_class": "reasons_continuation",
+      "contains": [
+        "ground_statement_and_reasoning",
+        "party_specific_conclusion"
+      ]
+    }
+  ],
+  "section_map": [
+    {
+      "section_id": "sec_000",
+      "section_kind_case": "header_and_caption",
+      "paragraph_range": null,
+      "page_start": 1,
+      "page_end": 2,
+      "meaning": "Front matter, caption, recitals"
+    },
+    {
+      "section_id": "sec_001",
+      "section_kind_case": "operative_order_item",
+      "order_item_range": [
+        1,
+        13
+      ],
+      "page_start": 2,
+      "page_end": 3,
+      "meaning": "Operative orders, stay, costs, directions"
+    },
+    {
+      "section_id": "sec_002",
+      "section_kind_case": "issuance_block",
+      "paragraph_range": null,
+      "page_start": 3,
+      "page_end": 3,
+      "meaning": "Issued by / date / time"
+    },
+    {
+      "section_id": "sec_003",
+      "section_kind_case": "executive_summary",
+      "paragraph_range": [
+        1,
+        1
+      ],
+      "page_start": 3,
+      "page_end": 3,
+      "meaning": "Summary of renewed applications"
+    },
+    {
+      "section_id": "sec_004",
+      "section_kind_case": "procedural_history",
+      "paragraph_range": [
+        2,
+        14
+      ],
+      "page_start": 3,
+      "page_end": 5,
+      "meaning": "Contract, arbitration, awards, enforcement"
+    },
+    {
+      "section_id": "sec_005",
+      "section_kind_case": "appellate_test_or_legal_standard",
+      "paragraph_range": [
+        15,
+        26
+      ],
+      "page_start": 5,
+      "page_end": 6,
+      "meaning": "RDC 44 permission to appeal test"
+    },
+    {
+      "section_id": "sec_006",
+      "section_kind_case": "evidence_intro",
+      "paragraph_range": [
+        27,
+        27
+      ],
+      "page_start": 6,
+      "page_end": 6,
+      "meaning": "Need to assess evidence in context"
+    },
+    {
+      "section_id": "sec_007",
+      "section_kind_case": "party_evidence_block",
+      "owner": "oaklen",
+      "paragraph_range": [
+        28,
+        42
+      ],
+      "page_start": 7,
+      "page_end": 8,
+      "meaning": "Mr Osmar evidence"
+    },
+    {
+      "section_id": "sec_008",
+      "section_kind_case": "party_evidence_block",
+      "owner": "applicants",
+      "paragraph_range": [
+        43,
+        54
+      ],
+      "page_start": 9,
+      "page_end": 10,
+      "meaning": "Mr Ozias / Mr Olivier evidence"
+    },
+    {
+      "section_id": "sec_009",
+      "section_kind_case": "party_evidence_block",
+      "owner": "oaklen_reply",
+      "paragraph_range": [
+        55,
+        60
+      ],
+      "page_start": 10,
+      "page_end": 11,
+      "meaning": "Second Osmar statement"
+    },
+    {
+      "section_id": "sec_010",
+      "section_kind_case": "evidence_summary",
+      "paragraph_range": [
+        61,
+        67
+      ],
+      "page_start": 11,
+      "page_end": 12,
+      "meaning": "Court summary of evidence quality"
+    },
+    {
+      "section_id": "sec_011",
+      "section_kind_case": "lower_court_findings",
+      "paragraph_range": [
+        68,
+        72
+      ],
+      "page_start": 12,
+      "page_end": 13,
+      "meaning": "Enforcement Judge reasoning"
+    },
+    {
+      "section_id": "sec_012",
+      "section_kind_case": "ground_statement_and_reasoning",
+      "ground_owner": "second_and_third_applicants",
+      "ground_no": "1",
+      "paragraph_range": [
+        73,
+        81
+      ],
+      "page_start": 13,
+      "page_end": 14,
+      "meaning": "Officer definition / RDC 50.2(2)"
+    },
+    {
+      "section_id": "sec_013",
+      "section_kind_case": "ground_statement_and_reasoning",
+      "ground_owner": "second_and_third_applicants",
+      "ground_no": "2",
+      "paragraph_range": [
+        82,
+        89
+      ],
+      "page_start": 14,
+      "page_end": 15,
+      "meaning": "Scope of Part 50 enquiry"
+    },
+    {
+      "section_id": "sec_014",
+      "section_kind_case": "ground_statement_and_reasoning",
+      "ground_owner": "second_and_third_applicants",
+      "ground_no": "3_and_4",
+      "paragraph_range": [
+        90,
+        95
+      ],
+      "page_start": 15,
+      "page_end": 16,
+      "meaning": "Current office / de facto officer / knowledge of means"
+    },
+    {
+      "section_id": "sec_015",
+      "section_kind_case": "party_specific_conclusion",
+      "ground_owner": "second_and_third_applicants",
+      "paragraph_range": [
+        96,
+        97
+      ],
+      "page_start": 16,
+      "page_end": 16,
+      "meaning": "All grounds dismissed"
+    },
+    {
+      "section_id": "sec_016",
+      "section_kind_case": "ground_statement_and_reasoning",
+      "ground_owner": "first_applicant",
+      "ground_no": "1_and_2",
+      "paragraph_range": [
+        98,
+        111
+      ],
+      "page_start": 16,
+      "page_end": 18,
+      "meaning": "Extraterritoriality / jurisdiction outside UAE"
+    },
+    {
+      "section_id": "sec_017",
+      "section_kind_case": "ground_statement_and_reasoning",
+      "ground_owner": "first_applicant",
+      "ground_no": "3",
+      "paragraph_range": [
+        112,
+        115
+      ],
+      "page_start": 18,
+      "page_end": 19,
+      "meaning": "Scope of disclosure / wide enquiry"
+    },
+    {
+      "section_id": "sec_018",
+      "section_kind_case": "party_specific_conclusion",
+      "ground_owner": "first_applicant",
+      "paragraph_range": [
+        116,
+        117
+      ],
+      "page_start": 19,
+      "page_end": 19,
+      "meaning": "Permission granted only on Ground 1"
+    }
+  ]
+}

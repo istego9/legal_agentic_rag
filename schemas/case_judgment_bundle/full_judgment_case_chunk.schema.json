@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "full_judgment_case_chunk.schema.json",
+  "title": "FullJudgmentCaseChunk",
+  "type": "object",
+  "required": [
+    "chunk_id",
+    "case_number",
+    "case_cluster_id",
+    "page_number_1",
+    "chunk_type",
+    "section_kind_case",
+    "text_clean",
+    "chunk_summary"
+  ],
+  "properties": {
+    "chunk_id": {
+      "type": "string"
+    },
+    "page_number_1": {
+      "type": "integer"
+    },
+    "page_number_0": {
+      "type": "integer"
+    },
+    "page_id_internal": {
+      "type": "string"
+    },
+    "page_id_zero_based": {
+      "type": "string"
+    },
+    "page_id_one_based": {
+      "type": "string"
+    },
+    "chunk_order_in_doc": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "chunk_order_in_page": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "chunk_type": {
+      "type": "string"
+    },
+    "section_kind_case": {
+      "type": "string"
+    },
+    "case_number": {
+      "type": "string"
+    },
+    "case_cluster_id": {
+      "type": "string"
+    },
+    "document_subtype": {
+      "type": "string"
+    },
+    "paragraph_no": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "ground_owner": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "ground_no": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "text_clean": {
+      "type": "string"
+    },
+    "chunk_summary": {
+      "type": "string"
+    },
+    "party_roles": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "judge_names": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "issue_tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "authority_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "order_effect_label": {
+      "type": "string"
+    },
+    "answer_candidate_types": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "date_mentions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}
