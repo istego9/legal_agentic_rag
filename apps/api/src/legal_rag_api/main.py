@@ -16,6 +16,7 @@ if str(ROOT) not in sys.path:
 
 from legal_rag_api import corpus_pg, runtime_pg  # noqa: E402
 from legal_rag_api.otel import get_otel_status, setup_fastapi_otel  # noqa: E402
+from legal_rag_api.state import competition_mode_enabled, load_persisted_state  # noqa: E402
 from legal_rag_api.routers import (  # noqa: E402
     corpus as corpus_router,
     qa as qa_router,
@@ -46,15 +47,35 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def startup_load_runtime_state() -> None:
+    if competition_mode_enabled():
+        if not runtime_pg.enabled():
+            raise RuntimeError(
+                "COMPETITION_MODE=1 requires runtime PostgreSQL backing store "
+                "(set DATABASE_URL and install psycopg)."
+            )
+        if not corpus_pg.enabled():
+            raise RuntimeError(
+                "COMPETITION_MODE=1 requires corpus PostgreSQL backing store "
+                "(set DATABASE_URL and install psycopg)."
+            )
+        runtime_pg.ensure_schema()
+        corpus_pg.ensure_schema()
+        return
+
+    last_error: Exception | None = None
     for _ in range(15):
         try:
             if runtime_pg.enabled():
                 runtime_pg.ensure_schema()
             if corpus_pg.enabled():
                 corpus_pg.ensure_schema()
+            load_persisted_state()
             return
-        except Exception:
+        except Exception as exc:
+            last_error = exc
             await asyncio.sleep(1)
+    if last_error is not None:
+        raise RuntimeError("startup persistence bootstrap failed after retries") from last_error
 
 
 app.include_router(corpus_router.router)
