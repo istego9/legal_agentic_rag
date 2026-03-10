@@ -9,6 +9,7 @@ from typing import Any, Iterable, Mapping
 
 _SOURCE_PAGE_ID_PATTERN = re.compile(r"^[A-Za-z0-9._-]+_[0-9]+$")
 _ALLOWED_ANSWER_TYPES = {"boolean", "number", "date", "name", "names", "free_text"}
+CONTRACT_SEVERITY_MODEL = "blocking_only.v1"
 
 
 def _read(value: Any, field: str, default: Any = None) -> Any:
@@ -195,12 +196,10 @@ def evaluate_query_response_contract(
         + [f"no_answer:{item}" for item in no_answer_issues]
     )
     blocking_failures = list(merged_issues)
-    warnings: list[str] = []
     answer_schema_valid = not answer_issues
     source_page_id_valid = not source_issues
     telemetry_contract_valid = not telemetry_contract_issues
     no_answer_form_valid = not no_answer_issues
-    contract_valid = not merged_issues
     competition_contract_valid = not blocking_failures
     return {
         "answer_schema_valid": answer_schema_valid,
@@ -208,10 +207,8 @@ def evaluate_query_response_contract(
         "telemetry_contract_valid": telemetry_contract_valid,
         "no_answer_form_valid": no_answer_form_valid,
         "blocking_failures": blocking_failures,
-        "warnings": warnings,
-        "contract_valid": contract_valid,
         "competition_contract_valid": competition_contract_valid,
-        "passed": contract_valid,
+        "severity_model": CONTRACT_SEVERITY_MODEL,
         "issues": merged_issues,
         "issue_count": len(merged_issues),
     }
@@ -310,7 +307,7 @@ def build_scorer_summary_markdown(metrics: Mapping[str, Any]) -> str:
         f"| answer_schema_valid_rate | {_fmt(_metric('answer_schema_valid_rate'))} |",
         f"| source_page_id_valid_rate | {_fmt(_metric('source_page_id_valid_rate'))} |",
         f"| no_answer_form_valid_rate | {_fmt(_metric('no_answer_form_valid_rate'))} |",
-        f"| contract_pass_rate | {_fmt(_metric('contract_pass_rate'))} |",
+        f"| contract_pass_rate (legacy alias) | {_fmt(_metric('contract_pass_rate'))} |",
         f"| competition_contract_pass_rate | {_fmt(_metric('competition_contract_pass_rate'))} |",
         f"| invalid_prediction_count | {int(_metric('invalid_prediction_count'))} |",
     ]

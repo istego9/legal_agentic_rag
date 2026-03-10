@@ -32,7 +32,9 @@ Date: 2026-03-10
 - `answer_schema_valid_rate`
 - `source_page_id_valid_rate`
 - `no_answer_form_valid_rate`
-- `contract_pass_rate`
+- `contract_pass_rate` (legacy alias of competition contract pass rate)
+- `competition_contract_pass_rate`
+- `invalid_prediction_count`
 
 ## Step 2a Strict Gate Semantics
 - Strict mode enablement:
@@ -43,7 +45,10 @@ Date: 2026-03-10
   - source page id invalid or non-canonical
   - telemetry contract invalid
   - no-answer form invalid
-- Advisory checks are kept separately from blocking failures in `contract_checks`.
+- Contract severity model is currently single-level (`blocking_only.v1`):
+  - all current contract issues are blocking
+  - `contract_checks` expose `blocking_failures` and `competition_contract_valid`
+  - no advisory warning bucket is emitted until a real advisory policy exists
 - In strict mode:
   - invalid predictions are marked with `prediction_valid_for_competition=false`
   - per-question `overall_score` is forced to `0.0`

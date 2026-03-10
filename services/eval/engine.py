@@ -812,6 +812,7 @@ def aggregate_run(
             "no_answer_form_valid_rate": 0.0,
             "contract_pass_rate": 0.0,
             "competition_contract_pass_rate": 0.0,
+            "contract_severity_model": "blocking_only.v1",
             "invalid_prediction_count": 0,
             "blocking_contract_failure_histogram": {},
             "strict_contract_mode": strict_mode,
@@ -901,11 +902,6 @@ def aggregate_run(
             for item in contract_checks.get("blocking_failures", [])
             if str(item).strip()
         ]
-        advisory_contract_warnings = [
-            str(item).strip()
-            for item in contract_checks.get("warnings", [])
-            if str(item).strip()
-        ]
         answer_schema_valid = bool(contract_checks.get("answer_schema_valid", False))
         source_page_id_valid = bool(contract_checks.get("source_page_id_valid", False))
         telemetry_contract_valid = bool(contract_checks.get("telemetry_contract_valid", False))
@@ -954,8 +950,8 @@ def aggregate_run(
         source_page_id_validity.append(1.0 if source_page_id_valid else 0.0)
         telemetry_contract_validity.append(1.0 if telemetry_contract_valid else 0.0)
         no_answer_form_validity.append(1.0 if no_answer_form_valid else 0.0)
-        contract_passes.append(1.0 if bool(contract_checks.get("passed", False)) else 0.0)
         competition_contract_validity.append(1.0 if competition_contract_valid else 0.0)
+        contract_passes.append(1.0 if competition_contract_valid else 0.0)
         all_blocking_contract_failures.extend(blocking_contract_failures)
         if pred.abstained:
             predicted_abstain += 1
@@ -988,7 +984,6 @@ def aggregate_run(
                 "telemetry_contract_valid": telemetry_contract_valid,
                 "no_answer_form_valid": no_answer_form_valid,
                 "blocking_contract_failures": blocking_contract_failures,
-                "advisory_contract_warnings": advisory_contract_warnings,
                 "competition_contract_valid": competition_contract_valid,
                 "prediction_valid_for_competition": prediction_valid_for_competition,
                 "invalid_reason_tags": invalid_reason_tags,
@@ -1045,6 +1040,7 @@ def aggregate_run(
         "no_answer_form_valid_rate": no_answer_form_valid_rate,
         "contract_pass_rate": contract_pass_rate,
         "competition_contract_pass_rate": competition_contract_pass_rate,
+        "contract_severity_model": "blocking_only.v1",
         "invalid_prediction_count": invalid_prediction_count,
         "blocking_contract_failure_histogram": blocking_contract_failures,
         "strict_contract_mode": strict_mode,

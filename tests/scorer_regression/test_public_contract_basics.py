@@ -174,6 +174,11 @@ def test_aggregate_run_exposes_contract_check_rates_and_summary() -> None:
     assert "telemetry_incomplete" in by_qid["q-3"]["error_tags"]
     assert by_qid["q-2"]["contract_checks"]["answer_schema_valid"] is False
     assert by_qid["q-3"]["contract_checks"]["telemetry_contract_valid"] is False
+    assert by_qid["q-2"]["contract_checks"]["severity_model"] == "blocking_only.v1"
+    assert "warnings" not in by_qid["q-2"]["contract_checks"]
+    assert "contract_valid" not in by_qid["q-2"]["contract_checks"]
+    assert "passed" not in by_qid["q-2"]["contract_checks"]
+    assert "advisory_contract_warnings" not in by_qid["q-2"]
 
     summary = metrics["scorer_summary"]["markdown"]
     assert "no_answer_precision" in summary

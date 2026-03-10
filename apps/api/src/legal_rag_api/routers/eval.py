@@ -232,11 +232,6 @@ def get_eval_report(evalRunId: str) -> dict:
             for item in contract_checks.get("blocking_failures", [])
             if str(item).strip()
         ]
-        advisory_contract_warnings = [
-            str(item).strip()
-            for item in contract_checks.get("warnings", [])
-            if str(item).strip()
-        ]
         competition_contract_valid = bool(contract_checks.get("competition_contract_valid", not blocking_contract_failures))
         prediction_valid_for_competition = competition_contract_valid
         invalid_reason_tags = []
@@ -273,7 +268,6 @@ def get_eval_report(evalRunId: str) -> dict:
                 "telemetry_contract_valid": bool(contract_checks.get("telemetry_contract_valid", False)),
                 "no_answer_form_valid": bool(contract_checks.get("no_answer_form_valid", False)),
                 "blocking_contract_failures": blocking_contract_failures,
-                "advisory_contract_warnings": advisory_contract_warnings,
                 "competition_contract_valid": competition_contract_valid,
                 "prediction_valid_for_competition": prediction_valid_for_competition,
                 "invalid_reason_tags": invalid_reason_tags,

@@ -16,6 +16,9 @@ Coverage:
   - blocking contract failures mark predictions invalid
   - strict-mode scorer zeroes invalid question overall scores
   - blocking failure histogram and strict gate pass metrics
+- contract severity semantics:
+  - scorer contract model is `blocking_only.v1`
+  - no fake advisory warning bucket is emitted
 - readable scorer summary markdown (`scorer_summary.markdown`)
 
 Local command:
