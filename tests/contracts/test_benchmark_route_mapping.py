@@ -9,6 +9,8 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from packages.router.benchmark_mapping import (  # noqa: E402
+    UNMAPPED_TAXONOMY_ROUTE,
+    map_raw_route_to_taxonomy,
     normalize_runtime_route_for_taxonomy,
     validate_benchmark_mapping,
 )
@@ -18,31 +20,38 @@ def test_benchmark_route_mapping_is_valid() -> None:
     assert validate_benchmark_mapping() == []
 
 
-def test_single_case_runtime_route_normalizes_cross_case_subroute() -> None:
-    decision = normalize_runtime_route_for_taxonomy(
-        "single_case_extraction",
-        question="Was the same judge involved in both case CFI 010/2024 and case DEC 001/2025?",
-        answer_type="boolean",
-    )
-    assert decision.normalization_subroute == "case_cross_compare"
-    assert decision.normalized_taxonomy_route == "case_cross_compare"
+def test_raw_mapping_only_applies_minimal_aliases() -> None:
+    assert map_raw_route_to_taxonomy("cross_case_compare") == "case_cross_compare"
+    assert map_raw_route_to_taxonomy("cross_law_compare") == "cross_law_compare"
+    assert map_raw_route_to_taxonomy("history_lineage") == "law_relation_or_history"
+    assert map_raw_route_to_taxonomy("no_answer") == "negative_or_unanswerable"
+    assert map_raw_route_to_taxonomy("article_lookup") == UNMAPPED_TAXONOMY_ROUTE
+    assert map_raw_route_to_taxonomy("single_case_extraction") == UNMAPPED_TAXONOMY_ROUTE
 
 
-def test_article_lookup_runtime_route_normalizes_cross_law_subroute() -> None:
+def test_normalization_does_not_reroute_without_runtime_metadata() -> None:
     decision = normalize_runtime_route_for_taxonomy(
         "article_lookup",
-        question="Was the Employment Law enacted in the same year as the Intellectual Property Law?",
-        answer_type="boolean",
     )
-    assert decision.normalization_subroute == "cross_law_compare"
-    assert decision.normalized_taxonomy_route == "cross_law_compare"
+    assert decision.raw_taxonomy_route == UNMAPPED_TAXONOMY_ROUTE
+    assert decision.normalized_taxonomy_route == UNMAPPED_TAXONOMY_ROUTE
+    assert decision.normalization_source == "raw_unmapped"
 
 
-def test_no_answer_runtime_route_normalizes_negative_route() -> None:
+def test_normalization_uses_explicit_runtime_taxonomy_route_when_available() -> None:
     decision = normalize_runtime_route_for_taxonomy(
-        "no_answer",
-        question="What was the plea bargain in case ARB 032/2025?",
-        answer_type="free_text",
+        "article_lookup",
+        runtime_metadata={"normalized_taxonomy_route": "law_article_lookup"},
     )
-    assert decision.normalized_taxonomy_route == "negative_or_unanswerable"
+    assert decision.normalized_taxonomy_route == "law_article_lookup"
+    assert decision.normalization_source == "runtime_metadata.taxonomy_route"
 
+
+def test_normalization_uses_explicit_runtime_subroute_when_available() -> None:
+    decision = normalize_runtime_route_for_taxonomy(
+        "single_case_extraction",
+        runtime_metadata={"taxonomy_subroute": "case_cross_compare"},
+    )
+    assert decision.normalized_taxonomy_route == "case_cross_compare"
+    assert decision.runtime_taxonomy_subroute == "case_cross_compare"
+    assert decision.normalization_source == "runtime_metadata.taxonomy_subroute"

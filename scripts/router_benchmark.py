@@ -22,6 +22,8 @@ from packages.contracts.public_question_taxonomy import (  # noqa: E402
 )
 from packages.router.benchmark_mapping import (  # noqa: E402
     BENCHMARK_ROUTE_NORMALIZATION_VERSION,
+    UNMAPPED_TAXONOMY_ROUTE,
+    map_raw_route_to_taxonomy,
     normalize_runtime_route_for_taxonomy,
     validate_benchmark_mapping,
 )
@@ -38,14 +40,20 @@ def _safe_divide(numerator: float, denominator: float) -> float:
     return float(numerator) / float(denominator)
 
 
+def _normalized_predicted_route_labels() -> List[str]:
+    return [*PRIMARY_ROUTES, UNMAPPED_TAXONOMY_ROUTE]
+
+
 def _empty_confusion_matrix() -> Dict[str, Dict[str, int]]:
+    predicted_labels = _normalized_predicted_route_labels()
     return {
-        expected: {predicted: 0 for predicted in PRIMARY_ROUTES}
+        expected: {predicted: 0 for predicted in predicted_labels}
         for expected in PRIMARY_ROUTES
     }
 
 
 def _compute_per_route_metrics(confusion_matrix: Mapping[str, Mapping[str, int]]) -> List[Dict[str, Any]]:
+    predicted_labels = _normalized_predicted_route_labels()
     rows: List[Dict[str, Any]] = []
     for route in PRIMARY_ROUTES:
         true_positive = int(confusion_matrix.get(route, {}).get(route, 0))
@@ -56,10 +64,10 @@ def _compute_per_route_metrics(confusion_matrix: Mapping[str, Mapping[str, int]]
         )
         false_negative = sum(
             int(confusion_matrix.get(route, {}).get(other, 0))
-            for other in PRIMARY_ROUTES
+            for other in predicted_labels
             if other != route
         )
-        support = sum(int(confusion_matrix.get(route, {}).get(other, 0)) for other in PRIMARY_ROUTES)
+        support = sum(int(confusion_matrix.get(route, {}).get(other, 0)) for other in predicted_labels)
         predicted_count = sum(int(confusion_matrix.get(other, {}).get(route, 0)) for other in PRIMARY_ROUTES)
         precision = _safe_divide(true_positive, true_positive + false_positive)
         recall = _safe_divide(true_positive, true_positive + false_negative)
@@ -92,10 +100,11 @@ def compute_top_confusion_pairs(
     *,
     limit: int = 10,
 ) -> List[Dict[str, Any]]:
+    predicted_labels = _normalized_predicted_route_labels()
     pairs: List[Dict[str, Any]] = []
     for expected in PRIMARY_ROUTES:
         row = confusion_matrix.get(expected, {})
-        for predicted in PRIMARY_ROUTES:
+        for predicted in predicted_labels:
             if expected == predicted:
                 continue
             count = int(row.get(predicted, 0))
@@ -147,13 +156,14 @@ def render_mismatch_lines(mismatches: Sequence[Mapping[str, Any]]) -> List[str]:
     for row in mismatches:
         question_id = str(row.get("question_id", "")).strip()
         expected = str(row.get("expected_primary_route", "")).strip()
+        raw_mapped = str(row.get("raw_predicted_route", "")).strip()
         predicted = str(row.get("normalized_predicted_route", row.get("predicted_primary_route", ""))).strip()
         raw_runtime_route = str(row.get("raw_runtime_route", row.get("runtime_route", ""))).strip()
-        normalization_subroute = str(row.get("normalization_subroute", "")).strip()
+        normalization_source = str(row.get("normalization_source", "")).strip()
         question = str(row.get("question", "")).strip()
         lines.append(
-            f"- [{question_id}] expected={expected} normalized={predicted} "
-            f"raw={raw_runtime_route} subroute={normalization_subroute} :: {question}"
+            f"- [{question_id}] expected={expected} raw_mapped={raw_mapped} normalized={predicted} "
+            f"raw_runtime={raw_runtime_route} source={normalization_source} :: {question}"
         )
     return lines
 
@@ -177,11 +187,13 @@ def render_markdown_summary(results: Mapping[str, Any]) -> str:
         "- benchmark_mapping: `packages.router.benchmark_mapping.normalize_runtime_route_for_taxonomy`",
         f"- normalization_model_version: `{results.get('normalization_model_version', '')}`",
         f"- total_questions: `{results.get('total_questions', 0)}`",
-        f"- correct_predictions: `{results.get('correct_predictions', 0)}`",
-        f"- overall_accuracy: `{float(results.get('overall_accuracy', 0.0)):.4f}`",
-        f"- macro_f1: `{float(results.get('macro_f1', 0.0)):.4f}`",
+        f"- raw_route_correct_predictions: `{results.get('raw_route_correct_predictions', 0)}`",
+        f"- normalized_route_correct_predictions: `{results.get('normalized_route_correct_predictions', 0)}`",
+        f"- raw_route_accuracy: `{float(results.get('raw_route_accuracy', 0.0)):.4f}`",
+        f"- normalized_route_accuracy: `{float(results.get('normalized_route_accuracy', 0.0)):.4f}`",
+        f"- normalized_macro_f1: `{float(results.get('normalized_macro_f1', 0.0)):.4f}`",
         "",
-        "## Per-Route Precision/Recall/F1",
+        "## Normalized Per-Route Precision/Recall/F1",
         "",
         "| primary_route | support | predicted | precision | recall | f1 |",
         "| --- | ---: | ---: | ---: | ---: | ---: |",
@@ -202,7 +214,7 @@ def render_markdown_summary(results: Mapping[str, Any]) -> str:
     lines.extend(["", "## Predicted Count By Normalized Taxonomy Route", ""])
     lines.append("| normalized_taxonomy_route | predicted_count |")
     lines.append("| --- | ---: |")
-    for route_name in PRIMARY_ROUTES:
+    for route_name in _normalized_predicted_route_labels():
         lines.append(f"| {route_name} | {int(normalized_taxonomy_route_counts.get(route_name, 0))} |")
 
     lines.extend(
@@ -210,13 +222,13 @@ def render_markdown_summary(results: Mapping[str, Any]) -> str:
             "",
             "## Confusion Matrix",
             "",
-            "| expected \\\\ predicted | " + " | ".join(PRIMARY_ROUTES) + " |",
-            "| " + " | ".join(["---"] + ["---:" for _ in PRIMARY_ROUTES]) + " |",
+            "| expected \\\\ predicted | " + " | ".join(_normalized_predicted_route_labels()) + " |",
+            "| " + " | ".join(["---"] + ["---:" for _ in _normalized_predicted_route_labels()]) + " |",
         ]
     )
     for expected in PRIMARY_ROUTES:
         row = confusion_matrix.get(expected, {})
-        values = [str(int(row.get(predicted, 0))) for predicted in PRIMARY_ROUTES]
+        values = [str(int(row.get(predicted, 0))) for predicted in _normalized_predicted_route_labels()]
         lines.append(f"| {expected} | " + " | ".join(values) + " |")
 
     lines.extend(["", "## Top Confusion Pairs", ""])
@@ -267,65 +279,82 @@ def run_router_benchmark(
     taxonomy_by_id = {row.question_id: row for row in taxonomy_rows}
     confusion_matrix = _empty_confusion_matrix()
     mismatches: List[Dict[str, Any]] = []
-    correct_predictions = 0
+    raw_route_correct_predictions = 0
+    normalized_route_correct_predictions = 0
     raw_runtime_routes: List[str] = []
+    raw_predicted_routes: List[str] = []
     normalized_predicted_routes: List[str] = []
 
     for question in public_questions:
         question_id = question["id"]
         question_text = question["question"]
-        answer_type = question["answer_type"]
         taxonomy_row = taxonomy_by_id[question_id]
 
-        runtime_route = resolve_route(
+        runtime_route_output = resolve_route(
             {
                 "id": question_id,
                 "question": question_text,
-                "answer_type": answer_type,
+                "answer_type": question["answer_type"],
             }
         )
-        normalization_decision = normalize_runtime_route_for_taxonomy(
-            runtime_route,
-            question=question_text,
-            answer_type=answer_type,
-        )
+        runtime_route = str(runtime_route_output or "").strip()
+        runtime_metadata = None
+        if isinstance(runtime_route_output, dict):
+            runtime_route = str(
+                runtime_route_output.get("route_name")
+                or runtime_route_output.get("route")
+                or runtime_route_output.get("raw_runtime_route")
+                or ""
+            ).strip()
+            metadata_candidate = runtime_route_output.get("route_metadata")
+            if isinstance(metadata_candidate, dict):
+                runtime_metadata = metadata_candidate
+
+        raw_predicted_route = map_raw_route_to_taxonomy(runtime_route)
+        normalization_decision = normalize_runtime_route_for_taxonomy(runtime_route, runtime_metadata=runtime_metadata)
         raw_runtime_route = normalization_decision.raw_runtime_route
-        normalization_subroute = normalization_decision.normalization_subroute
-        predicted_primary_route = normalization_decision.normalized_taxonomy_route
+        normalization_source = normalization_decision.normalization_source
+        normalized_predicted_route = normalization_decision.normalized_taxonomy_route
         expected_primary_route = taxonomy_row.primary_route
 
         if expected_primary_route not in confusion_matrix:
             raise ValueError(f"unexpected expected route: {expected_primary_route!r}")
-        if predicted_primary_route not in confusion_matrix[expected_primary_route]:
-            raise ValueError(f"unexpected predicted route: {predicted_primary_route!r}")
+        if normalized_predicted_route not in confusion_matrix[expected_primary_route]:
+            raise ValueError(f"unexpected normalized predicted route: {normalized_predicted_route!r}")
 
-        confusion_matrix[expected_primary_route][predicted_primary_route] += 1
+        confusion_matrix[expected_primary_route][normalized_predicted_route] += 1
         raw_runtime_routes.append(raw_runtime_route)
-        normalized_predicted_routes.append(predicted_primary_route)
-        if expected_primary_route == predicted_primary_route:
-            correct_predictions += 1
+        raw_predicted_routes.append(raw_predicted_route)
+        normalized_predicted_routes.append(normalized_predicted_route)
+
+        if expected_primary_route == raw_predicted_route:
+            raw_route_correct_predictions += 1
+        if expected_primary_route == normalized_predicted_route:
+            normalized_route_correct_predictions += 1
         else:
             mismatches.append(
                 {
                     "question_id": question_id,
                     "question": question_text,
-                    "answer_type_expected": answer_type,
+                    "answer_type_expected": question["answer_type"],
                     "expected_primary_route": expected_primary_route,
-                    "normalized_predicted_route": predicted_primary_route,
-                    "predicted_primary_route": predicted_primary_route,
                     "raw_runtime_route": raw_runtime_route,
-                    "runtime_route": raw_runtime_route,
-                    "normalization_subroute": normalization_subroute,
+                    "raw_predicted_route": raw_predicted_route,
+                    "normalized_predicted_route": normalized_predicted_route,
+                    "normalization_source": normalization_source,
+                    "runtime_taxonomy_subroute": normalization_decision.runtime_taxonomy_subroute,
                     "taxonomy_notes": taxonomy_row.notes,
                 }
             )
 
     total_questions = len(public_questions)
     per_route_metrics = _compute_per_route_metrics(confusion_matrix)
-    overall_accuracy = _safe_divide(correct_predictions, total_questions)
-    macro_f1 = compute_macro_f1(per_route_metrics)
+    raw_route_accuracy = _safe_divide(raw_route_correct_predictions, total_questions)
+    normalized_route_accuracy = _safe_divide(normalized_route_correct_predictions, total_questions)
+    normalized_macro_f1 = compute_macro_f1(per_route_metrics)
     raw_runtime_route_counts = _count_values(raw_runtime_routes)
     normalized_taxonomy_route_counts = _count_values(normalized_predicted_routes)
+    raw_predicted_route_counts = _count_values(raw_predicted_routes)
     top_confusion_pairs = compute_top_confusion_pairs(confusion_matrix)
     dead_routes = detect_dead_routes(per_route_metrics)
 
@@ -335,11 +364,16 @@ def run_router_benchmark(
         "taxonomy_path": str(taxonomy_path),
         "normalization_model_version": BENCHMARK_ROUTE_NORMALIZATION_VERSION,
         "total_questions": total_questions,
-        "correct_predictions": correct_predictions,
-        "overall_accuracy": overall_accuracy,
-        "macro_f1": macro_f1,
+        "raw_route_correct_predictions": raw_route_correct_predictions,
+        "normalized_route_correct_predictions": normalized_route_correct_predictions,
+        "raw_route_accuracy": raw_route_accuracy,
+        "normalized_route_accuracy": normalized_route_accuracy,
+        "overall_accuracy": normalized_route_accuracy,
+        "normalized_macro_f1": normalized_macro_f1,
+        "macro_f1": normalized_macro_f1,
         "per_route_metrics": per_route_metrics,
         "raw_runtime_route_counts": raw_runtime_route_counts,
+        "raw_predicted_route_counts": raw_predicted_route_counts,
         "normalized_taxonomy_route_counts": normalized_taxonomy_route_counts,
         "top_confusion_pairs": top_confusion_pairs,
         "dead_routes": dead_routes,
@@ -395,8 +429,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     _write_json(args.json_output, results)
     print(
         "[ok] router benchmark finished: "
-        f"accuracy={results['overall_accuracy']:.4f} "
-        f"({results['correct_predictions']}/{results['total_questions']}), "
+        f"raw_accuracy={results['raw_route_accuracy']:.4f}, "
+        f"normalized_accuracy={results['normalized_route_accuracy']:.4f} "
+        f"({results['normalized_route_correct_predictions']}/{results['total_questions']}), "
         f"mismatches={len(results['mismatches'])}; "
         f"markdown={args.markdown_output} json={args.json_output}"
     )
