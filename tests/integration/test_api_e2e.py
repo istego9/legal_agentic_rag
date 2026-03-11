@@ -1581,6 +1581,135 @@ def test_export_submission_official_matches_starter_kit_shape() -> None:
     assert telemetry["model_name"] == "participant-case10"
 
 
+def test_export_submission_official_groups_pages_and_handles_abstain() -> None:
+    client = TestClient(app)
+
+    run = store.create_run(dataset_id=str(uuid4()), question_count=2, status="completed")
+    run_id = run["run_id"]
+    now = datetime(2026, 3, 10, tzinfo=timezone.utc)
+
+    grouped_prediction = QueryResponse(
+        question_id="q-official-grouped-pages",
+        answer="Law A is earlier",
+        answer_normalized="Law A is earlier",
+        answer_type="free_text",
+        confidence=0.93,
+        route_name="cross_law_compare",
+        abstained=False,
+        sources=[
+            PageRef(
+                project_id="proj",
+                document_id="doc-alpha",
+                pdf_id="doc-alpha",
+                page_num=0,
+                page_index_base=0,
+                source_page_id="doc-alpha_0",
+                used=True,
+                evidence_role="primary",
+                score=0.9,
+            ),
+            PageRef(
+                project_id="proj",
+                document_id="doc-alpha",
+                pdf_id="doc-alpha",
+                page_num=2,
+                page_index_base=0,
+                source_page_id="doc-alpha_2",
+                used=True,
+                evidence_role="primary",
+                score=0.88,
+            ),
+            PageRef(
+                project_id="proj",
+                document_id="doc-beta",
+                pdf_id="doc-beta",
+                page_num=7,
+                page_index_base=1,
+                source_page_id="doc-beta_7",
+                used=True,
+                evidence_role="supporting",
+                score=0.8,
+            ),
+            PageRef(
+                project_id="proj",
+                document_id="doc-beta",
+                pdf_id="doc-beta",
+                page_num=9,
+                page_index_base=1,
+                source_page_id="doc-beta_9",
+                used=False,
+                evidence_role="supporting",
+                score=0.1,
+            ),
+        ],
+        telemetry=Telemetry(
+            request_started_at=now,
+            first_token_at=now,
+            completed_at=now,
+            ttft_ms=900,
+            total_response_ms=1700,
+            time_per_output_token_ms=40.0,
+            input_tokens=500,
+            output_tokens=120,
+            model_name="participant-case10",
+            route_name="cross_law_compare",
+            judge_model_name=None,
+            search_profile="cross_law_compare_matrix_v1",
+            telemetry_complete=True,
+            trace_id=f"trace-{uuid4()}",
+        ),
+        debug=None,
+    )
+    abstain_prediction = QueryResponse(
+        question_id="q-official-abstain",
+        answer=None,
+        answer_normalized=None,
+        answer_type="free_text",
+        confidence=0.0,
+        route_name="cross_law_compare",
+        abstained=True,
+        sources=[],
+        telemetry=Telemetry(
+            request_started_at=now,
+            first_token_at=now,
+            completed_at=now,
+            ttft_ms=300,
+            total_response_ms=620,
+            time_per_output_token_ms=0.0,
+            input_tokens=210,
+            output_tokens=0,
+            model_name="participant-case10",
+            route_name="cross_law_compare",
+            judge_model_name=None,
+            search_profile="cross_law_compare_matrix_v1",
+            telemetry_complete=True,
+            trace_id=f"trace-{uuid4()}",
+        ),
+        debug=None,
+    )
+    store.upsert_run_question(run_id, grouped_prediction.question_id, grouped_prediction)
+    store.upsert_run_question(run_id, abstain_prediction.question_id, abstain_prediction)
+
+    exported = client.post(
+        f"/v1/runs/{run_id}/export-submission-official",
+        json={"page_index_base": 0},
+    )
+    assert exported.status_code == 200
+    payload = exported.json()
+    artifact_url = payload["artifact_url"]
+    exported_path = Path(urlparse(artifact_url).path)
+    artifact_payload = json.loads(exported_path.read_text(encoding="utf-8"))
+    answers = {entry["question_id"]: entry for entry in artifact_payload["answers"]}
+
+    grouped_retrieval = answers["q-official-grouped-pages"]["telemetry"]["retrieval"]["retrieved_chunk_pages"]
+    assert grouped_retrieval == [
+        {"doc_id": "doc-alpha", "page_numbers": [1, 3]},
+        {"doc_id": "doc-beta", "page_numbers": [7]},
+    ]
+    abstain_retrieval = answers["q-official-abstain"]["telemetry"]["retrieval"]["retrieved_chunk_pages"]
+    assert abstain_retrieval == []
+
+
 def test_export_submission_fails_closed_with_strict_contract_preflight(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("STRICT_COMPETITION_CONTRACTS", "1")
     client = TestClient(app)
@@ -1631,6 +1760,67 @@ def test_export_submission_fails_closed_with_strict_contract_preflight(monkeypat
 
     exported = client.post(
         f"/v1/runs/{run_id}/export-submission",
+        json={"page_index_base": 0},
+    )
+    assert exported.status_code == 422
+    payload = exported.json()["detail"]
+    assert payload["code"] == "submission_contract_preflight_failed"
+    assert payload["preflight"]["strict_contract_mode"] is True
+    assert payload["preflight"]["invalid_prediction_count"] == 1
+
+
+def test_export_submission_official_fails_closed_with_strict_contract_preflight(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("STRICT_COMPETITION_CONTRACTS", "1")
+    client = TestClient(app)
+
+    run = store.create_run(dataset_id=str(uuid4()), question_count=1, status="completed")
+    run_id = run["run_id"]
+    now = datetime(2026, 3, 10, tzinfo=timezone.utc)
+    invalid_prediction = QueryResponse(
+        question_id="q-strict-preflight-official",
+        answer="A",
+        answer_normalized=None,
+        answer_type="free_text",
+        confidence=1.0,
+        route_name="article_lookup",
+        abstained=False,
+        sources=[
+            PageRef(
+                project_id="proj",
+                document_id="doc",
+                pdf_id="doc",
+                page_num=3,
+                page_index_base=0,
+                source_page_id="doc_1",
+                used=True,
+                evidence_role="primary",
+                score=1.0,
+            )
+        ],
+        telemetry=Telemetry(
+            request_started_at=now,
+            first_token_at=now,
+            completed_at=now,
+            ttft_ms=800,
+            total_response_ms=1000,
+            time_per_output_token_ms=1.0,
+            input_tokens=8,
+            output_tokens=8,
+            model_name="test-model",
+            route_name="article_lookup",
+            judge_model_name=None,
+            search_profile="default",
+            telemetry_complete=True,
+            trace_id=f"trace-{uuid4()}",
+        ),
+        debug=None,
+    )
+    store.upsert_run_question(run_id, "q-strict-preflight-official", invalid_prediction)
+
+    exported = client.post(
+        f"/v1/runs/{run_id}/export-submission-official",
         json={"page_index_base": 0},
     )
     assert exported.status_code == 422
