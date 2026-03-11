@@ -68,6 +68,36 @@ _HISTORY_LINEAGE_RETRIEVAL_TEMPLATE = _RetrievalProfileTemplate(
     budget_policy_version="evidence_budget_v2",
 )
 
+_CROSS_CASE_COMPARE_RETRIEVAL_TEMPLATE = _RetrievalProfileTemplate(
+    profile_id="cross_case_compare_pairwise_v1",
+    candidate_multiplier=2.0,
+    candidate_limit_cap=18,
+    used_page_limit=4,
+    ttft_budget_ms=2100,
+    structural_lookup_enabled=True,
+    budget_policy_version="evidence_budget_v2",
+)
+
+_CROSS_LAW_COMPARE_RETRIEVAL_TEMPLATE = _RetrievalProfileTemplate(
+    profile_id="cross_law_compare_matrix_v1",
+    candidate_multiplier=2.5,
+    candidate_limit_cap=24,
+    used_page_limit=5,
+    ttft_budget_ms=2300,
+    structural_lookup_enabled=True,
+    lineage_expansion_enabled=True,
+    budget_policy_version="evidence_budget_v2",
+)
+
+_NO_ANSWER_FAST_PATH_TEMPLATE = _RetrievalProfileTemplate(
+    profile_id="no_answer_fast_path_v1",
+    candidate_multiplier=0.0,
+    candidate_limit_cap=0,
+    used_page_limit=0,
+    ttft_budget_ms=400,
+    budget_policy_version="evidence_budget_v2",
+)
+
 
 def _normalized_max_pages(raw_limit: int) -> int:
     if raw_limit < 1:
@@ -91,8 +121,14 @@ def _used_page_budget(template: _RetrievalProfileTemplate, answer_type: str) -> 
         return 2 if normalized_answer_type in {"boolean", "number", "date", "name", "names"} else 3
     if template.profile_id == "single_case_extraction_compact_v2":
         return 2 if normalized_answer_type in {"number", "date", "name", "names"} else 3
+    if template.profile_id == "cross_case_compare_pairwise_v1":
+        return 3 if normalized_answer_type in {"boolean", "number", "date", "name", "names"} else 4
+    if template.profile_id == "cross_law_compare_matrix_v1":
+        return 4 if normalized_answer_type in {"boolean", "number", "date", "name", "names"} else 5
     if template.profile_id == "history_lineage_graph_v1":
         return 4 if normalized_answer_type in {"boolean", "number", "date", "name", "names"} else 5
+    if template.profile_id == "no_answer_fast_path_v1":
+        return 0
     return template.used_page_limit
 
 
@@ -108,6 +144,12 @@ def resolve_retrieval_profile(
         template = _SINGLE_CASE_RETRIEVAL_TEMPLATE
     elif route_name == "history_lineage":
         template = _HISTORY_LINEAGE_RETRIEVAL_TEMPLATE
+    elif route_name == "cross_case_compare":
+        template = _CROSS_CASE_COMPARE_RETRIEVAL_TEMPLATE
+    elif route_name == "cross_law_compare":
+        template = _CROSS_LAW_COMPARE_RETRIEVAL_TEMPLATE
+    elif route_name == "no_answer":
+        template = _NO_ANSWER_FAST_PATH_TEMPLATE
     else:
         template = _DEFAULT_RETRIEVAL_TEMPLATE
     base_limit = _normalized_max_pages(max_candidate_pages)

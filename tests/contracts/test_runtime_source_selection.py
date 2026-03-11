@@ -21,16 +21,14 @@ def _candidate_refs(count: int) -> list[dict[str, object]]:
     ]
 
 
-def test_non_article_routes_keep_legacy_used_source_limits() -> None:
+def test_existing_route_profiles_remain_unchanged() -> None:
     refs = _candidate_refs(10)
     profile = resolve_retrieval_profile("history_lineage", max_candidate_pages=8)
 
     assert profile.profile_id == "history_lineage_graph_v1"
     assert profile.used_page_limit == 5
     assert len(choose_used_sources(refs, "history_lineage", used_page_limit=profile.used_page_limit)) == 5
-    compare_profile = resolve_retrieval_profile("cross_case_compare", max_candidate_pages=8)
-    assert compare_profile.profile_id == "default_compare_v1"
-    assert len(choose_used_sources(refs, "cross_case_compare", used_page_limit=compare_profile.used_page_limit)) == 2
+
     case_profile = resolve_retrieval_profile("single_case_extraction", max_candidate_pages=8, answer_type="number")
     assert case_profile.profile_id == "single_case_extraction_compact_v2"
     assert len(choose_used_sources(refs, "single_case_extraction", used_page_limit=case_profile.used_page_limit)) == 2
@@ -43,6 +41,38 @@ def test_article_lookup_profile_uses_explicit_used_source_limit() -> None:
     assert profile.profile_id == "article_lookup_recall_v2"
     assert profile.used_page_limit == 2
     assert len(choose_used_sources(refs, "article_lookup", used_page_limit=profile.used_page_limit)) == 2
+
+
+def test_cross_case_compare_profile_is_route_specific() -> None:
+    refs = _candidate_refs(10)
+    profile = resolve_retrieval_profile("cross_case_compare", max_candidate_pages=8, answer_type="boolean")
+
+    assert profile.profile_id == "cross_case_compare_pairwise_v1"
+    assert profile.candidate_page_limit >= 8
+    assert profile.used_page_limit == 3
+    assert profile.structural_lookup_enabled is True
+    assert len(choose_used_sources(refs, "cross_case_compare", used_page_limit=profile.used_page_limit)) == 3
+
+
+def test_cross_law_compare_profile_is_route_specific() -> None:
+    refs = _candidate_refs(12)
+    profile = resolve_retrieval_profile("cross_law_compare", max_candidate_pages=8, answer_type="free_text")
+
+    assert profile.profile_id == "cross_law_compare_matrix_v1"
+    assert profile.candidate_page_limit >= 8
+    assert profile.used_page_limit == 5
+    assert profile.structural_lookup_enabled is True
+    assert profile.lineage_expansion_enabled is True
+    assert len(choose_used_sources(refs, "cross_law_compare", used_page_limit=profile.used_page_limit)) == 5
+
+
+def test_no_answer_profile_uses_fast_path_budget() -> None:
+    profile = resolve_retrieval_profile("no_answer", max_candidate_pages=8, answer_type="free_text")
+    assert profile.profile_id == "no_answer_fast_path_v1"
+    assert profile.candidate_page_limit == 0
+    assert profile.used_page_limit == 0
+    assert profile.structural_lookup_enabled is False
+    assert profile.lineage_expansion_enabled is False
 
 
 def test_evidence_selection_trace_explicitly_tracks_retrieved_and_used() -> None:

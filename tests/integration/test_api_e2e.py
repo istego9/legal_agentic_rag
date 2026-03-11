@@ -353,6 +353,48 @@ def test_e2e_flow(tmp_path: Path) -> None:
     assert non_article_payload["telemetry"]["search_profile"] == "history_lineage_graph_v1"
     assert non_article_payload["debug"]["retrieval_profile_id"] == "history_lineage_graph_v1"
 
+    no_answer_fast_path = client.post(
+        "/v1/qa/ask",
+        json={
+            "project_id": project_id,
+            "question": {
+                "id": "q-no-answer-fast-path",
+                "question": "What did the jury decide in case ENF 053/2025?",
+                "answer_type": "free_text",
+                "tags": ["e2e"],
+            },
+            "runtime_policy": {
+                "use_llm": False,
+                "max_candidate_pages": 8,
+                "max_context_paragraphs": 8,
+                "page_index_base_export": 0,
+                "scoring_policy_version": "contest_v2026_public_rules_v1",
+                "allow_dense_fallback": True,
+                "return_debug_trace": True,
+            },
+        },
+    )
+    assert no_answer_fast_path.status_code == 200
+    no_answer_fast_path_payload = no_answer_fast_path.json()
+    assert no_answer_fast_path_payload["route_name"] == "no_answer"
+    assert no_answer_fast_path_payload["abstained"] is True
+    assert no_answer_fast_path_payload["sources"] == []
+    assert no_answer_fast_path_payload["telemetry"]["search_profile"] == "no_answer_fast_path_v1"
+    assert no_answer_fast_path_payload["debug"]["retrieval_profile_id"] == "no_answer_fast_path_v1"
+    assert no_answer_fast_path_payload["debug"]["no_answer_fast_path_triggered"] is True
+    assert no_answer_fast_path_payload["debug"]["candidate_page_budget"] == 0
+    assert no_answer_fast_path_payload["debug"]["used_page_budget"] == 0
+    assert no_answer_fast_path_payload["debug"]["evidence_selection_trace"]["no_answer_fast_path_triggered"] is True
+    assert no_answer_fast_path_payload["debug"]["evidence_selection_trace"]["selection_rule"] == "no_answer_fast_path"
+    assert no_answer_fast_path_payload["debug"]["evidence_selection_trace"]["retrieved_candidate_count"] == 0
+    assert no_answer_fast_path_payload["debug"]["evidence_selection_trace"]["used_candidate_count"] == 0
+    assert no_answer_fast_path_payload["debug"]["retrieval_stage_trace"]["retrieval_skipped"] is True
+    assert (
+        no_answer_fast_path_payload["debug"]["retrieval_stage_trace"]["retrieval_skipped_reason"]
+        == "route_no_answer_fast_path"
+    )
+    assert no_answer_fast_path_payload["debug"]["telemetry_shadow"]["gen_ai"]["no_answer_fast_path_triggered"] is True
+
     imported_questions = client.post(
         f"/v1/qa/datasets/{dataset_id}/import-questions",
         json={

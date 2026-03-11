@@ -322,6 +322,26 @@ def _build_candidates(
     answer_type: str,
     retrieval_profile: Any,
 ) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+    if max_pages <= 0:
+        return [], {
+            "trace_version": "retrieval_stage_trace_v1",
+            "route_name": route_name,
+            "answer_type": answer_type,
+            "profile_id": retrieval_profile.profile_id,
+            "normalized_query": _normalize_query_text(question_text),
+            "structural_lookup_enabled": retrieval_profile.structural_lookup_enabled,
+            "lineage_expansion_enabled": retrieval_profile.lineage_expansion_enabled,
+            "candidate_page_budget": int(max_pages),
+            "used_page_budget": int(getattr(retrieval_profile, "used_page_limit", 0) or 0),
+            "retrieval_skipped": True,
+            "retrieval_skipped_reason": "zero_candidate_budget",
+            "exact_identifier_hit_count": 0,
+            "lineage_signal_count": 0,
+            "current_version_hit_count": 0,
+            "candidate_count": 0,
+            "top_candidates": [],
+        }
+
     if corpus_pg.enabled():
         base_candidates = corpus_pg.search_candidates(project_id=project_id, query=question_text, top_k=max(max_pages * 2, 12))
     elif store.feature_flags.get("canonical_chunk_model_v1", True) and store.chunk_search_documents:
@@ -562,18 +582,27 @@ def _build_document_viewer_state(
     }
 
 
-def _telemetry_shadow_map(telemetry: Any, retrieval_profile_id: str) -> Dict[str, Any]:
+def _telemetry_shadow_map(
+    telemetry: Any,
+    retrieval_profile: Any,
+    *,
+    route_name: str,
+    no_answer_fast_path_triggered: bool,
+) -> Dict[str, Any]:
     return {
         "mapping_version": "shadow_otel_genai_v1",
         "gen_ai": {
-            "route_name": str(getattr(telemetry, "route_name", "")),
-            "profile_id": retrieval_profile_id,
+            "route_name": route_name,
+            "profile_id": str(getattr(retrieval_profile, "profile_id", "")),
             "model_name": str(getattr(telemetry, "model_name", "")),
             "trace_id": str(getattr(telemetry, "trace_id", "")),
             "ttft_ms": int(getattr(telemetry, "ttft_ms", 0) or 0),
             "total_response_ms": int(getattr(telemetry, "total_response_ms", 0) or 0),
             "input_tokens": int(getattr(telemetry, "input_tokens", 0) or 0),
             "output_tokens": int(getattr(telemetry, "output_tokens", 0) or 0),
+            "candidate_page_budget": int(getattr(retrieval_profile, "candidate_page_limit", 0) or 0),
+            "used_page_budget": int(getattr(retrieval_profile, "used_page_limit", 0) or 0),
+            "no_answer_fast_path_triggered": bool(no_answer_fast_path_triggered),
         },
     }
 
@@ -725,15 +754,40 @@ async def _answer_query(payload: QueryRequest) -> Tuple[QueryResponse, Dict[str,
         policy.max_candidate_pages,
         answer_type=q.answer_type,
     )
-
-    candidates, retrieval_stage_trace = _build_candidates(
-        question_text=q.question,
-        project_id=payload.project_id,
-        max_pages=retrieval_profile.candidate_page_limit,
-        route_name=route_name,
-        answer_type=q.answer_type,
-        retrieval_profile=retrieval_profile,
+    no_answer_fast_path_triggered = bool(
+        route_name == "no_answer"
+        and int(getattr(retrieval_profile, "candidate_page_limit", 0) or 0) <= 0
     )
+
+    if no_answer_fast_path_triggered:
+        candidates: List[Dict[str, Any]] = []
+        retrieval_stage_trace = {
+            "trace_version": "retrieval_stage_trace_v1",
+            "route_name": route_name,
+            "answer_type": q.answer_type,
+            "profile_id": retrieval_profile.profile_id,
+            "normalized_query": _normalize_query_text(q.question),
+            "structural_lookup_enabled": retrieval_profile.structural_lookup_enabled,
+            "lineage_expansion_enabled": retrieval_profile.lineage_expansion_enabled,
+            "candidate_page_budget": retrieval_profile.candidate_page_limit,
+            "used_page_budget": retrieval_profile.used_page_limit,
+            "retrieval_skipped": True,
+            "retrieval_skipped_reason": "route_no_answer_fast_path",
+            "exact_identifier_hit_count": 0,
+            "lineage_signal_count": 0,
+            "current_version_hit_count": 0,
+            "candidate_count": 0,
+            "top_candidates": [],
+        }
+    else:
+        candidates, retrieval_stage_trace = _build_candidates(
+            question_text=q.question,
+            project_id=payload.project_id,
+            max_pages=retrieval_profile.candidate_page_limit,
+            route_name=route_name,
+            answer_type=q.answer_type,
+            retrieval_profile=retrieval_profile,
+        )
 
     answer: Any = q.question
     abstained = False
@@ -747,19 +801,24 @@ async def _answer_query(payload: QueryRequest) -> Tuple[QueryResponse, Dict[str,
         "solver_version": "typed_deterministic_solver_v1",
         "answer_type": q.answer_type,
         "route_name": route_name,
-        "execution_mode": "deterministic_fallback",
-        "path": "no_candidates",
+        "execution_mode": "deterministic_abstain_fast_path" if no_answer_fast_path_triggered else "deterministic_fallback",
+        "path": "no_answer_fast_path" if no_answer_fast_path_triggered else "no_candidates",
         "candidate_count": 0,
         "matched_candidate_count": 0,
         "matched_candidate_indices": [],
         "values_considered": [],
+        "no_answer_fast_path_triggered": no_answer_fast_path_triggered,
     }
     evidence_selection_trace: Dict[str, Any] = {
         "trace_version": "evidence_selection_trace_v1",
         "route_name": route_name,
         "answer_type": q.answer_type,
-        "selection_rule": "no_candidates",
+        "selection_rule": "no_answer_fast_path" if no_answer_fast_path_triggered else "no_candidates",
         "used_page_limit": retrieval_profile.used_page_limit,
+        "candidate_page_budget": retrieval_profile.candidate_page_limit,
+        "used_page_budget": retrieval_profile.used_page_limit,
+        "no_answer_fast_path_triggered": no_answer_fast_path_triggered,
+        "retrieval_skipped_reason": "route_no_answer_fast_path" if no_answer_fast_path_triggered else "",
         "retrieved_candidate_count": 0,
         "used_candidate_count": 0,
         "retrieved_source_page_ids": [],
@@ -774,6 +833,8 @@ async def _answer_query(payload: QueryRequest) -> Tuple[QueryResponse, Dict[str,
         confidence = 0.0
         answer = FREE_TEXT_NO_ANSWER if q.answer_type == "free_text" else None
         solver_trace["candidate_count"] = 0
+        if no_answer_fast_path_triggered:
+            evidence_selection_trace["abstain_reason"] = "route_no_answer_fast_path"
     else:
         solver_result = solve_deterministic(q.model_dump(), route_name, candidates)
         answer = solver_result.answer
@@ -833,6 +894,8 @@ async def _answer_query(payload: QueryRequest) -> Tuple[QueryResponse, Dict[str,
         confidence=confidence,
         retrieval_features=retrieval_quality_features,
     )
+    if no_answer_fast_path_triggered and abstained:
+        abstain_reason = "route_no_answer_fast_path"
     if abstained:
         used_refs = []
         for ref in page_refs:
@@ -870,7 +933,12 @@ async def _answer_query(payload: QueryRequest) -> Tuple[QueryResponse, Dict[str,
     )
 
     debug = None
-    telemetry_shadow = _telemetry_shadow_map(telemetry, retrieval_profile.profile_id)
+    telemetry_shadow = _telemetry_shadow_map(
+        telemetry,
+        retrieval_profile,
+        route_name=route_name,
+        no_answer_fast_path_triggered=no_answer_fast_path_triggered,
+    )
     evidence_selection_trace["retrieval_stage_trace"] = retrieval_stage_trace
     evidence_selection_trace["retrieval_quality_features"] = retrieval_quality_features
     evidence_selection_trace["telemetry_shadow"] = telemetry_shadow
@@ -882,6 +950,9 @@ async def _answer_query(payload: QueryRequest) -> Tuple[QueryResponse, Dict[str,
             "evidence_selection_trace": evidence_selection_trace,
             "policy_version": policy.scoring_policy_version,
             "retrieval_profile_id": retrieval_profile.profile_id,
+            "candidate_page_budget": retrieval_profile.candidate_page_limit,
+            "used_page_budget": retrieval_profile.used_page_limit,
+            "no_answer_fast_path_triggered": no_answer_fast_path_triggered,
             "route_recall_diagnostics": route_recall_diagnostics,
             "latency_budget_assertion": latency_budget_assertion,
             "solver_trace": solver_trace,
@@ -916,6 +987,7 @@ async def _answer_query(payload: QueryRequest) -> Tuple[QueryResponse, Dict[str,
         "retrieval_stage_trace": retrieval_stage_trace,
         "retrieval_quality_features": retrieval_quality_features,
         "telemetry_shadow": telemetry_shadow,
+        "no_answer_fast_path_triggered": no_answer_fast_path_triggered,
     }
 
 
