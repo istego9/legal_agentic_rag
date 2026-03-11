@@ -1,8 +1,8 @@
 # Router Benchmark Summary
 
 - generated_at_utc: `2026-03-11T07:47:38.796116+00:00`
-- public_dataset_path: `/Users/artemgendler/dev/legal_agentic_rag/public_dataset.json`
-- taxonomy_path: `/Users/artemgendler/dev/legal_agentic_rag/datasets/taxonomy/public_question_taxonomy.v1.jsonl`
+- public_dataset_path: `public_dataset.json`
+- taxonomy_path: `datasets/taxonomy/public_question_taxonomy.v1.jsonl`
 - benchmark_target: `services.runtime.router.resolve_route_decision`
 - benchmark_mapping: `packages.router.benchmark_mapping.normalize_runtime_route_for_taxonomy`
 - normalization_model_version: `benchmark_route_normalization.v2`

@@ -35,6 +35,13 @@ DEFAULT_MARKDOWN_OUTPUT_PATH = ROOT / "reports" / "router_benchmark_summary.md"
 DEFAULT_JSON_OUTPUT_PATH = ROOT / "reports" / "router_benchmark_results.json"
 
 
+def _display_repo_path(path: Path) -> str:
+    try:
+        return str(path.resolve().relative_to(ROOT))
+    except ValueError:
+        return str(path)
+
+
 def _safe_divide(numerator: float, denominator: float) -> float:
     if denominator <= 0:
         return 0.0
@@ -355,8 +362,8 @@ def run_router_benchmark(
 
     return {
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
-        "public_dataset_path": str(public_dataset_path),
-        "taxonomy_path": str(taxonomy_path),
+        "public_dataset_path": _display_repo_path(public_dataset_path),
+        "taxonomy_path": _display_repo_path(taxonomy_path),
         "normalization_model_version": BENCHMARK_ROUTE_NORMALIZATION_VERSION,
         "total_questions": total_questions,
         "raw_route_correct_predictions": raw_route_correct_predictions,

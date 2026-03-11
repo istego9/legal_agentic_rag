@@ -1,7 +1,7 @@
 # Scorer Regression Artifact
 
 - generated_at_utc: `2026-03-10T16:00:55.699957+00:00`
-- command: `/Users/artemgendler/dev/legal_agentic_rag/.venv/bin/python scripts/scorer_regression.py`
+- command: `.venv/bin/python scripts/scorer_regression.py`
 
 # Scorer Regression Summary
 

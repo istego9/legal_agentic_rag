@@ -23,6 +23,13 @@ from services.eval.engine import aggregate_run  # noqa: E402
 REPORT_PATH = ROOT / "reports" / "scorer_regression_summary.md"
 
 
+def _display_repo_path(path: Path) -> str:
+    try:
+        return str(path.resolve().relative_to(ROOT))
+    except ValueError:
+        return str(path)
+
+
 def _run_regression_tests() -> int:
     cmd = [
         str(ROOT / ".venv" / "bin" / "python"),
@@ -148,12 +155,13 @@ def _fixture_summary_markdown() -> str:
 def _write_summary() -> None:
     summary = _fixture_summary_markdown()
     timestamp = datetime.now(timezone.utc).isoformat()
+    command = f"{_display_repo_path(ROOT / '.venv' / 'bin' / 'python')} scripts/scorer_regression.py"
     body = "\n".join(
         [
             "# Scorer Regression Artifact",
             "",
             f"- generated_at_utc: `{timestamp}`",
-            f"- command: `{ROOT / '.venv' / 'bin' / 'python'} scripts/scorer_regression.py`",
+            f"- command: `{command}`",
             "",
             summary,
             "",
