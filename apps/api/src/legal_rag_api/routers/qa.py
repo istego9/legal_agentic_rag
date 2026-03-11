@@ -22,7 +22,8 @@ from legal_rag_api.state import store
 from legal_rag_api.telemetry import build_telemetry
 from packages.contracts.corpus_scope import matches_corpus_scope
 from packages.retrieval.search import score_candidate, search_pages
-from services.runtime.router import resolve_retrieval_profile, resolve_route
+from services.runtime.law_article_lookup import resolve_law_article_lookup_intent
+from services.runtime.router import resolve_retrieval_profile, resolve_route_decision
 from services.runtime.solvers import (
     build_latency_budget_assertion,
     build_route_recall_diagnostics,
@@ -41,11 +42,7 @@ ALLOWED_ANSWER_TYPES = {"boolean", "number", "date", "name", "names", "free_text
 REPO_ROOT = Path(__file__).resolve().parents[5]
 PUBLIC_DATASET_PATH = REPO_ROOT / "public_dataset.json"
 _WHITESPACE_PATTERN = re.compile(r"\s+")
-_ARTICLE_REF_PATTERN = re.compile(r"\barticle\s+(\d+[A-Za-z\-]*)\b", re.IGNORECASE)
-_SECTION_REF_PATTERN = re.compile(r"\bsection\s+(\d+[A-Za-z\-]*)\b", re.IGNORECASE)
 _PART_REF_PATTERN = re.compile(r"\bpart\s+([A-Za-z0-9\-]+)\b", re.IGNORECASE)
-_SCHEDULE_REF_PATTERN = re.compile(r"\bschedule\s+([A-Za-z0-9\-]+)\b", re.IGNORECASE)
-_LAW_NUMBER_PATTERN = re.compile(r"\blaw\s+(?:no\.?|number)?\s*(\d+)\b", re.IGNORECASE)
 _CASE_NUMBER_PATTERN = re.compile(r"\b[A-Z]{2,4}\s*\d{1,4}/\d{4}\b")
 _CURRENT_LAW_MARKER = re.compile(r"\b(current|currently in force|valid|updated|as amended)\b", re.IGNORECASE)
 
@@ -76,17 +73,27 @@ def _normalize_query_text(question_text: str) -> str:
     return _collapse_ws(question_text).lower()
 
 
-def _question_structure(question_text: str) -> Dict[str, Any]:
+def _normalize_title_token(value: str) -> str:
+    return _collapse_ws(value).lower()
+
+
+def _question_structure(question_text: str, lookup_intent: Dict[str, Any] | None = None) -> Dict[str, Any]:
     normalized = _normalize_query_text(question_text)
+    intent = lookup_intent or resolve_law_article_lookup_intent(question_text)
     return {
         "normalized_query": normalized,
-        "article_refs": _uniq(match.group(1).lower() for match in _ARTICLE_REF_PATTERN.finditer(question_text)),
-        "section_refs": _uniq(match.group(1).lower() for match in _SECTION_REF_PATTERN.finditer(question_text)),
+        "article_refs": _uniq(item for item in intent.get("article_refs", []) if item),
+        "section_refs": _uniq(item for item in intent.get("section_refs", []) if item),
+        "paragraph_refs": _uniq(item for item in intent.get("paragraph_refs", []) if item),
+        "clause_refs": _uniq(item for item in intent.get("clause_refs", []) if item),
         "part_refs": _uniq(match.group(1).lower() for match in _PART_REF_PATTERN.finditer(question_text)),
-        "schedule_refs": _uniq(match.group(1).lower() for match in _SCHEDULE_REF_PATTERN.finditer(question_text)),
-        "law_numbers": _uniq(match.group(1) for match in _LAW_NUMBER_PATTERN.finditer(question_text)),
+        "schedule_refs": _uniq(item for item in intent.get("schedule_refs", []) if item),
+        "law_numbers": _uniq(item for item in intent.get("law_numbers", []) if item),
+        "law_years": _uniq(item for item in intent.get("law_years", []) if item),
+        "law_titles": _uniq(_normalize_title_token(item) for item in intent.get("law_titles", []) if item),
         "case_numbers": _uniq(match.group(0).upper() for match in _CASE_NUMBER_PATTERN.finditer(question_text.upper())),
         "current_law_intent": bool(_CURRENT_LAW_MARKER.search(question_text)),
+        "lookup_intent": intent,
     }
 
 
@@ -146,6 +153,7 @@ def _all_projected_candidates(project_id: str) -> List[Dict[str, Any]]:
 def _structural_match(question_structure: Dict[str, Any], candidate: Dict[str, Any]) -> Dict[str, bool]:
     projection = _projection_for_candidate(candidate)
     paragraph = _paragraph_for_candidate(candidate)
+    lookup_intent = question_structure.get("lookup_intent", {})
     raw_article_refs: List[Any] = [projection.get("article_number")]
     if isinstance(projection.get("article_refs"), list):
         raw_article_refs.extend(projection.get("article_refs", []))
@@ -157,19 +165,59 @@ def _structural_match(question_structure: Dict[str, Any], candidate: Dict[str, A
         if str(value).strip()
     ]
     section_ref = str(projection.get("section_ref", "")).lower().strip()
+    paragraph_ref = str(projection.get("paragraph_ref", "")).lower().strip()
+    clause_ref = str(projection.get("clause_ref", "")).lower().strip()
     part_ref = ""
     heading_path = projection.get("heading_path", []) if isinstance(projection.get("heading_path"), list) else []
     if heading_path:
         part_ref = str(heading_path[0]).lower().strip()
     schedule_number = str(projection.get("schedule_number", "")).lower().strip()
     law_number = str(projection.get("law_number", "")).strip()
+    law_year = str(
+        projection.get("law_year")
+        or projection.get("regulation_year")
+        or projection.get("notice_year")
+        or ""
+    ).strip()
+    law_title = _normalize_title_token(
+        str(
+            projection.get("law_title")
+            or projection.get("title")
+            or projection.get("citation_title")
+            or projection.get("document_title")
+            or ""
+        )
+    )
+    doc_type = str(projection.get("doc_type", "")).strip().lower()
+    expected_doc_type = str(lookup_intent.get("resolved_doc_type_guess", "")).strip().lower()
     case_number = str(projection.get("case_number", "")).upper().strip()
     return {
         "article": bool(set(question_structure["article_refs"]).intersection(article_refs)),
         "section": bool(question_structure["section_refs"] and section_ref in question_structure["section_refs"]),
+        "paragraph": bool(
+            question_structure["paragraph_refs"]
+            and (
+                paragraph_ref in question_structure["paragraph_refs"]
+                or any(ref in question_structure["paragraph_refs"] for ref in article_refs)
+            )
+        ),
+        "clause": bool(
+            question_structure["clause_refs"]
+            and (
+                clause_ref in question_structure["clause_refs"]
+                or any(ref in question_structure["clause_refs"] for ref in article_refs)
+            )
+        ),
         "part": bool(question_structure["part_refs"] and part_ref in question_structure["part_refs"]),
         "schedule": bool(question_structure["schedule_refs"] and schedule_number in question_structure["schedule_refs"]),
         "law_number": bool(question_structure["law_numbers"] and law_number in question_structure["law_numbers"]),
+        "law_year": bool(question_structure["law_years"] and law_year in question_structure["law_years"]),
+        "law_title": bool(
+            question_structure["law_titles"]
+            and law_title
+            and any(title in law_title for title in question_structure["law_titles"])
+        ),
+        "doc_type": bool(expected_doc_type and expected_doc_type != "unknown" and doc_type == expected_doc_type),
         "case_number": bool(question_structure["case_numbers"] and case_number in question_structure["case_numbers"]),
     }
 
@@ -194,6 +242,16 @@ def _candidate_retrieval_features(
     return {
         "structure_hits": structure_hits,
         "exact_identifier_hit": exact_identifier_hit,
+        "law_article_intent_aligned": bool(
+            route_name == "article_lookup"
+            and (
+                structure_hits.get("article")
+                or structure_hits.get("section")
+                or structure_hits.get("paragraph")
+                or structure_hits.get("clause")
+                or structure_hits.get("schedule")
+            )
+        ),
         "current_version_hit": bool(projection.get("is_current_version")),
         "lineage_signal": lineage_signal,
     }
@@ -206,13 +264,16 @@ def _rerank_candidates(
     answer_type: str,
     candidates: List[Dict[str, Any]],
     retrieval_profile: Any,
+    lookup_intent: Dict[str, Any] | None = None,
+    retrieval_backend: str = "",
 ) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
-    question_structure = _question_structure(question_text)
+    question_structure = _question_structure(question_text, lookup_intent=lookup_intent)
     structural_candidates: List[Dict[str, Any]] = []
     lexical_candidates: List[Dict[str, Any]] = []
     exact_identifier_hits = 0
     lineage_hits = 0
     current_version_hits = 0
+    structural_identifier_hits = 0
 
     for candidate in candidates:
         projection = _projection_for_candidate(candidate)
@@ -231,9 +292,17 @@ def _rerank_candidates(
         exact_identifier_hit = bool(features["exact_identifier_hit"])
         lineage_signal = bool(features["lineage_signal"])
         current_version_hit = bool(features["current_version_hit"])
+        structural_identifier_hit = bool(
+            features["structure_hits"].get("article")
+            or features["structure_hits"].get("section")
+            or features["structure_hits"].get("paragraph")
+            or features["structure_hits"].get("clause")
+            or features["structure_hits"].get("schedule")
+        )
         exact_identifier_hits += 1 if exact_identifier_hit else 0
         lineage_hits += 1 if lineage_signal else 0
         current_version_hits += 1 if current_version_hit else 0
+        structural_identifier_hits += 1 if structural_identifier_hit else 0
 
         final_score = float(base_score)
         stage = "lexical_projected"
@@ -250,6 +319,18 @@ def _rerank_candidates(
         if route_name == "article_lookup" and features["structure_hits"]["article"]:
             final_score += 0.2
             reasons.append("article_lookup_structural_match")
+        if route_name == "article_lookup" and features["structure_hits"]["law_number"]:
+            final_score += 0.15
+            reasons.append("article_lookup_law_number_match")
+        if route_name == "article_lookup" and features["structure_hits"]["law_year"]:
+            final_score += 0.08
+            reasons.append("article_lookup_law_year_match")
+        if route_name == "article_lookup" and features["structure_hits"]["law_title"]:
+            final_score += 0.12
+            reasons.append("article_lookup_law_title_match")
+        if route_name == "article_lookup" and features["structure_hits"]["doc_type"]:
+            final_score += 0.05
+            reasons.append("article_lookup_doc_type_match")
         if route_name == "single_case_extraction" and features["structure_hits"]["case_number"]:
             final_score += 0.2
             reasons.append("case_lookup_structural_match")
@@ -292,12 +373,15 @@ def _rerank_candidates(
         "route_name": route_name,
         "answer_type": answer_type,
         "profile_id": retrieval_profile.profile_id,
+        "retrieval_backend": retrieval_backend or "unspecified",
         "normalized_query": question_structure["normalized_query"],
         "structural_lookup_enabled": retrieval_profile.structural_lookup_enabled,
         "lineage_expansion_enabled": retrieval_profile.lineage_expansion_enabled,
         "exact_identifier_hit_count": exact_identifier_hits,
+        "structural_identifier_hit_count": structural_identifier_hits,
         "lineage_signal_count": lineage_hits,
         "current_version_hit_count": current_version_hits,
+        "lookup_intent": question_structure.get("lookup_intent", {}),
         "candidate_count": len(ordered),
         "top_candidates": [
             {
@@ -321,7 +405,10 @@ def _build_candidates(
     route_name: str,
     answer_type: str,
     retrieval_profile: Any,
+    lookup_intent: Dict[str, Any] | None = None,
+    enforce_structural_for_article: bool = False,
 ) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+    intent = lookup_intent or resolve_law_article_lookup_intent(question_text)
     if max_pages <= 0:
         return [], {
             "trace_version": "retrieval_stage_trace_v1",
@@ -329,6 +416,7 @@ def _build_candidates(
             "answer_type": answer_type,
             "profile_id": retrieval_profile.profile_id,
             "normalized_query": _normalize_query_text(question_text),
+            "lookup_intent": intent,
             "structural_lookup_enabled": retrieval_profile.structural_lookup_enabled,
             "lineage_expansion_enabled": retrieval_profile.lineage_expansion_enabled,
             "candidate_page_budget": int(max_pages),
@@ -342,9 +430,12 @@ def _build_candidates(
             "top_candidates": [],
         }
 
+    retrieval_backend = "legacy_paragraph_search"
     if corpus_pg.enabled():
+        retrieval_backend = "pg_search_candidates"
         base_candidates = corpus_pg.search_candidates(project_id=project_id, query=question_text, top_k=max(max_pages * 2, 12))
     elif store.feature_flags.get("canonical_chunk_model_v1", True) and store.chunk_search_documents:
+        retrieval_backend = "store_projection_search"
         scored: List[Dict[str, Any]] = []
         for chunk_projection in store.chunk_search_documents.values():
             paragraph = store.paragraphs.get(chunk_projection.get("chunk_id"))
@@ -370,8 +461,11 @@ def _build_candidates(
         scored = search_pages(paragraphs, question_text, top_k=max(max_pages * 2, 12), project_id=project_id)
         base_candidates = [{"paragraph": p, "page": store.pages.get(str(p.get("page_id", "")), {}), "score": float(s)} for p, s in scored]
 
-    question_structure = _question_structure(question_text)
-    if retrieval_profile.structural_lookup_enabled and any(question_structure[key] for key in ("article_refs", "section_refs", "part_refs", "schedule_refs")):
+    question_structure = _question_structure(question_text, lookup_intent=intent)
+    if retrieval_profile.structural_lookup_enabled and any(
+        question_structure[key]
+        for key in ("article_refs", "section_refs", "paragraph_refs", "clause_refs", "part_refs", "schedule_refs")
+    ):
         projected_candidates = _all_projected_candidates(project_id)
         structural_only = [
             {
@@ -382,6 +476,7 @@ def _build_candidates(
             if any(_structural_match(question_structure, candidate).values())
         ]
         if structural_only:
+            retrieval_backend = f"{retrieval_backend}+structural_lookup"
             base_candidates = structural_only + base_candidates
 
     ordered, stage_trace = _rerank_candidates(
@@ -390,7 +485,26 @@ def _build_candidates(
         answer_type=answer_type,
         candidates=base_candidates,
         retrieval_profile=retrieval_profile,
+        lookup_intent=intent,
+        retrieval_backend=retrieval_backend,
     )
+    if enforce_structural_for_article and route_name == "article_lookup":
+        structural_matches = [
+            row
+            for row in ordered
+            if any(
+                bool((row.get("retrieval_debug") or {}).get("structure_hits", {}).get(key, False))
+                for key in ("article", "section", "paragraph", "clause", "schedule")
+            )
+        ]
+        if intent.get("requires_structural_lookup") and not structural_matches:
+            stage_trace["retrieval_blocked"] = True
+            stage_trace["retrieval_blocked_reason"] = "law_article_no_structural_identifier_match"
+            stage_trace["retrieval_fallback_traced"] = True
+            stage_trace["retrieval_fallback_reason"] = "generic_lexical_fallback_disabled_for_law_article_lookup"
+            stage_trace["candidate_count"] = 0
+            stage_trace["top_candidates"] = []
+            return [], stage_trace
     return ordered[:max_pages], stage_trace
 
 
@@ -459,16 +573,80 @@ def _build_question_from_dataset(
     )
 
 
-async def _free_text_with_llm(route_name: str, question_text: str, policy_version: str) -> Tuple[str, Dict[str, int]]:
+def _safe_json_value(value: Any) -> Any:
+    if value is None:
+        return None
+    if isinstance(value, (str, int, float, bool)):
+        return value
+    if isinstance(value, list):
+        return [_safe_json_value(item) for item in value[:8]]
+    if isinstance(value, dict):
+        return {str(key): _safe_json_value(item) for key, item in list(value.items())[:12]}
+    return str(value)
+
+
+def _build_answer_normalization_trace(
+    *,
+    raw_answer: Any,
+    normalized_answer: Any,
+    normalized_text: str | None,
+    answer_type: str,
+    abstained: bool,
+) -> Dict[str, Any]:
+    normalization_applied = raw_answer != normalized_answer or (
+        isinstance(normalized_answer, list) and normalized_text is not None
+    )
+    return {
+        "trace_version": "answer_normalization_trace_v1",
+        "answer_type": answer_type,
+        "abstained": abstained,
+        "raw_answer": _safe_json_value(raw_answer),
+        "normalized_answer": _safe_json_value(normalized_answer),
+        "normalized_text": normalized_text,
+        "normalization_applied": bool(normalization_applied),
+    }
+
+
+def _article_resolution_guard(
+    *,
+    route_name: str,
+    normalized_taxonomy_route: str | None,
+    lookup_intent: Dict[str, Any],
+) -> Tuple[bool, str]:
+    if route_name != "article_lookup":
+        return False, ""
+    if normalized_taxonomy_route != "law_article_lookup":
+        return False, ""
+    confidence = float(lookup_intent.get("provision_lookup_confidence", 0.0) or 0.0)
+    requires_structural_lookup = bool(lookup_intent.get("requires_structural_lookup"))
+    if requires_structural_lookup and confidence >= 0.5:
+        return False, ""
+    return True, "law_article_resolution_missing"
+
+
+async def _free_text_with_llm(
+    route_name: str,
+    question_text: str,
+    policy_version: str,
+    *,
+    evidence_snippets: List[str],
+) -> Tuple[str, Dict[str, int]]:
+    compact_snippets = [_collapse_ws(item) for item in evidence_snippets if _collapse_ws(item)]
+    grounded_context = "\n".join(f"- {item[:280]}" for item in compact_snippets[:3]) or "- no grounded snippets provided"
     prompt = (
-        "Answer in one short sentence only. Be factual and concise."
+        "Answer in one short sentence only. Be factual, concise, and use only grounded evidence."
         f" Route family: {route_name}. "
         f"Scoring policy: {policy_version}. "
-        f"Question: {question_text}"
+        f"Question: {question_text}\n"
+        f"Evidence snippets:\n{grounded_context}"
     )
     return await llm_client.complete_chat(
         prompt,
-        user_context={"route_name": route_name, "policy_version": policy_version},
+        user_context={
+            "route_name": route_name,
+            "policy_version": policy_version,
+            "grounded_snippet_count": len(compact_snippets),
+        },
     )
 
 
@@ -724,6 +902,10 @@ def _build_review_artifact(
             "candidate_count": len(candidates),
             "retrieval_stage_trace": evidence_selection_trace.get("retrieval_stage_trace", {}),
             "retrieval_quality_features": evidence_selection_trace.get("retrieval_quality_features", {}),
+            "route_decision": evidence_selection_trace.get("route_decision", {}),
+            "law_article_lookup_resolution": evidence_selection_trace.get("law_article_lookup_resolution", {}),
+            "answer_normalization_trace": evidence_selection_trace.get("answer_normalization_trace", {}),
+            "no_silent_fallback": evidence_selection_trace.get("no_silent_fallback", {}),
             "abstain_reason": evidence_selection_trace.get("abstain_reason"),
             "telemetry_shadow": evidence_selection_trace.get("telemetry_shadow", {}),
         },
@@ -747,7 +929,32 @@ def _build_review_artifact(
 async def _answer_query(payload: QueryRequest) -> Tuple[QueryResponse, Dict[str, Any]]:
     req_started = datetime.now(timezone.utc)
     q = payload.question
-    route_name = resolve_route(q.model_dump())
+    route_decision = resolve_route_decision(q.model_dump())
+    route_name = route_decision.raw_route
+    route_decision_trace = {
+        "decision_version": route_decision.decision_version,
+        "raw_route": route_decision.raw_route,
+        "taxonomy_subroute": route_decision.taxonomy_subroute,
+        "normalized_taxonomy_route": route_decision.normalized_taxonomy_route,
+        "route_signals": dict(route_decision.route_signals),
+        "target_doc_types_guess": list(route_decision.target_doc_types_guess),
+        "document_scope_guess": route_decision.document_scope_guess,
+        "temporal_sensitivity_guess": route_decision.temporal_sensitivity_guess,
+        "matched_rules": list(route_decision.matched_rules),
+        "confidence": float(route_decision.confidence),
+    }
+    law_article_lookup_resolution = (
+        resolve_law_article_lookup_intent(q.question) if route_name == "article_lookup" else {}
+    )
+    law_article_slice_active = bool(
+        route_name == "article_lookup"
+        and route_decision.normalized_taxonomy_route == "law_article_lookup"
+    )
+    article_resolution_blocked, article_resolution_block_reason = _article_resolution_guard(
+        route_name=route_name,
+        normalized_taxonomy_route=route_decision.normalized_taxonomy_route,
+        lookup_intent=law_article_lookup_resolution,
+    )
     policy = payload.runtime_policy
     retrieval_profile = resolve_retrieval_profile(
         route_name,
@@ -767,12 +974,38 @@ async def _answer_query(payload: QueryRequest) -> Tuple[QueryResponse, Dict[str,
             "answer_type": q.answer_type,
             "profile_id": retrieval_profile.profile_id,
             "normalized_query": _normalize_query_text(q.question),
+            "lookup_intent": law_article_lookup_resolution if law_article_lookup_resolution else {},
             "structural_lookup_enabled": retrieval_profile.structural_lookup_enabled,
             "lineage_expansion_enabled": retrieval_profile.lineage_expansion_enabled,
             "candidate_page_budget": retrieval_profile.candidate_page_limit,
             "used_page_budget": retrieval_profile.used_page_limit,
             "retrieval_skipped": True,
             "retrieval_skipped_reason": "route_no_answer_fast_path",
+            "exact_identifier_hit_count": 0,
+            "lineage_signal_count": 0,
+            "current_version_hit_count": 0,
+            "candidate_count": 0,
+            "top_candidates": [],
+        }
+    elif article_resolution_blocked:
+        candidates = []
+        retrieval_stage_trace = {
+            "trace_version": "retrieval_stage_trace_v1",
+            "route_name": route_name,
+            "answer_type": q.answer_type,
+            "profile_id": retrieval_profile.profile_id,
+            "normalized_query": _normalize_query_text(q.question),
+            "lookup_intent": law_article_lookup_resolution,
+            "structural_lookup_enabled": retrieval_profile.structural_lookup_enabled,
+            "lineage_expansion_enabled": retrieval_profile.lineage_expansion_enabled,
+            "candidate_page_budget": retrieval_profile.candidate_page_limit,
+            "used_page_budget": retrieval_profile.used_page_limit,
+            "retrieval_skipped": True,
+            "retrieval_skipped_reason": article_resolution_block_reason,
+            "retrieval_blocked": True,
+            "retrieval_blocked_reason": article_resolution_block_reason,
+            "retrieval_fallback_traced": True,
+            "retrieval_fallback_reason": "generic_retrieval_disabled_without_law_article_resolution",
             "exact_identifier_hit_count": 0,
             "lineage_signal_count": 0,
             "current_version_hit_count": 0,
@@ -787,7 +1020,17 @@ async def _answer_query(payload: QueryRequest) -> Tuple[QueryResponse, Dict[str,
             route_name=route_name,
             answer_type=q.answer_type,
             retrieval_profile=retrieval_profile,
+            lookup_intent=law_article_lookup_resolution if law_article_lookup_resolution else None,
+            enforce_structural_for_article=law_article_slice_active,
         )
+        if law_article_slice_active and retrieval_stage_trace.get("retrieval_blocked"):
+            article_resolution_blocked = True
+            article_resolution_block_reason = str(
+                retrieval_stage_trace.get("retrieval_blocked_reason", "law_article_lookup_blocked")
+            )
+    retrieval_stage_trace["route_decision"] = route_decision_trace
+    if law_article_lookup_resolution:
+        retrieval_stage_trace["law_article_lookup_resolution"] = law_article_lookup_resolution
 
     answer: Any = q.question
     abstained = False
@@ -808,17 +1051,31 @@ async def _answer_query(payload: QueryRequest) -> Tuple[QueryResponse, Dict[str,
         "matched_candidate_indices": [],
         "values_considered": [],
         "no_answer_fast_path_triggered": no_answer_fast_path_triggered,
+        "route_decision": route_decision_trace,
+        "law_article_lookup_resolution": law_article_lookup_resolution if law_article_lookup_resolution else {},
     }
     evidence_selection_trace: Dict[str, Any] = {
         "trace_version": "evidence_selection_trace_v1",
         "route_name": route_name,
         "answer_type": q.answer_type,
-        "selection_rule": "no_answer_fast_path" if no_answer_fast_path_triggered else "no_candidates",
+        "selection_rule": (
+            "no_answer_fast_path"
+            if no_answer_fast_path_triggered
+            else "law_article_resolution_blocked"
+            if article_resolution_blocked
+            else "no_candidates"
+        ),
         "used_page_limit": retrieval_profile.used_page_limit,
         "candidate_page_budget": retrieval_profile.candidate_page_limit,
         "used_page_budget": retrieval_profile.used_page_limit,
         "no_answer_fast_path_triggered": no_answer_fast_path_triggered,
-        "retrieval_skipped_reason": "route_no_answer_fast_path" if no_answer_fast_path_triggered else "",
+        "retrieval_skipped_reason": (
+            "route_no_answer_fast_path"
+            if no_answer_fast_path_triggered
+            else article_resolution_block_reason
+            if article_resolution_blocked
+            else ""
+        ),
         "retrieved_candidate_count": 0,
         "used_candidate_count": 0,
         "retrieved_source_page_ids": [],
@@ -826,6 +1083,8 @@ async def _answer_query(payload: QueryRequest) -> Tuple[QueryResponse, Dict[str,
         "page_collapse_ratio": 0.0,
         "retrieval_stage_trace": retrieval_stage_trace,
         "decisions": [],
+        "route_decision": route_decision_trace,
+        "law_article_lookup_resolution": law_article_lookup_resolution if law_article_lookup_resolution else {},
     }
 
     if not candidates:
@@ -835,27 +1094,45 @@ async def _answer_query(payload: QueryRequest) -> Tuple[QueryResponse, Dict[str,
         solver_trace["candidate_count"] = 0
         if no_answer_fast_path_triggered:
             evidence_selection_trace["abstain_reason"] = "route_no_answer_fast_path"
+            solver_trace["path"] = "no_answer_fast_path"
+        elif article_resolution_blocked:
+            evidence_selection_trace["abstain_reason"] = article_resolution_block_reason
+            solver_trace["path"] = "law_article_resolution_blocked"
+            solver_trace["execution_mode"] = "deterministic_abstain_resolution_guard"
     else:
         solver_result = solve_deterministic(q.model_dump(), route_name, candidates)
         answer = solver_result.answer
         abstained = solver_result.abstained
         confidence = solver_result.confidence
         solver_trace = solver_result.trace
+        solver_trace["route_decision"] = route_decision_trace
+        solver_trace["law_article_lookup_resolution"] = law_article_lookup_resolution if law_article_lookup_resolution else {}
 
         if policy.use_llm and q.answer_type == "free_text" and not abstained and llm_client.config.enabled:
-            first_token_at = datetime.now(timezone.utc)
-            model_name = llm_client.config.deployment or model_name
-            try:
-                llm_answer, llm_usage = await _free_text_with_llm(
-                    route_name,
-                    q.question,
-                    policy.scoring_policy_version,
-                )
-                if llm_answer:
-                    answer = llm_answer
-                    confidence = max(confidence, 0.85)
-            except Exception:
-                answer = answer
+            if law_article_slice_active:
+                solver_trace["llm_fallback_blocked"] = True
+                solver_trace["llm_fallback_block_reason"] = "law_article_deterministic_only"
+            else:
+                first_token_at = datetime.now(timezone.utc)
+                model_name = llm_client.config.deployment or model_name
+                evidence_snippets = [
+                    str((_paragraph_for_candidate(candidate)).get("text", ""))[:320]
+                    for candidate in candidates[:3]
+                ]
+                try:
+                    llm_answer, llm_usage = await _free_text_with_llm(
+                        route_name,
+                        q.question,
+                        policy.scoring_policy_version,
+                        evidence_snippets=evidence_snippets,
+                    )
+                    if llm_answer:
+                        answer = llm_answer
+                        confidence = max(confidence, 0.85)
+                        solver_trace["llm_fallback_used"] = True
+                        solver_trace["llm_fallback_mode"] = "grounded_snippets_v1"
+                except Exception:
+                    answer = answer
 
         ranked_refs = [
             _to_page_ref(
@@ -896,6 +1173,10 @@ async def _answer_query(payload: QueryRequest) -> Tuple[QueryResponse, Dict[str,
     )
     if no_answer_fast_path_triggered and abstained:
         abstain_reason = "route_no_answer_fast_path"
+    elif article_resolution_blocked and abstained:
+        abstain_reason = article_resolution_block_reason
+    elif retrieval_stage_trace.get("retrieval_blocked") and abstained:
+        abstain_reason = str(retrieval_stage_trace.get("retrieval_blocked_reason", "retrieval_blocked"))
     if abstained:
         used_refs = []
         for ref in page_refs:
@@ -914,6 +1195,13 @@ async def _answer_query(payload: QueryRequest) -> Tuple[QueryResponse, Dict[str,
     )
 
     normalized_answer, normalized_text = normalize_answer(answer, q.answer_type)
+    answer_normalization_trace = _build_answer_normalization_trace(
+        raw_answer=answer,
+        normalized_answer=normalized_answer,
+        normalized_text=normalized_text,
+        answer_type=q.answer_type,
+        abstained=abstained,
+    )
     answer_for_response: Any = None if abstained and q.answer_type != "free_text" else normalized_answer
 
     telemetry = build_telemetry(
@@ -942,6 +1230,12 @@ async def _answer_query(payload: QueryRequest) -> Tuple[QueryResponse, Dict[str,
     evidence_selection_trace["retrieval_stage_trace"] = retrieval_stage_trace
     evidence_selection_trace["retrieval_quality_features"] = retrieval_quality_features
     evidence_selection_trace["telemetry_shadow"] = telemetry_shadow
+    evidence_selection_trace["answer_normalization_trace"] = answer_normalization_trace
+    evidence_selection_trace["no_silent_fallback"] = {
+        "law_article_slice_active": law_article_slice_active,
+        "article_resolution_blocked": article_resolution_blocked,
+        "article_resolution_block_reason": article_resolution_block_reason,
+    }
     if policy.return_debug_trace:
         debug = {
             "candidate_pages": page_refs,
@@ -959,6 +1253,14 @@ async def _answer_query(payload: QueryRequest) -> Tuple[QueryResponse, Dict[str,
             "retrieval_stage_trace": retrieval_stage_trace,
             "retrieval_quality_features": retrieval_quality_features,
             "telemetry_shadow": telemetry_shadow,
+            "route_decision": route_decision_trace,
+            "law_article_lookup_resolution": law_article_lookup_resolution if law_article_lookup_resolution else {},
+            "answer_normalization_trace": answer_normalization_trace,
+            "no_silent_fallback": {
+                "law_article_slice_active": law_article_slice_active,
+                "article_resolution_blocked": article_resolution_blocked,
+                "article_resolution_block_reason": article_resolution_block_reason,
+            },
             "abstain_reason": evidence_selection_trace.get("abstain_reason"),
             "entities": [],
         }
@@ -987,6 +1289,9 @@ async def _answer_query(payload: QueryRequest) -> Tuple[QueryResponse, Dict[str,
         "retrieval_stage_trace": retrieval_stage_trace,
         "retrieval_quality_features": retrieval_quality_features,
         "telemetry_shadow": telemetry_shadow,
+        "route_decision_trace": route_decision_trace,
+        "law_article_lookup_resolution": law_article_lookup_resolution if law_article_lookup_resolution else {},
+        "answer_normalization_trace": answer_normalization_trace,
         "no_answer_fast_path_triggered": no_answer_fast_path_triggered,
     }
 

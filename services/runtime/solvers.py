@@ -37,6 +37,7 @@ _POSITIVE_BOOLEAN_PATTERN = re.compile(
     r"\b(?:approved|allowed|granted|same|authori[sz]ed|valid|in force|shall|must)\b",
     re.IGNORECASE,
 )
+_SENTENCE_SPLIT_PATTERN = re.compile(r"(?<=[\.\!\?])\s+")
 _NEGATIVE_BOOLEAN_PATTERN = re.compile(
     r"\b(?:not|no|denied|dismissed|rejected|without|different)\b",
     re.IGNORECASE,
@@ -214,6 +215,9 @@ def _normalize_scalar_answer(answer: Any, answer_type: str) -> Tuple[Any, str | 
         return (value, value) if value else (None, None)
     if answer_type == "name":
         value = _normalize_name_token(answer)
+        return (value, value) if value else (None, None)
+    if answer_type == "free_text":
+        value = _collapse_whitespace(str(answer))
         return (value, value) if value else (None, None)
     return answer, str(answer)
 
@@ -531,6 +535,40 @@ def _solve_boolean(question_text: str, route_name: str, candidates: List[Dict[st
     )
 
 
+def _extract_numeric_candidates(candidate_text: str, question_text: str) -> List[str]:
+    values: List[str] = []
+    lowered_question = question_text.lower()
+    unit_terms: List[str] = []
+    if "business day" in lowered_question:
+        unit_terms.extend(["business day", "business days"])
+    if "day" in lowered_question:
+        unit_terms.extend(["day", "days"])
+    if "month" in lowered_question:
+        unit_terms.extend(["month", "months"])
+    if "year" in lowered_question:
+        unit_terms.extend(["year", "years"])
+
+    if unit_terms:
+        unit_pattern = re.compile(
+            rf"(?P<number>{_NUMBER_TOKEN_PATTERN.pattern})\s*(?:{'|'.join(re.escape(term) for term in unit_terms)})\b",
+            re.IGNORECASE,
+        )
+        for match in unit_pattern.finditer(candidate_text):
+            values.append(match.group("number"))
+        if values:
+            return _ordered_unique(values)
+
+    for match in _NUMBER_TOKEN_PATTERN.finditer(candidate_text):
+        token = match.group(0)
+        prefix = candidate_text[max(0, match.start() - 32): match.start()].lower()
+        if re.search(r"(article|section|paragraph|clause)\s*$", prefix):
+            continue
+        if re.search(r"law\s+(?:no\.?|number)\s*$", prefix):
+            continue
+        values.append(token)
+    return _ordered_unique(values)
+
+
 def _solve_number(question_text: str, route_name: str, candidates: List[Dict[str, Any]]) -> DeterministicSolveResult:
     values: List[int | float] = []
     matched_indices: List[int] = []
@@ -552,7 +590,7 @@ def _solve_number(question_text: str, route_name: str, candidates: List[Dict[str
                 ]
             )
         if not raw_values:
-            raw_values.extend(_NUMBER_TOKEN_PATTERN.findall(_candidate_text(candidate)))
+            raw_values.extend(_extract_numeric_candidates(_candidate_text(candidate), question_text))
         normalized = _ordered_unique(
             [number for number in (_normalize_number_token(value) for value in raw_values) if number is not None]
         )
@@ -820,6 +858,59 @@ def _solve_names(question_text: str, route_name: str, candidates: List[Dict[str,
     )
 
 
+def _compact_free_text_extract(raw_text: str) -> str:
+    text = _collapse_whitespace(raw_text)
+    if not text:
+        return ""
+    sentences = [segment.strip() for segment in _SENTENCE_SPLIT_PATTERN.split(text) if segment.strip()]
+    candidate = sentences[0] if sentences else text
+    if len(candidate) <= 280:
+        return candidate
+    return candidate[:277].rstrip() + "..."
+
+
+def _solve_free_text(question_text: str, route_name: str, candidates: List[Dict[str, Any]]) -> DeterministicSolveResult:
+    extracts: List[Tuple[int, str]] = []
+    for index, candidate in enumerate(candidates):
+        extract = _compact_free_text_extract(_candidate_evidence_text(candidate))
+        if not extract:
+            continue
+        extracts.append((index, extract))
+
+    if not extracts:
+        return _result(
+            answer=None,
+            abstained=True,
+            confidence=0.0,
+            answer_type="free_text",
+            route_name=route_name,
+            path="free_text_abstain_missing_evidence",
+            candidate_count=len(candidates),
+            matched_candidate_indices=[],
+            values_considered=[],
+        )
+
+    preferred = extracts[0]
+    if _ARTICLE_MARKER_PATTERN.search(question_text):
+        for index, extract in extracts:
+            if _ARTICLE_MARKER_PATTERN.search(extract):
+                preferred = (index, extract)
+                break
+
+    selected_index, selected_extract = preferred
+    return _result(
+        answer=selected_extract,
+        abstained=False,
+        confidence=0.74 if route_name == "article_lookup" else 0.66,
+        answer_type="free_text",
+        route_name=route_name,
+        path="free_text_evidence_extract",
+        candidate_count=len(candidates),
+        matched_candidate_indices=[selected_index],
+        values_considered=[extract for _, extract in extracts[:3]],
+    )
+
+
 def solve_deterministic(
     question: Dict[str, Any],
     route_name: str,
@@ -866,18 +957,7 @@ def solve_deterministic(
         return _solve_name(text, route_name, candidate_rows)
     if answer_type == "names":
         return _solve_names(lowered, route_name, candidate_rows)
-
-    return _result(
-        answer=" ".join(text.split()[:12]),
-        abstained=False,
-        confidence=0.6,
-        answer_type=answer_type,
-        route_name=route_name,
-        path="free_text_question_fallback",
-        candidate_count=len(candidate_rows),
-        matched_candidate_indices=[],
-        values_considered=[],
-    )
+    return _solve_free_text(text, route_name, candidate_rows)
 
 
 def choose_used_sources(
