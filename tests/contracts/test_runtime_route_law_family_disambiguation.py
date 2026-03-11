@@ -39,6 +39,24 @@ def test_history_lineage_is_not_swallowed_by_cross_law_compare() -> None:
     assert decision.normalized_taxonomy_route == "law_relation_or_history"
 
 
+def test_history_enactment_cue_is_not_swallowed_by_article_lookup() -> None:
+    decision = _decision(
+        "On what date was Article 5 of DIFC Law No. 3 of 2018 enacted?",
+        answer_type="date",
+    )
+    assert decision.raw_route == "history_lineage"
+    assert decision.normalized_taxonomy_route == "law_relation_or_history"
+
+
+def test_history_supersession_cue_is_not_swallowed_by_article_lookup() -> None:
+    decision = _decision(
+        "Was Article 7 of DIFC Law No. 1 of 2005 superseded by a later law?",
+        answer_type="boolean",
+    )
+    assert decision.raw_route == "history_lineage"
+    assert decision.normalized_taxonomy_route == "law_relation_or_history"
+
+
 def test_true_multi_law_compare_stays_cross_law_compare() -> None:
     decision = _decision(
         "Was the Employment Law enacted in the same year as the Intellectual Property Law?",

@@ -23,6 +23,11 @@ from legal_rag_api.telemetry import build_telemetry
 from packages.contracts.corpus_scope import matches_corpus_scope
 from packages.retrieval.search import score_candidate, search_pages
 from services.runtime.law_article_lookup import resolve_law_article_lookup_intent
+from services.runtime.law_history_lookup import (
+    build_law_history_retrieval_hints,
+    resolve_law_history_lookup_intent,
+    solve_law_history_deterministic,
+)
 from services.runtime.router import resolve_retrieval_profile, resolve_route_decision
 from services.runtime.solvers import (
     build_latency_budget_assertion,
@@ -45,6 +50,16 @@ _WHITESPACE_PATTERN = re.compile(r"\s+")
 _PART_REF_PATTERN = re.compile(r"\bpart\s+([A-Za-z0-9\-]+)\b", re.IGNORECASE)
 _CASE_NUMBER_PATTERN = re.compile(r"\b[A-Z]{2,4}\s*\d{1,4}/\d{4}\b")
 _CURRENT_LAW_MARKER = re.compile(r"\b(current|currently in force|valid|updated|as amended)\b", re.IGNORECASE)
+
+_HISTORY_RELATION_EDGE_FILTER = {
+    "amended_by": "enabled_by",
+    "amends": "enabled_by",
+    "repealed_by": "enabled_by",
+    "repeals": "enabled_by",
+    "superseded_by": "enabled_by",
+    "supersedes": "enabled_by",
+    "notice_mediated_commencement": "refers_to",
+}
 
 
 def _estimate_tokens(text: str) -> int:
@@ -255,6 +270,327 @@ def _candidate_retrieval_features(
         "current_version_hit": bool(projection.get("is_current_version")),
         "lineage_signal": lineage_signal,
     }
+
+
+def _projection_matches_filters(chunk_projection: Dict[str, Any], filters: Dict[str, Any] | None) -> bool:
+    if not filters:
+        return True
+    for key, value in filters.items():
+        if value is None:
+            continue
+        if key == "edge_type":
+            edge_types = chunk_projection.get("edge_types", [])
+            if not isinstance(edge_types, list) or value not in edge_types:
+                return False
+            continue
+        projected = chunk_projection.get(key)
+        if isinstance(projected, list):
+            if value not in projected:
+                return False
+            continue
+        if projected != value:
+            return False
+    return True
+
+
+def _search_candidates_route_aware(
+    *,
+    project_id: str,
+    query: str,
+    top_k: int,
+    filters: Dict[str, Any] | None = None,
+    allow_generic_fallback: bool = True,
+) -> Tuple[List[Dict[str, Any]], str]:
+    if top_k <= 0:
+        return [], "zero_budget"
+    if corpus_pg.enabled():
+        rows = corpus_pg.search_candidates(project_id=project_id, query=query, top_k=top_k, filters=filters)
+        backend = "pg_search_candidates"
+        if not allow_generic_fallback:
+            rows = [row for row in rows if float(row.get("score", 0.0) or 0.0) > 0.01]
+        return rows, backend
+
+    if store.feature_flags.get("canonical_chunk_model_v1", True) and store.chunk_search_documents:
+        scored: List[Dict[str, Any]] = []
+        for chunk_projection in store.chunk_search_documents.values():
+            paragraph = store.paragraphs.get(chunk_projection.get("chunk_id"))
+            if not paragraph:
+                continue
+            if not matches_corpus_scope(paragraph.get("project_id"), project_id):
+                continue
+            if not _projection_matches_filters(chunk_projection, filters):
+                continue
+            score = score_candidate(query, chunk_projection.get("retrieval_text", chunk_projection.get("text_clean", "")))
+            if score <= 0:
+                continue
+            scored.append(
+                {
+                    "paragraph": paragraph,
+                    "page": store.pages.get(str(paragraph.get("page_id", "")), {}),
+                    "score": float(score),
+                    "chunk_projection": chunk_projection,
+                }
+            )
+        scored.sort(key=lambda row: float(row.get("score", 0.0)), reverse=True)
+        return scored[:top_k], "store_projection_search"
+
+    paragraphs = list(store.paragraphs.values())
+    rows: List[Dict[str, Any]] = []
+    for paragraph, score in search_pages(paragraphs, query, top_k=max(top_k * 2, 12), project_id=project_id):
+        pseudo_projection = {
+            "chunk_id": paragraph.get("paragraph_id"),
+            "document_id": paragraph.get("document_id"),
+            "page_id": paragraph.get("page_id"),
+            "doc_type": str((store.documents.get(str(paragraph.get("document_id", "")), {}) or {}).get("doc_type", "other")),
+            "retrieval_text": paragraph.get("text", ""),
+            "text_clean": paragraph.get("text", ""),
+            "edge_types": [],
+        }
+        if not _projection_matches_filters(pseudo_projection, filters):
+            continue
+        if score <= 0:
+            continue
+        rows.append(
+            {
+                "paragraph": paragraph,
+                "page": store.pages.get(str(paragraph.get("page_id", "")), {}),
+                "score": float(score),
+                "chunk_projection": pseudo_projection,
+            }
+        )
+        if len(rows) >= top_k:
+            break
+    if rows:
+        return rows, "legacy_paragraph_search"
+
+    if not allow_generic_fallback:
+        return [], "legacy_paragraph_search"
+
+    fallback_rows: List[Dict[str, Any]] = []
+    for paragraph in paragraphs:
+        if not matches_corpus_scope(paragraph.get("project_id"), project_id):
+            continue
+        pseudo_projection = {
+            "chunk_id": paragraph.get("paragraph_id"),
+            "document_id": paragraph.get("document_id"),
+            "page_id": paragraph.get("page_id"),
+            "doc_type": str((store.documents.get(str(paragraph.get("document_id", "")), {}) or {}).get("doc_type", "other")),
+            "retrieval_text": paragraph.get("text", ""),
+            "text_clean": paragraph.get("text", ""),
+            "edge_types": [],
+        }
+        if not _projection_matches_filters(pseudo_projection, filters):
+            continue
+        fallback_rows.append(
+            {
+                "paragraph": paragraph,
+                "page": store.pages.get(str(paragraph.get("page_id", "")), {}),
+                "score": 0.01,
+                "chunk_projection": pseudo_projection,
+            }
+        )
+        if len(fallback_rows) >= top_k:
+            break
+    return fallback_rows, "legacy_paragraph_search_fallback"
+
+
+def _history_legal_context_flags(history_intent: Dict[str, Any]) -> Dict[str, bool]:
+    return {
+        "is_difc_context": bool(history_intent.get("is_difc_context")),
+        "is_jurisdiction_question": bool(history_intent.get("is_jurisdiction_question")),
+        "is_governing_law_question": bool(history_intent.get("is_governing_law_question")),
+        "is_notice_mediated": bool(history_intent.get("is_notice_mediated")),
+        "is_current_vs_historical_question": bool(history_intent.get("is_current_vs_historical_question")),
+    }
+
+
+def _history_resolution_guard(
+    *,
+    normalized_taxonomy_route: str | None,
+    history_intent: Dict[str, Any],
+) -> Tuple[bool, str]:
+    if normalized_taxonomy_route != "law_relation_or_history":
+        return False, ""
+    if not history_intent:
+        return True, "law_history_resolution_missing"
+    requires_structural_resolution = bool(history_intent.get("requires_structural_resolution"))
+    has_explicit_anchor = bool(history_intent.get("has_explicit_anchor"))
+    if requires_structural_resolution and not has_explicit_anchor:
+        return True, "law_history_resolution_missing"
+    return False, ""
+
+
+def _history_doc_type(doc_type_raw: Any) -> str:
+    value = str(doc_type_raw or "").strip().lower()
+    if value in {"law", "regulation", "enactment_notice", "case"}:
+        return value
+    return "other"
+
+
+def _build_history_candidates(
+    question_text: str,
+    project_id: str,
+    max_pages: int,
+    *,
+    route_name: str,
+    answer_type: str,
+    retrieval_profile: Any,
+    history_intent: Dict[str, Any],
+    history_retrieval_hints: Dict[str, Any],
+) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+    if max_pages <= 0:
+        return [], {
+            "trace_version": "retrieval_stage_trace_v1",
+            "route_name": route_name,
+            "answer_type": answer_type,
+            "profile_id": retrieval_profile.profile_id,
+            "normalized_query": _normalize_query_text(question_text),
+            "structural_lookup_enabled": retrieval_profile.structural_lookup_enabled,
+            "lineage_expansion_enabled": retrieval_profile.lineage_expansion_enabled,
+            "candidate_page_budget": int(max_pages),
+            "used_page_budget": int(getattr(retrieval_profile, "used_page_limit", 0) or 0),
+            "retrieval_skipped": True,
+            "retrieval_skipped_reason": "zero_candidate_budget",
+            "candidate_count": 0,
+            "top_candidates": [],
+            "law_history_lookup_resolution": history_intent,
+            "legal_context_flags": _history_legal_context_flags(history_intent),
+        }
+
+    doc_type_priority = [
+        _history_doc_type(item)
+        for item in history_retrieval_hints.get("doc_type_priority", [])
+        if _history_doc_type(item) in {"law", "regulation", "enactment_notice"}
+    ]
+    if not doc_type_priority:
+        doc_type_priority = ["law", "regulation", "enactment_notice"]
+    # Keep deterministic order while de-duplicating.
+    doc_type_priority = list(dict.fromkeys(doc_type_priority))
+
+    expanded_query = str(history_retrieval_hints.get("expanded_query") or question_text).strip() or question_text
+    expansion_terms = _uniq(history_retrieval_hints.get("expansion_terms", []))
+    relation_kind = str(history_intent.get("relation_kind") or "")
+    version_filter = None
+    if relation_kind == "current_version":
+        version_filter = True
+    elif relation_kind == "previous_version":
+        version_filter = False
+
+    top_k = max(max_pages * 2, 12)
+    pass_trace: List[Dict[str, Any]] = []
+    aggregated_candidates: List[Dict[str, Any]] = []
+    retrieval_backends: List[str] = []
+
+    def _run_pass(
+        *,
+        name: str,
+        query: str,
+        filters: Dict[str, Any] | None,
+        allow_generic_fallback: bool,
+    ) -> None:
+        rows, backend = _search_candidates_route_aware(
+            project_id=project_id,
+            query=query,
+            top_k=top_k,
+            filters=filters,
+            allow_generic_fallback=allow_generic_fallback,
+        )
+        retrieval_backends.append(backend)
+        pass_trace.append(
+            {
+                "pass": name,
+                "query": query,
+                "filters": filters or {},
+                "backend": backend,
+                "candidate_count": len(rows),
+            }
+        )
+        for row in rows:
+            row.setdefault("retrieval_debug", {})
+            row["retrieval_debug"]["history_pass"] = name
+            aggregated_candidates.append(row)
+
+    for doc_type in doc_type_priority:
+        filters: Dict[str, Any] = {"doc_type": doc_type}
+        if version_filter is not None:
+            filters["is_current_version"] = version_filter
+        _run_pass(
+            name=f"history_doc_type_{doc_type}",
+            query=expanded_query,
+            filters=filters,
+            allow_generic_fallback=False,
+        )
+
+    if relation_kind in {"notice_mediated_commencement", "commenced_on", "effective_from", "enacted_on"}:
+        notice_query = _collapse_ws(f"{expanded_query} enactment notice commencement notice")
+        _run_pass(
+            name="history_notice_priority",
+            query=notice_query,
+            filters={"doc_type": "enactment_notice"},
+            allow_generic_fallback=False,
+        )
+
+    if retrieval_profile.lineage_expansion_enabled and bool(history_retrieval_hints.get("lineage_expansion_enabled")):
+        edge_type = _HISTORY_RELATION_EDGE_FILTER.get(relation_kind)
+        if edge_type:
+            lineage_filters: Dict[str, Any] = {"edge_type": edge_type}
+            if version_filter is not None:
+                lineage_filters["is_current_version"] = version_filter
+            _run_pass(
+                name="history_lineage_edge_expansion",
+                query=_collapse_ws(f"{expanded_query} lineage history relation"),
+                filters=lineage_filters,
+                allow_generic_fallback=False,
+            )
+
+    fallback_used = False
+    if not aggregated_candidates:
+        fallback_used = True
+        _run_pass(
+            name="history_generic_lexical_fallback",
+            query=expanded_query,
+            filters=None,
+            allow_generic_fallback=True,
+        )
+
+    # Deterministic dedupe by paragraph id while preserving strongest score and pass metadata.
+    by_paragraph_id: Dict[str, Dict[str, Any]] = {}
+    for candidate in aggregated_candidates:
+        paragraph_id = str((_paragraph_for_candidate(candidate)).get("paragraph_id", ""))
+        if not paragraph_id:
+            continue
+        doc_type = _history_doc_type(_projection_for_candidate(candidate).get("doc_type"))
+        doc_priority_rank = (
+            doc_type_priority.index(doc_type) if doc_type in doc_type_priority else len(doc_type_priority)
+        )
+        boosted_score = float(candidate.get("score", 0.0) or 0.0) + max(0.0, 0.06 - (doc_priority_rank * 0.02))
+        existing = by_paragraph_id.get(paragraph_id)
+        if not existing or boosted_score > float(existing.get("score", 0.0) or 0.0):
+            candidate["score"] = round(boosted_score, 4)
+            by_paragraph_id[paragraph_id] = candidate
+
+    ordered, stage_trace = _rerank_candidates(
+        question_text=expanded_query,
+        route_name=route_name,
+        answer_type=answer_type,
+        candidates=list(by_paragraph_id.values()),
+        retrieval_profile=retrieval_profile,
+        lookup_intent=None,
+        retrieval_backend="+".join(_uniq(retrieval_backends)) or "history_route_aware",
+    )
+    stage_trace["retrieval_strategy"] = "history_lineage_route_aware_v1"
+    stage_trace["retrieval_profile_selected"] = retrieval_profile.profile_id
+    stage_trace["history_doc_type_priority"] = doc_type_priority
+    stage_trace["history_query_expansion_terms"] = expansion_terms
+    stage_trace["history_relation_kind"] = relation_kind or None
+    stage_trace["history_passes"] = pass_trace
+    stage_trace["lineage_expansion_requested"] = bool(history_retrieval_hints.get("lineage_expansion_enabled"))
+    stage_trace["retrieval_fallback_traced"] = fallback_used
+    if fallback_used:
+        stage_trace["retrieval_fallback_reason"] = "history_route_aware_candidates_empty"
+    stage_trace["law_history_lookup_resolution"] = history_intent
+    stage_trace["legal_context_flags"] = _history_legal_context_flags(history_intent)
+    return ordered[:max_pages], stage_trace
 
 
 def _rerank_candidates(
@@ -904,6 +1240,8 @@ def _build_review_artifact(
             "retrieval_quality_features": evidence_selection_trace.get("retrieval_quality_features", {}),
             "route_decision": evidence_selection_trace.get("route_decision", {}),
             "law_article_lookup_resolution": evidence_selection_trace.get("law_article_lookup_resolution", {}),
+            "law_history_lookup_resolution": evidence_selection_trace.get("law_history_lookup_resolution", {}),
+            "legal_context_flags": evidence_selection_trace.get("legal_context_flags", {}),
             "answer_normalization_trace": evidence_selection_trace.get("answer_normalization_trace", {}),
             "no_silent_fallback": evidence_selection_trace.get("no_silent_fallback", {}),
             "abstain_reason": evidence_selection_trace.get("abstain_reason"),
@@ -943,6 +1281,7 @@ async def _answer_query(payload: QueryRequest) -> Tuple[QueryResponse, Dict[str,
         "matched_rules": list(route_decision.matched_rules),
         "confidence": float(route_decision.confidence),
     }
+    law_history_slice_active = bool(route_decision.normalized_taxonomy_route == "law_relation_or_history")
     law_article_lookup_resolution = (
         resolve_law_article_lookup_intent(q.question) if route_name == "article_lookup" else {}
     )
@@ -950,14 +1289,28 @@ async def _answer_query(payload: QueryRequest) -> Tuple[QueryResponse, Dict[str,
         route_name == "article_lookup"
         and route_decision.normalized_taxonomy_route == "law_article_lookup"
     )
+    law_history_lookup_resolution = (
+        resolve_law_history_lookup_intent(q.question) if law_history_slice_active else {}
+    )
+    legal_context_flags = _history_legal_context_flags(law_history_lookup_resolution) if law_history_lookup_resolution else {}
+    history_retrieval_hints = (
+        build_law_history_retrieval_hints(q.question, law_history_lookup_resolution)
+        if law_history_slice_active
+        else {}
+    )
     article_resolution_blocked, article_resolution_block_reason = _article_resolution_guard(
         route_name=route_name,
         normalized_taxonomy_route=route_decision.normalized_taxonomy_route,
         lookup_intent=law_article_lookup_resolution,
     )
+    history_resolution_blocked, history_resolution_block_reason = _history_resolution_guard(
+        normalized_taxonomy_route=route_decision.normalized_taxonomy_route,
+        history_intent=law_history_lookup_resolution,
+    )
     policy = payload.runtime_policy
+    retrieval_route_name = "history_lineage" if law_history_slice_active else route_name
     retrieval_profile = resolve_retrieval_profile(
-        route_name,
+        retrieval_route_name,
         policy.max_candidate_pages,
         answer_type=q.answer_type,
     )
@@ -1012,25 +1365,73 @@ async def _answer_query(payload: QueryRequest) -> Tuple[QueryResponse, Dict[str,
             "candidate_count": 0,
             "top_candidates": [],
         }
+    elif history_resolution_blocked:
+        candidates = []
+        retrieval_stage_trace = {
+            "trace_version": "retrieval_stage_trace_v1",
+            "route_name": route_name,
+            "answer_type": q.answer_type,
+            "profile_id": retrieval_profile.profile_id,
+            "normalized_query": _normalize_query_text(q.question),
+            "law_history_lookup_resolution": law_history_lookup_resolution,
+            "legal_context_flags": legal_context_flags,
+            "structural_lookup_enabled": retrieval_profile.structural_lookup_enabled,
+            "lineage_expansion_enabled": retrieval_profile.lineage_expansion_enabled,
+            "candidate_page_budget": retrieval_profile.candidate_page_limit,
+            "used_page_budget": retrieval_profile.used_page_limit,
+            "retrieval_skipped": True,
+            "retrieval_skipped_reason": history_resolution_block_reason,
+            "retrieval_blocked": True,
+            "retrieval_blocked_reason": history_resolution_block_reason,
+            "retrieval_fallback_traced": True,
+            "retrieval_fallback_reason": "generic_retrieval_disabled_without_law_history_resolution",
+            "exact_identifier_hit_count": 0,
+            "lineage_signal_count": 0,
+            "current_version_hit_count": 0,
+            "candidate_count": 0,
+            "top_candidates": [],
+        }
     else:
-        candidates, retrieval_stage_trace = _build_candidates(
-            question_text=q.question,
-            project_id=payload.project_id,
-            max_pages=retrieval_profile.candidate_page_limit,
-            route_name=route_name,
-            answer_type=q.answer_type,
-            retrieval_profile=retrieval_profile,
-            lookup_intent=law_article_lookup_resolution if law_article_lookup_resolution else None,
-            enforce_structural_for_article=law_article_slice_active,
-        )
-        if law_article_slice_active and retrieval_stage_trace.get("retrieval_blocked"):
-            article_resolution_blocked = True
-            article_resolution_block_reason = str(
-                retrieval_stage_trace.get("retrieval_blocked_reason", "law_article_lookup_blocked")
+        if law_history_slice_active:
+            candidates, retrieval_stage_trace = _build_history_candidates(
+                question_text=q.question,
+                project_id=payload.project_id,
+                max_pages=retrieval_profile.candidate_page_limit,
+                route_name="history_lineage",
+                answer_type=q.answer_type,
+                retrieval_profile=retrieval_profile,
+                history_intent=law_history_lookup_resolution,
+                history_retrieval_hints=history_retrieval_hints,
             )
+        else:
+            candidates, retrieval_stage_trace = _build_candidates(
+                question_text=q.question,
+                project_id=payload.project_id,
+                max_pages=retrieval_profile.candidate_page_limit,
+                route_name=route_name,
+                answer_type=q.answer_type,
+                retrieval_profile=retrieval_profile,
+                lookup_intent=law_article_lookup_resolution if law_article_lookup_resolution else None,
+                enforce_structural_for_article=law_article_slice_active,
+            )
+            if law_article_slice_active and retrieval_stage_trace.get("retrieval_blocked"):
+                article_resolution_blocked = True
+                article_resolution_block_reason = str(
+                    retrieval_stage_trace.get("retrieval_blocked_reason", "law_article_lookup_blocked")
+                )
     retrieval_stage_trace["route_decision"] = route_decision_trace
     if law_article_lookup_resolution:
         retrieval_stage_trace["law_article_lookup_resolution"] = law_article_lookup_resolution
+    if law_history_lookup_resolution:
+        retrieval_stage_trace["law_history_lookup_resolution"] = law_history_lookup_resolution
+        retrieval_stage_trace["legal_context_flags"] = legal_context_flags
+    if history_retrieval_hints:
+        retrieval_stage_trace["history_retrieval_hints"] = history_retrieval_hints
+    if retrieval_route_name != route_name:
+        retrieval_stage_trace["retrieval_profile_route_override"] = {
+            "requested_route_name": route_name,
+            "profile_route_name": retrieval_route_name,
+        }
 
     answer: Any = q.question
     abstained = False
@@ -1041,7 +1442,9 @@ async def _answer_query(payload: QueryRequest) -> Tuple[QueryResponse, Dict[str,
     page_refs: List[Dict[str, Any]] = []
     used_refs: List[Dict[str, Any]] = []
     solver_trace: Dict[str, Any] = {
-        "solver_version": "typed_deterministic_solver_v1",
+        "solver_version": (
+            "law_history_deterministic_solver_v1" if law_history_slice_active else "typed_deterministic_solver_v1"
+        ),
         "answer_type": q.answer_type,
         "route_name": route_name,
         "execution_mode": "deterministic_abstain_fast_path" if no_answer_fast_path_triggered else "deterministic_fallback",
@@ -1053,6 +1456,8 @@ async def _answer_query(payload: QueryRequest) -> Tuple[QueryResponse, Dict[str,
         "no_answer_fast_path_triggered": no_answer_fast_path_triggered,
         "route_decision": route_decision_trace,
         "law_article_lookup_resolution": law_article_lookup_resolution if law_article_lookup_resolution else {},
+        "law_history_lookup_resolution": law_history_lookup_resolution if law_history_lookup_resolution else {},
+        "legal_context_flags": legal_context_flags,
     }
     evidence_selection_trace: Dict[str, Any] = {
         "trace_version": "evidence_selection_trace_v1",
@@ -1063,6 +1468,8 @@ async def _answer_query(payload: QueryRequest) -> Tuple[QueryResponse, Dict[str,
             if no_answer_fast_path_triggered
             else "law_article_resolution_blocked"
             if article_resolution_blocked
+            else "law_history_resolution_blocked"
+            if history_resolution_blocked
             else "no_candidates"
         ),
         "used_page_limit": retrieval_profile.used_page_limit,
@@ -1074,6 +1481,8 @@ async def _answer_query(payload: QueryRequest) -> Tuple[QueryResponse, Dict[str,
             if no_answer_fast_path_triggered
             else article_resolution_block_reason
             if article_resolution_blocked
+            else history_resolution_block_reason
+            if history_resolution_blocked
             else ""
         ),
         "retrieved_candidate_count": 0,
@@ -1085,6 +1494,8 @@ async def _answer_query(payload: QueryRequest) -> Tuple[QueryResponse, Dict[str,
         "decisions": [],
         "route_decision": route_decision_trace,
         "law_article_lookup_resolution": law_article_lookup_resolution if law_article_lookup_resolution else {},
+        "law_history_lookup_resolution": law_history_lookup_resolution if law_history_lookup_resolution else {},
+        "legal_context_flags": legal_context_flags,
     }
 
     if not candidates:
@@ -1099,19 +1510,36 @@ async def _answer_query(payload: QueryRequest) -> Tuple[QueryResponse, Dict[str,
             evidence_selection_trace["abstain_reason"] = article_resolution_block_reason
             solver_trace["path"] = "law_article_resolution_blocked"
             solver_trace["execution_mode"] = "deterministic_abstain_resolution_guard"
+        elif history_resolution_blocked:
+            evidence_selection_trace["abstain_reason"] = history_resolution_block_reason
+            solver_trace["path"] = "law_history_resolution_blocked"
+            solver_trace["execution_mode"] = "deterministic_abstain_resolution_guard"
     else:
-        solver_result = solve_deterministic(q.model_dump(), route_name, candidates)
+        if law_history_slice_active:
+            solver_result = solve_law_history_deterministic(
+                q.model_dump(),
+                "history_lineage",
+                candidates,
+                history_intent=law_history_lookup_resolution,
+            )
+        else:
+            solver_result = solve_deterministic(q.model_dump(), route_name, candidates)
         answer = solver_result.answer
         abstained = solver_result.abstained
         confidence = solver_result.confidence
         solver_trace = solver_result.trace
         solver_trace["route_decision"] = route_decision_trace
         solver_trace["law_article_lookup_resolution"] = law_article_lookup_resolution if law_article_lookup_resolution else {}
+        solver_trace["law_history_lookup_resolution"] = law_history_lookup_resolution if law_history_lookup_resolution else {}
+        solver_trace["legal_context_flags"] = legal_context_flags
 
         if policy.use_llm and q.answer_type == "free_text" and not abstained and llm_client.config.enabled:
             if law_article_slice_active:
                 solver_trace["llm_fallback_blocked"] = True
                 solver_trace["llm_fallback_block_reason"] = "law_article_deterministic_only"
+            elif law_history_slice_active:
+                solver_trace["llm_fallback_blocked"] = True
+                solver_trace["llm_fallback_block_reason"] = "law_history_deterministic_only"
             else:
                 first_token_at = datetime.now(timezone.utc)
                 model_name = llm_client.config.deployment or model_name
@@ -1175,6 +1603,8 @@ async def _answer_query(payload: QueryRequest) -> Tuple[QueryResponse, Dict[str,
         abstain_reason = "route_no_answer_fast_path"
     elif article_resolution_blocked and abstained:
         abstain_reason = article_resolution_block_reason
+    elif history_resolution_blocked and abstained:
+        abstain_reason = history_resolution_block_reason
     elif retrieval_stage_trace.get("retrieval_blocked") and abstained:
         abstain_reason = str(retrieval_stage_trace.get("retrieval_blocked_reason", "retrieval_blocked"))
     if abstained:
@@ -1231,10 +1661,15 @@ async def _answer_query(payload: QueryRequest) -> Tuple[QueryResponse, Dict[str,
     evidence_selection_trace["retrieval_quality_features"] = retrieval_quality_features
     evidence_selection_trace["telemetry_shadow"] = telemetry_shadow
     evidence_selection_trace["answer_normalization_trace"] = answer_normalization_trace
+    evidence_selection_trace["law_history_lookup_resolution"] = law_history_lookup_resolution if law_history_lookup_resolution else {}
+    evidence_selection_trace["legal_context_flags"] = legal_context_flags
     evidence_selection_trace["no_silent_fallback"] = {
         "law_article_slice_active": law_article_slice_active,
         "article_resolution_blocked": article_resolution_blocked,
         "article_resolution_block_reason": article_resolution_block_reason,
+        "law_history_slice_active": law_history_slice_active,
+        "history_resolution_blocked": history_resolution_blocked,
+        "history_resolution_block_reason": history_resolution_block_reason,
     }
     if policy.return_debug_trace:
         debug = {
@@ -1255,11 +1690,17 @@ async def _answer_query(payload: QueryRequest) -> Tuple[QueryResponse, Dict[str,
             "telemetry_shadow": telemetry_shadow,
             "route_decision": route_decision_trace,
             "law_article_lookup_resolution": law_article_lookup_resolution if law_article_lookup_resolution else {},
+            "law_history_lookup_resolution": law_history_lookup_resolution if law_history_lookup_resolution else {},
+            "history_retrieval_hints": history_retrieval_hints if history_retrieval_hints else {},
+            "legal_context_flags": legal_context_flags,
             "answer_normalization_trace": answer_normalization_trace,
             "no_silent_fallback": {
                 "law_article_slice_active": law_article_slice_active,
                 "article_resolution_blocked": article_resolution_blocked,
                 "article_resolution_block_reason": article_resolution_block_reason,
+                "law_history_slice_active": law_history_slice_active,
+                "history_resolution_blocked": history_resolution_blocked,
+                "history_resolution_block_reason": history_resolution_block_reason,
             },
             "abstain_reason": evidence_selection_trace.get("abstain_reason"),
             "entities": [],
@@ -1291,6 +1732,9 @@ async def _answer_query(payload: QueryRequest) -> Tuple[QueryResponse, Dict[str,
         "telemetry_shadow": telemetry_shadow,
         "route_decision_trace": route_decision_trace,
         "law_article_lookup_resolution": law_article_lookup_resolution if law_article_lookup_resolution else {},
+        "law_history_lookup_resolution": law_history_lookup_resolution if law_history_lookup_resolution else {},
+        "history_retrieval_hints": history_retrieval_hints if history_retrieval_hints else {},
+        "legal_context_flags": legal_context_flags,
         "answer_normalization_trace": answer_normalization_trace,
         "no_answer_fast_path_triggered": no_answer_fast_path_triggered,
     }

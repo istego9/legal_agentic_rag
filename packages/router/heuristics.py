@@ -40,6 +40,9 @@ _HISTORY_TOKENS = (
     "version",
     "consolidated version",
     "enactment notice",
+    "enacted",
+    "enacted on",
+    "enactment date",
     "came into force",
     "came in force",
     "commencement",
@@ -48,6 +51,22 @@ _HISTORY_TOKENS = (
     "authority to make",
     "conferring powers",
     "what law did it amend",
+)
+_STRONG_HISTORY_EDGE_TOKENS = (
+    "amended by",
+    "amendment law",
+    "enacted",
+    "repealed by",
+    "repealed",
+    "superseded by",
+    "superseded",
+    "supersedes",
+    "enacted on",
+    "enactment date",
+    "came into force",
+    "commencement date",
+    "previous version",
+    "latest law",
 )
 _ARTICLE_TOKENS = ("article", "clause", "section", "paragraph", "schedule")
 _CASE_TOKENS = ("case", "court", "judge", "appeal")
@@ -159,6 +178,7 @@ def _route_signals(question_text: str) -> Dict[str, bool]:
     )
     has_history_signal = any(token in text for token in _HISTORY_TOKENS)
     has_strong_history_signal = has_history_signal and not has_temporal_compare_signal
+    has_strong_lineage_relation_signal = any(token in text for token in _STRONG_HISTORY_EDGE_TOKENS)
     has_admin_compare_signal = bool(
         "administer" in text
         and not has_strong_article_lookup_signal
@@ -201,6 +221,7 @@ def _route_signals(question_text: str) -> Dict[str, bool]:
         "has_compare_signal": has_compare_signal,
         "has_history_signal": has_history_signal,
         "has_strong_history_signal": has_strong_history_signal,
+        "has_strong_lineage_relation_signal": has_strong_lineage_relation_signal,
         "has_article_signal": any(token in text for token in _ARTICLE_TOKENS),
         "has_strong_article_lookup_signal": has_strong_article_lookup_signal,
         "has_case_signal": has_case_signal,
@@ -230,6 +251,13 @@ def _select_raw_route(question: Dict[str, object], signals: Dict[str, bool]) -> 
         return "cross_law_compare", ["rule:cross_law_compare_signal"], 0.92
     if signals["has_strong_negative_signal"]:
         return "no_answer", ["rule:strong_negative_signal"], 0.94
+    if (
+        signals["has_strong_history_signal"]
+        and signals.get("has_strong_lineage_relation_signal", False)
+        and not signals["has_compare_signal"]
+        and not signals["has_law_cross_compare_signal"]
+    ):
+        return "history_lineage", ["rule:strong_history_lineage_signal"], 0.9
     if signals["has_strong_article_lookup_signal"]:
         return "article_lookup", ["rule:strong_provision_lookup"], 0.9
     if signals["has_history_signal"]:

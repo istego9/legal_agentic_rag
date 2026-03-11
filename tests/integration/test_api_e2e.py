@@ -586,6 +586,7 @@ def test_typed_answer_normalization_invariants_are_canonical(
         "seed_rows",
         "expected_answer",
         "expected_answer_normalized",
+        "expected_solver_version",
         "expected_trace_path",
     ),
     [
@@ -613,6 +614,7 @@ def test_typed_answer_normalization_invariants_are_canonical(
             ],
             True,
             "true",
+            "typed_deterministic_solver_v1",
             "boolean_same_year",
         ),
         (
@@ -634,6 +636,7 @@ def test_typed_answer_normalization_invariants_are_canonical(
             ],
             12500,
             "12500",
+            "typed_deterministic_solver_v1",
             "number_evidence_value",
         ),
         (
@@ -652,7 +655,8 @@ def test_typed_answer_normalization_invariants_are_canonical(
             ],
             "2024-03-07",
             "2024-03-07",
-            "date_evidence_value",
+            "law_history_deterministic_solver_v1",
+            "history_date_evidence_value",
         ),
         (
             "name",
@@ -678,6 +682,7 @@ def test_typed_answer_normalization_invariants_are_canonical(
             ],
             "ENF 269/2023",
             "ENF 269/2023",
+            "typed_deterministic_solver_v1",
             "name_case_timeline",
         ),
         (
@@ -703,6 +708,7 @@ def test_typed_answer_normalization_invariants_are_canonical(
             ],
             ["Mariam Al Haddad", "Omar Al Haddad"],
             "Mariam Al Haddad, Omar Al Haddad",
+            "typed_deterministic_solver_v1",
             "names_evidence_list",
         ),
     ],
@@ -714,6 +720,7 @@ def test_typed_solver_regressions_follow_deterministic_evidence_path(
     seed_rows: list[dict],
     expected_answer: object,
     expected_answer_normalized: str,
+    expected_solver_version: str,
     expected_trace_path: str,
 ) -> None:
     state = _snapshot_solver_runtime_state()
@@ -754,7 +761,7 @@ def test_typed_solver_regressions_follow_deterministic_evidence_path(
         assert payload["answer_normalized"] == expected_answer_normalized
         assert payload["abstained"] is False
         assert payload["telemetry"]["model_name"] == "deterministic-router"
-        assert payload["debug"]["solver_trace"]["solver_version"] == "typed_deterministic_solver_v1"
+        assert payload["debug"]["solver_trace"]["solver_version"] == expected_solver_version
         assert payload["debug"]["solver_trace"]["execution_mode"] == "deterministic_evidence"
         assert payload["debug"]["solver_trace"]["path"] == expected_trace_path
         assert payload["debug"]["solver_trace"]["matched_candidate_count"] >= 1
