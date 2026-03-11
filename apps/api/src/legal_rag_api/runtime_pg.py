@@ -584,6 +584,22 @@ def get_run_question_review(run_id: str, question_id: str) -> Optional[RunQuesti
     return RunQuestionReviewArtifact(**payload)
 
 
+def list_run_question_reviews(run_id: str) -> Dict[str, RunQuestionReviewArtifact]:
+    ensure_schema()
+    out: Dict[str, RunQuestionReviewArtifact] = {}
+    with _connect() as conn, conn.cursor(row_factory=dict_row) as cur:
+        cur.execute(
+            "SELECT question_id, payload FROM qa_run_question_reviews WHERE run_id = %s ORDER BY question_id",
+            (run_id,),
+        )
+        rows = cur.fetchall() or []
+    for row in rows:
+        payload = row.get("payload")
+        if isinstance(payload, dict):
+            out[str(row.get("question_id"))] = RunQuestionReviewArtifact(**payload)
+    return out
+
+
 def list_run_questions(run_id: str) -> Dict[str, QueryResponse]:
     ensure_schema()
     out: Dict[str, QueryResponse] = {}
@@ -750,6 +766,28 @@ def find_gold_question(gold_question_id: str) -> Optional[Tuple[str, GoldQuestio
     if not isinstance(payload, dict):
         return None
     return str(row.get("gold_dataset_id")), GoldQuestion(**payload)
+
+
+def find_gold_question_by_dataset_question(dataset_id: str, question_id: str) -> Optional[GoldQuestion]:
+    ensure_schema()
+    with _connect() as conn, conn.cursor(row_factory=dict_row) as cur:
+        cur.execute(
+            """
+            SELECT payload
+            FROM gold_questions
+            WHERE gold_dataset_id = %s AND question_id = %s
+            ORDER BY updated_at DESC
+            LIMIT 1
+            """,
+            (dataset_id, question_id),
+        )
+        row = cur.fetchone()
+    if not row:
+        return None
+    payload = row.get("payload")
+    if not isinstance(payload, dict):
+        return None
+    return GoldQuestion(**payload)
 
 
 def upsert_gold_question(question: GoldQuestion) -> None:

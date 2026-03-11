@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   Alert,
   AppShell,
@@ -45,8 +45,7 @@ import {
 } from "@tabler/icons-react";
 import { createApi, defaultRuntimePolicy, joinUrl } from "./api";
 import { t } from "./i18n";
-
-const PdfReviewViewer = lazy(() => import("./PdfReviewViewer"));
+import { ReviewConsolePanel } from "./review/ReviewConsolePanel";
 
 type SectionKey =
   | "projects"
@@ -118,6 +117,29 @@ type NavItem = {
   label: string;
   icon: typeof IconLayoutDashboard;
 };
+
+function resolveSectionFromLocation(pathname: string, search: string): { section: SectionKey; questionId: string; runId: string } {
+  if (pathname === "/review" || pathname.startsWith("/review/")) {
+    const parts = pathname.split("/").filter(Boolean);
+    const params = new URLSearchParams(search);
+    return {
+      section: "review-runs",
+      questionId: parts.length >= 2 ? decodeURIComponent(parts[1] || "") : "",
+      runId: params.get("run_id") || "",
+    };
+  }
+  return { section: "projects", questionId: "", runId: "" };
+}
+
+function reviewPath(questionId: string, runId: string): string {
+  const base = questionId.trim() ? `/review/${encodeURIComponent(questionId.trim())}` : "/review";
+  const params = new URLSearchParams();
+  if (runId.trim()) {
+    params.set("run_id", runId.trim());
+  }
+  const qs = params.toString();
+  return qs ? `${base}?${qs}` : base;
+}
 
 function initialConsoleViewState(): ConsoleViewState {
   return {
@@ -656,14 +678,20 @@ function StageBadge({ label, status }: { label: string; status: string }) {
 
 export default function App() {
   const initialProjectWorkspace = createProjectWorkspace(1);
-  const [activeSection, setActiveSection] = useState<SectionKey>("projects");
+  const initialLocation = resolveSectionFromLocation(window.location.pathname, window.location.search);
+  const [activeSection, setActiveSection] = useState<SectionKey>(initialLocation.section);
   const [navOpened, setNavOpened] = useState(false);
   const [jobCenterOpened, setJobCenterOpened] = useState(false);
   const [debugOpened, setDebugOpened] = useState(false);
   const [debugTitle, setDebugTitle] = useState(t("debugLastResponse"));
   const apiBase = import.meta.env.VITE_API_BASE_URL ?? "";
 
-  const [projectWorkspaces, setProjectWorkspaces] = useState<ProjectWorkspace[]>([initialProjectWorkspace]);
+  const [projectWorkspaces, setProjectWorkspaces] = useState<ProjectWorkspace[]>([
+    {
+      ...initialProjectWorkspace,
+      questionId: initialLocation.questionId || initialProjectWorkspace.questionId,
+    },
+  ]);
   const [activeProjectWorkspaceId, setActiveProjectWorkspaceId] = useState(initialProjectWorkspace.workspaceId);
   const [lastPayload, setLastPayload] = useState<unknown>(null);
   const [actionStates, setActionStates] = useState<Record<string, ActionState>>({});
@@ -692,7 +720,7 @@ export default function App() {
   const [questionImportLimit, setQuestionImportLimit] = useState("50");
   const [datasetQuestionsData, setDatasetQuestionsData] = useState<Record<string, unknown> | null>(null);
 
-  const [runId, setRunId] = useState("");
+  const [runId, setRunId] = useState(initialLocation.runId);
   const [runData, setRunData] = useState<Record<string, unknown> | null>(null);
   const [pageIndexBase, setPageIndexBase] = useState<0 | 1>(0);
   const [runQuestionDetailData, setRunQuestionDetailData] = useState<Record<string, unknown> | null>(null);
@@ -736,6 +764,30 @@ export default function App() {
   const [experimentCompareState, setExperimentCompareState] = useState<ConsoleViewState>(initialConsoleViewState);
 
   const [policiesData, setPoliciesData] = useState<Record<string, unknown> | null>(null);
+
+  useEffect(() => {
+    const onPopState = () => {
+      const next = resolveSectionFromLocation(window.location.pathname, window.location.search);
+      setActiveSection(next.section);
+      if (next.runId) {
+        setRunId(next.runId);
+      }
+      if (next.questionId) {
+        setProjectWorkspaces((current) =>
+          current.map((workspace, index) =>
+            index === 0
+              ? {
+                  ...workspace,
+                  questionId: next.questionId,
+                }
+              : workspace
+          )
+        );
+      }
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
 
   const activeProjectWorkspace =
     projectWorkspaces.find((workspace) => workspace.workspaceId === activeProjectWorkspaceId) ??
@@ -1332,6 +1384,20 @@ export default function App() {
   function navigate(section: SectionKey): void {
     setActiveSection(section);
     setNavOpened(false);
+    if (section === "review-runs") {
+      window.history.pushState({}, "", reviewPath(questionId, runId));
+      return;
+    }
+    if (window.location.pathname.startsWith("/review")) {
+      window.history.pushState({}, "", "/");
+    }
+  }
+
+  function syncReviewPath(nextQuestionId?: string): void {
+    const nextPath = reviewPath(nextQuestionId || questionId, runId);
+    if (`${window.location.pathname}${window.location.search}` !== nextPath) {
+      window.history.pushState({}, "", nextPath);
+    }
   }
 
   async function importCorpusZip(): Promise<void> {
@@ -2970,261 +3036,54 @@ export default function App() {
 
   function renderReviewRunsScreen() {
     return (
-      <Tabs defaultValue="runs" variant="outline">
-        <Tabs.List>
-          <Tabs.Tab value="runs">{t("runsTabRuns")}</Tabs.Tab>
-          <Tabs.Tab value="review">{t("runsTabReview")}</Tabs.Tab>
-        </Tabs.List>
+      <Stack gap="lg">
+        <SectionCard title={t("sectionRunOps")} description={t("runsSubtitle")}>
+          <SimpleGrid cols={{ base: 1, md: 3 }}>
+            <TextInput label={t("runId")} value={runId} onChange={(event) => setRunId(event.currentTarget.value)} />
+            <Select
+              label={t("pageIndexBase")}
+              value={String(pageIndexBase)}
+              onChange={(value) => setPageIndexBase(value === "1" ? 1 : 0)}
+              data={[
+                { value: "0", label: "0" },
+                { value: "1", label: "1" },
+              ]}
+            />
+            <Group align="flex-end">
+              <Button loading={isActionLoading("getRun")} onClick={() => loadRun()}>
+                {t("actionGetRun")}
+              </Button>
+              <Button variant="light" loading={isActionLoading("exportSubmission")} onClick={() => exportSubmission()}>
+                {t("actionExportSubmission")}
+              </Button>
+            </Group>
+          </SimpleGrid>
+          {runData && (
+            <SimpleGrid cols={{ base: 1, sm: 2, xl: 4 }}>
+              <MetricCard label={t("runId")} value={String((runData as any)?.run_id ?? runId)} />
+              <MetricCard label={t("datasetId")} value={String((runData as any)?.dataset_id ?? datasetId)} />
+              <MetricCard label={t("projectId")} value={String((runData as any)?.project_id ?? projectId)} />
+              <MetricCard label={t("questionCount")} value={String((runData as any)?.question_count ?? "-")} />
+            </SimpleGrid>
+          )}
+        </SectionCard>
 
-        <Tabs.Panel value="runs" pt="md">
-          <Stack gap="lg">
-            <SectionCard title={t("sectionRunOps")} description={t("runsSubtitle")}>
-              <SimpleGrid cols={{ base: 1, md: 3 }}>
-                <TextInput label={t("runId")} value={runId} onChange={(event) => setRunId(event.currentTarget.value)} />
-                <Select
-                  label={t("pageIndexBase")}
-                  value={String(pageIndexBase)}
-                  onChange={(value) => setPageIndexBase(value === "1" ? 1 : 0)}
-                  data={[
-                    { value: "0", label: "0" },
-                    { value: "1", label: "1" },
-                  ]}
-                />
-                <Group align="flex-end">
-                  <Button loading={isActionLoading("getRun")} onClick={() => loadRun()}>
-                    {t("actionGetRun")}
-                  </Button>
-                  <Button variant="light" loading={isActionLoading("exportSubmission")} onClick={() => exportSubmission()}>
-                    {t("actionExportSubmission")}
-                  </Button>
-                </Group>
-              </SimpleGrid>
-              {runData && (
-                <SimpleGrid cols={{ base: 1, sm: 2, xl: 4 }}>
-                  <MetricCard label={t("runId")} value={String((runData as any)?.run_id ?? runId)} />
-                  <MetricCard label={t("datasetId")} value={String((runData as any)?.dataset_id ?? datasetId)} />
-                  <MetricCard label={t("projectId")} value={String((runData as any)?.project_id ?? projectId)} />
-                  <MetricCard label={t("questionCount")} value={String((runData as any)?.question_count ?? "-")} />
-                </SimpleGrid>
-              )}
-            </SectionCard>
-          </Stack>
-        </Tabs.Panel>
-
-        <Tabs.Panel value="review" pt="md">
-          <Stack gap="lg">
-            <SectionCard title={t("sectionRunQuestionReview")} description={t("reviewSubtitle")}>
-              <SimpleGrid cols={{ base: 1, md: 3 }}>
-                <TextInput
-                  label={t("questionId")}
-                  value={questionId}
-                  onChange={(event) => updateActiveProjectWorkspace({ questionId: event.currentTarget.value })}
-                />
-                <TextInput
-                  label={t("datasetIdGold")}
-                  value={goldDatasetId}
-                  onChange={(event) => setActiveGoldDatasetId(event.currentTarget.value)}
-                />
-                <Group align="flex-end">
-                  <Button loading={runQuestionDetailState.loading} onClick={() => loadRunQuestionDetail()}>
-                    {t("actionLoadRunQuestionReview")}
-                  </Button>
-                  <Button
-                    variant="light"
-                    disabled={!runQuestionDetailData}
-                    loading={isActionLoading("promoteGold")}
-                    onClick={() => promoteRunQuestionToGold()}
-                  >
-                    {t("actionPromoteToGold")}
-                  </Button>
-                </Group>
-              </SimpleGrid>
-            </SectionCard>
-
-            {runQuestionDetailState.loading && <Loader size="sm" />}
-            {!runQuestionDetailState.loading && runQuestionDetailState.error && (
-              <Alert color="red">{`${t("stateError")}: ${runQuestionDetailState.error}`}</Alert>
-            )}
-
-            {!runQuestionDetailState.loading && !runQuestionDetailState.error && !runQuestionDetailData && (
-              <EmptyState title={t("reviewEmptyTitle")} description={t("reviewEmptySubtitle")} />
-            )}
-
-            {!runQuestionDetailState.loading && !runQuestionDetailState.error && runQuestionDetailData && (
-              <Grid gutter="lg">
-                <Grid.Col span={{ base: 12, xl: 4 }}>
-                  <Stack gap="lg">
-                    <SectionCard title={t("reviewQuestionTitle")}>
-                      <Text size="xs" c="dimmed">
-                        {String((runQuestionDetailData as any)?.question?.id ?? questionId)}
-                      </Text>
-                      <Text size="sm">{String((runQuestionDetailData as any)?.question?.question ?? "-")}</Text>
-                      <SimpleGrid cols={2}>
-                        <MetricCard label={t("answerType")} value={String((runQuestionDetailData as any)?.response?.answer_type ?? "-")} />
-                        <MetricCard label={t("reviewRoute")} value={String((runQuestionDetailData as any)?.response?.route_name ?? "-")} />
-                      </SimpleGrid>
-                    </SectionCard>
-
-                    <SectionCard title={t("reviewAnswerTitle")} action={
-                      <Button variant="subtle" size="xs" onClick={() => openDebug(t("reviewDebugTitle"), runQuestionDetailData)}>
-                        {t("actionOpenDebug")}
-                      </Button>
-                    }>
-                      <Text size="sm">{String((runQuestionDetailData as any)?.response?.answer ?? "-")}</Text>
-                      <SimpleGrid cols={{ base: 1, sm: 2 }}>
-                        <MetricCard
-                          label={t("reviewConfidence")}
-                          value={formatMetricValue((runQuestionDetailData as any)?.response?.confidence, 3)}
-                        />
-                        <MetricCard
-                          label={t("reviewUsedPages")}
-                          value={String(Array.isArray((reviewEvidence as any)?.used_page_ids) ? ((reviewEvidence as any).used_page_ids as Array<unknown>).length : 0)}
-                        />
-                      </SimpleGrid>
-                    </SectionCard>
-
-                    <SectionCard title={t("reviewEvidenceTitle")}>
-                      <Stack gap="sm">
-                        {selectedReviewPages.length === 0 && (
-                          <Text size="sm" c="dimmed">
-                            {t("stateEmpty")}
-                          </Text>
-                        )}
-                        {selectedReviewPages.map((page) => (
-                          <Paper
-                            key={String(page.page_id ?? "")}
-                            withBorder
-                            p="xs"
-                            className={String(page.page_id ?? "") === String(selectedReviewPageId) ? "project-card-active" : ""}
-                          >
-                            <Stack gap={4}>
-                              <Group justify="space-between" align="center">
-                                <Button
-                                  size="xs"
-                                  variant={String(page.page_id ?? "") === String(selectedReviewPageId) ? "filled" : "light"}
-                                  onClick={() => {
-                                    setSelectedReviewPageId(String(page.page_id ?? ""));
-                                    setSelectedReviewDocumentId(String((selectedReviewDocument as any)?.document_id ?? ""));
-                                  }}
-                                >
-                                  {String(page.source_page_id ?? page.page_id ?? "page")}
-                                </Button>
-                                <Badge color={Boolean((page as any).used) ? "green" : "gray"} variant="light">
-                                  {Boolean((page as any).used) ? t("reviewUsedBadge") : t("reviewRetrievedBadge")}
-                                </Badge>
-                              </Group>
-                              <Text size="xs" c="dimmed">
-                                {String(page.chunk_id ?? "-")}
-                              </Text>
-                              <Text size="xs">{String(page.chunk_text ?? "-")}</Text>
-                            </Stack>
-                          </Paper>
-                        ))}
-                      </Stack>
-                    </SectionCard>
-                  </Stack>
-                </Grid.Col>
-
-                <Grid.Col span={{ base: 12, xl: 8 }}>
-                  <Stack gap="lg">
-                    <SectionCard title={t("reviewDocumentTitle")}>
-                      <Group justify="space-between" align="flex-start" wrap="wrap">
-                        <Stack gap={4}>
-                          <Text size="xs" c="dimmed">
-                            {String((selectedReviewDocument as any)?.title ?? "-")}
-                          </Text>
-                        </Stack>
-                        <Select
-                          value={selectedReviewDocumentId}
-                          onChange={(value) => {
-                            const nextDocumentId = value || "";
-                            setSelectedReviewDocumentId(nextDocumentId);
-                            const nextDocument = reviewDocuments.find((doc) => String(doc.document_id ?? "") === nextDocumentId) ?? null;
-                            const nextPages = nextDocument && Array.isArray((nextDocument as any).pages)
-                              ? (((nextDocument as any).pages as Array<Record<string, unknown>>))
-                              : [];
-                            const firstUsedPage = nextPages.find((page) => Boolean(page.used)) ?? nextPages[0] ?? null;
-                            setSelectedReviewPageId(String((firstUsedPage as any)?.page_id ?? ""));
-                          }}
-                          data={reviewDocuments.map((doc) => ({
-                            value: String(doc.document_id ?? ""),
-                            label: String(doc.title ?? doc.document_id ?? "document"),
-                          }))}
-                        />
-                      </Group>
-                      <Group>
-                        <Button
-                          size="xs"
-                          variant="light"
-                          disabled={
-                            !selectedReviewPage ||
-                            selectedReviewPages.findIndex((page) => String(page.page_id ?? "") === String((selectedReviewPage as any)?.page_id ?? "")) <= 0
-                          }
-                          onClick={() => {
-                            const index = selectedReviewPages.findIndex(
-                              (page) => String(page.page_id ?? "") === String((selectedReviewPage as any)?.page_id ?? "")
-                            );
-                            const previous = index > 0 ? selectedReviewPages[index - 1] : null;
-                            if (previous) {
-                              setSelectedReviewPageId(String(previous.page_id ?? ""));
-                            }
-                          }}
-                        >
-                          {t("reviewPrevPage")}
-                        </Button>
-                        <Button
-                          size="xs"
-                          variant="light"
-                          disabled={
-                            !selectedReviewPage ||
-                            selectedReviewPages.findIndex((page) => String(page.page_id ?? "") === String((selectedReviewPage as any)?.page_id ?? "")) >=
-                              selectedReviewPages.length - 1
-                          }
-                          onClick={() => {
-                            const index = selectedReviewPages.findIndex(
-                              (page) => String(page.page_id ?? "") === String((selectedReviewPage as any)?.page_id ?? "")
-                            );
-                            const next = index >= 0 && index < selectedReviewPages.length - 1 ? selectedReviewPages[index + 1] : null;
-                            if (next) {
-                              setSelectedReviewPageId(String(next.page_id ?? ""));
-                            }
-                          }}
-                        >
-                          {t("reviewNextPage")}
-                        </Button>
-                        <Text size="xs" c="dimmed">
-                          {selectedReviewPage ? `${Number((selectedReviewPage as any).page_num ?? 0) + 1} / ${selectedReviewPages.length}` : "-"}
-                        </Text>
-                      </Group>
-                    </SectionCard>
-
-                    <Paper withBorder p="xs" style={{ minHeight: 720 }}>
-                      {!selectedReviewPdfSrc && (
-                        <Text size="sm" c="dimmed">
-                          {t("stateEmpty")}
-                        </Text>
-                      )}
-                      {selectedReviewPdfSrc && (
-                        <Suspense fallback={<Text size="sm" c="dimmed">{t("stateLoading")}</Text>}>
-                          <PdfReviewViewer
-                            src={selectedReviewPdfSrc}
-                            pageNumber={Number((selectedReviewPage as any)?.page_num ?? 0) + 1}
-                            chunkTexts={
-                              selectedReviewPages
-                                .filter((page) => String(page.page_id ?? "") === String((selectedReviewPage as any)?.page_id ?? ""))
-                                .map((page) => String(page.chunk_text ?? ""))
-                            }
-                          />
-                        </Suspense>
-                      )}
-                    </Paper>
-                  </Stack>
-                </Grid.Col>
-              </Grid>
-            )}
-          </Stack>
-        </Tabs.Panel>
-      </Tabs>
+        <SectionCard title={t("sectionRunQuestionReview")} description={t("reviewSubtitle")}>
+          <ReviewConsolePanel
+            api={api}
+            apiBase={apiBase}
+            runId={runId}
+            questionId={questionId}
+            goldDatasetId={goldDatasetId}
+            onRunIdChange={setRunId}
+            onQuestionIdChange={(value) => updateActiveProjectWorkspace({ questionId: value })}
+            onGoldDatasetIdChange={setActiveGoldDatasetId}
+            onRecordLoaded={setRunQuestionDetailData}
+            onOpenDebug={openDebug}
+            onSyncPath={syncReviewPath}
+          />
+        </SectionCard>
+      </Stack>
     );
   }
 

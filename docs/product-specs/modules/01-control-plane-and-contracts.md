@@ -17,6 +17,7 @@
 - Retrieval/solver/prompt/profile version labels.
 - Feature flags and rollout knobs.
 - Submission export conventions.
+- Additive review/adjudication contracts for operator-facing validation workflows.
 
 ### Consumes
 - Existing `contracts.py`.
@@ -95,3 +96,10 @@
   - использует `active_version`, если label пустой;
   - использует `fallback_version`, если requested label не зарегистрирован.
 - Явный rollback path: переключение `active_version` на предыдущий `fallback_version` без изменения scoring formulas.
+
+## 12) Review Console Contract Notes
+- Review console может добавлять новые additive contracts (`QuestionReviewRecord`, `CandidateAnswer`, `MiniCheckResult`, review action requests), но не меняет frozen competition surfaces.
+- `RunQuestionReviewArtifact` может расширяться только optional/additive review-state полями.
+- `strong_model` / `challenger` candidate generation обязана переиспользовать existing experiment profile config surface, а не вводить новый review-only config domain.
+- При отсутствии model/runtime prerequisites review API и UI обязаны возвращать явный unavailable state, а не synthetic placeholder.
+- Все review mutations и report exports обязаны писать audit events.

@@ -72,6 +72,11 @@
   - answer center pane
   - real PDF preview right pane
   - one-click promote-to-gold action
+- Для validation / gold review нужен отдельный adjudication surface внутри existing app:
+  - route-level triage rail with disagreement/status badges
+  - candidate bundle comparison for `system`, `strong_model`, `challenger`, `mini_check`
+  - explicit `not available` state when candidate generation inputs are absent
+  - gold lock/unlock actions with visible reviewer/audit context
 - Raw payloads and debug traces не должны доминировать в основном layout:
   - default UI = summaries, statuses, lists, validations
   - raw JSON = secondary debug drawer/panel
@@ -91,6 +96,8 @@
   - partial data
   - validation error
   - unhealthy backend
+  - review candidate unavailable
+  - mini-check unavailable because model path is not configured
 
 ## 6) Data / Telemetry
 - UI telemetry:
@@ -98,6 +105,8 @@
   - compare actions
   - filter usage
   - long-running requests visibility
+  - review decision actions
+  - review export actions
 
 ## 7) Risk & Autonomy
 - Риск: medium
@@ -116,9 +125,17 @@
 - [ ] Prefer human-readable corpus document labels and chunk metadata in corpus inspection flows.
 - [ ] Provide visible long-running job status and retry affordances.
 - [ ] Ensure translations cover all new labels.
+- [ ] Add full validation / gold review console with deep-linkable `/review` surfaces.
+- [ ] Show explicit unavailable states for strong/challenger/mini-check instead of fake placeholders.
+- [ ] Keep all review state-changing actions auditable and visible in operator UI.
 
 ## 9) Validation plan
 - Web unit tests.
 - API contract smoke tests for consumed endpoints.
 - Manual UI validation for critical research journeys.
 - Build verification in `agentfirst verify`.
+- Review-specific smoke:
+  - disagreement filtering
+  - PDF/fallback evidence switch
+  - lock/unlock gold flow
+  - review report export

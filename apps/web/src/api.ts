@@ -68,6 +68,28 @@ function buildExperimentLeaderboardPath(limit?: number, stageType?: string, expe
   return qs ? `/v1/experiments/leaderboard?${qs}` : "/v1/experiments/leaderboard";
 }
 
+function buildReviewQuestionsPath(runId: string, filters?: Record<string, unknown>): string {
+  const params = new URLSearchParams();
+  params.set("run_id", runId);
+  for (const [key, value] of Object.entries(filters ?? {})) {
+    if (value === undefined || value === null) {
+      continue;
+    }
+    if (typeof value === "boolean") {
+      if (value) {
+        params.set(key, "true");
+      }
+      continue;
+    }
+    const token = String(value).trim();
+    if (!token) {
+      continue;
+    }
+    params.set(key, token);
+  }
+  return `/v1/review/questions?${params.toString()}`;
+}
+
 async function parseResponseBody(res: Response): Promise<Record<string, unknown>> {
   const text = await res.text();
   if (!text) {
@@ -142,6 +164,36 @@ export function createApi(baseUrl: string) {
     getRun: (runId: string) => request<Record<string, unknown>>(baseUrl, "GET", `/v1/runs/${runId}`),
     getRunQuestionDetail: (runId: string, questionId: string) =>
       request<Record<string, unknown>>(baseUrl, "GET", `/v1/runs/${encodeURIComponent(runId)}/questions/${encodeURIComponent(questionId)}/detail`),
+    listReviewQuestions: (runId: string, filters?: Record<string, unknown>) =>
+      request<Record<string, unknown>>(baseUrl, "GET", buildReviewQuestionsPath(runId, filters)),
+    getReviewQuestion: (runId: string, questionId: string) =>
+      request<Record<string, unknown>>(baseUrl, "GET", `/v1/review/questions/${encodeURIComponent(questionId)}?run_id=${encodeURIComponent(runId)}`),
+    getReviewPdfPreview: (runId: string, questionId: string, documentId?: string, pageId?: string) => {
+      const params = new URLSearchParams({ run_id: runId });
+      if ((documentId ?? "").trim()) {
+        params.set("document_id", (documentId ?? "").trim());
+      }
+      if ((pageId ?? "").trim()) {
+        params.set("page_id", (pageId ?? "").trim());
+      }
+      return request<Record<string, unknown>>(baseUrl, "GET", `/v1/review/questions/${encodeURIComponent(questionId)}/pdf-preview?${params.toString()}`);
+    },
+    getReviewReport: (runId: string) =>
+      request<Record<string, unknown>>(baseUrl, "GET", `/v1/review/report/${encodeURIComponent(runId)}`),
+    generateReviewCandidates: (runId: string, questionId: string, payload: Record<string, unknown>) =>
+      request<Record<string, unknown>>(baseUrl, "POST", `/v1/review/questions/${encodeURIComponent(questionId)}/generate-candidates?run_id=${encodeURIComponent(runId)}`, payload),
+    runReviewMiniCheck: (runId: string, questionId: string, payload: Record<string, unknown>) =>
+      request<Record<string, unknown>>(baseUrl, "POST", `/v1/review/questions/${encodeURIComponent(questionId)}/mini-check?run_id=${encodeURIComponent(runId)}`, payload),
+    acceptReviewCandidate: (runId: string, questionId: string, payload: Record<string, unknown>) =>
+      request<Record<string, unknown>>(baseUrl, "POST", `/v1/review/questions/${encodeURIComponent(questionId)}/accept-candidate?run_id=${encodeURIComponent(runId)}`, payload),
+    saveReviewCustomDecision: (runId: string, questionId: string, payload: Record<string, unknown>) =>
+      request<Record<string, unknown>>(baseUrl, "POST", `/v1/review/questions/${encodeURIComponent(questionId)}/custom-decision?run_id=${encodeURIComponent(runId)}`, payload),
+    lockReviewGold: (runId: string, questionId: string, payload: Record<string, unknown>) =>
+      request<Record<string, unknown>>(baseUrl, "POST", `/v1/review/questions/${encodeURIComponent(questionId)}/lock-gold?run_id=${encodeURIComponent(runId)}`, payload),
+    unlockReviewGold: (runId: string, questionId: string, payload: Record<string, unknown>) =>
+      request<Record<string, unknown>>(baseUrl, "POST", `/v1/review/questions/${encodeURIComponent(questionId)}/unlock-gold?run_id=${encodeURIComponent(runId)}`, payload),
+    exportReviewReport: (runId: string, payload: Record<string, unknown>) =>
+      request<Record<string, unknown>>(baseUrl, "POST", `/v1/review/report/${encodeURIComponent(runId)}/export`, payload),
     promoteRunQuestionToGold: (runId: string, questionId: string, payload: Record<string, unknown>) =>
       request<Record<string, unknown>>(baseUrl, "POST", `/v1/runs/${encodeURIComponent(runId)}/questions/${encodeURIComponent(questionId)}/promote-to-gold`, payload),
     exportSubmission: (runId: string, payload: { page_index_base: 0 | 1 }) =>

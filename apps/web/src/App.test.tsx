@@ -20,6 +20,18 @@ afterEach(() => {
 });
 
 describe("App project workspace", () => {
+  it("opens the review console from a /review deep link", async () => {
+    window.history.pushState({}, "", "/review/q-review");
+    renderApp();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Load Review List" })).toBeInTheDocument();
+      expect(screen.getByLabelText("Question ID")).toHaveValue("q-review");
+    });
+
+    window.history.pushState({}, "", "/");
+  }, 15000);
+
   it("keeps dataset context when switching between projects", () => {
     renderApp();
     const projectFocusPanel = screen.getByText("Project Settings").closest(".mantine-Paper-root");

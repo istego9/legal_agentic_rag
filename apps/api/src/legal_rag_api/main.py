@@ -21,6 +21,7 @@ from legal_rag_api.routers import (  # noqa: E402
     corpus as corpus_router,
     qa as qa_router,
     runs as runs_router,
+    review as review_router,
     eval as eval_router,
     gold as gold_router,
     synth as synth_router,
@@ -86,6 +87,7 @@ async def startup_load_runtime_state() -> None:
 app.include_router(corpus_router.router)
 app.include_router(qa_router.router)
 app.include_router(runs_router.router)
+app.include_router(review_router.router)
 app.include_router(eval_router.router)
 app.include_router(gold_router.router)
 app.include_router(synth_router.router)

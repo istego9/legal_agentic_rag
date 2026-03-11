@@ -1828,3 +1828,176 @@ def test_export_submission_official_fails_closed_with_strict_contract_preflight(
     assert payload["code"] == "submission_contract_preflight_failed"
     assert payload["preflight"]["strict_contract_mode"] is True
     assert payload["preflight"]["invalid_prediction_count"] == 1
+
+
+def test_review_console_endpoints_support_generation_lock_export_and_minicheck_unavailable() -> None:
+    state = _snapshot_solver_runtime_state()
+    try:
+        store.feature_flags["canonical_chunk_model_v1"] = True
+        store.feature_flags["review_console_v1"] = True
+        store.feature_flags["review_mini_check_v1"] = True
+        project_id = str(uuid4())
+        dataset_id = str(uuid4())
+        client = TestClient(app)
+
+        seed_rows = [
+            {
+                "chunk_id": "review_case_a_chunk",
+                "doc_type": "case",
+                "text": "Case CFI 016/2025 was decided on 14 May 2025.",
+                "retrieval_text": "CFI 016/2025 decided on 14 May 2025 target case",
+                "paragraph_overrides": {"dates": ["2025-05-14"], "case_refs": ["CFI 016/2025"]},
+                "chunk_overrides": {"case_number": "CFI 016/2025", "decision_date": "2025-05-14"},
+            },
+            {
+                "chunk_id": "review_case_b_chunk",
+                "doc_type": "case",
+                "text": "Case ENF 269/2023 was decided on 2 November 2023.",
+                "retrieval_text": "ENF 269/2023 decided on 2 November 2023 target case",
+                "paragraph_overrides": {"dates": ["2023-11-02"], "case_refs": ["ENF 269/2023"]},
+                "chunk_overrides": {"case_number": "ENF 269/2023", "decision_date": "2023-11-02"},
+            },
+        ]
+        for row in seed_rows:
+            _seed_typed_solver_candidate(
+                project_id,
+                chunk_id=row["chunk_id"],
+                text=row["text"],
+                retrieval_text=row["retrieval_text"],
+                doc_type=row["doc_type"],
+                paragraph_overrides=row.get("paragraph_overrides"),
+                chunk_overrides=row.get("chunk_overrides"),
+            )
+
+        imported_questions = client.post(
+            f"/v1/qa/datasets/{dataset_id}/import-questions",
+            json={
+                "project_id": project_id,
+                "questions": [
+                    {
+                        "id": "q-review",
+                        "question": "Which case was decided earlier: CFI 016/2025 or ENF 269/2023?",
+                        "answer_type": "name",
+                        "route_hint": "single_case_extraction",
+                    }
+                ],
+            },
+        )
+        assert imported_questions.status_code == 200
+
+        batch = client.post(
+            "/v1/qa/ask-batch",
+            json={
+                "project_id": project_id,
+                "dataset_id": dataset_id,
+                "question_ids": ["q-review"],
+                "runtime_policy": _runtime_policy_payload(return_debug_trace=False),
+            },
+        )
+        assert batch.status_code == 202
+        run_id = batch.json()["run_id"]
+
+        review_list = client.get("/v1/review/questions", params={"run_id": run_id})
+        assert review_list.status_code == 200
+        list_payload = review_list.json()
+        assert list_payload["total"] == 1
+        assert list_payload["items"][0]["question_id"] == "q-review"
+        assert any(candidate["candidate_kind"] == "system" for candidate in list_payload["items"][0]["candidate_bundle"])
+
+        review_detail = client.get(f"/v1/review/questions/q-review", params={"run_id": run_id})
+        assert review_detail.status_code == 200
+        assert review_detail.json()["question_id"] == "q-review"
+
+        pdf_preview = client.get(f"/v1/review/questions/q-review/pdf-preview", params={"run_id": run_id})
+        assert pdf_preview.status_code == 200
+        assert "fallback" in pdf_preview.json()
+
+        created_gold_ds = client.post(
+            "/v1/gold/datasets",
+            json={
+                "project_id": project_id,
+                "name": "review-gold",
+                "version": "1.0.0",
+            },
+        )
+        assert created_gold_ds.status_code == 200
+        gold_dataset_id = created_gold_ds.json()["gold_dataset_id"]
+
+        profile_response = client.post(
+            "/v1/experiments/profiles",
+            json={
+                "name": "review-strong",
+                "project_id": project_id,
+                "dataset_id": dataset_id,
+                "gold_dataset_id": gold_dataset_id,
+                "runtime_policy": _runtime_policy_payload(return_debug_trace=False),
+            },
+        )
+        assert profile_response.status_code == 200
+        profile_id = profile_response.json()["profile_id"]
+
+        generated = client.post(
+            f"/v1/review/questions/q-review/generate-candidates",
+            params={"run_id": run_id},
+            json={"reviewer": "qa", "strong_profile_id": profile_id},
+        )
+        assert generated.status_code == 200
+        generated_record = generated.json()["record"]
+        assert any(candidate["candidate_kind"] == "strong_model" for candidate in generated_record["candidate_bundle"])
+
+        accepted = client.post(
+            f"/v1/review/questions/q-review/accept-candidate",
+            params={"run_id": run_id},
+            json={"reviewer": "qa", "candidate_kind": "system", "reviewer_confidence": 0.9},
+        )
+        assert accepted.status_code == 200
+        assert accepted.json()["accepted_decision"]["decision_source"] == "system"
+
+        mini_check = client.post(
+            f"/v1/review/questions/q-review/mini-check",
+            params={"run_id": run_id},
+            json={
+                "reviewer": "qa",
+                "candidate_kind": "system",
+                "candidate_answer": "ENF 269/2023",
+                "candidate_answerability": "answerable",
+                "answer_type": "name",
+                "evidence": [
+                    {
+                        "doc_id": "review_case_b",
+                        "page_number": 0,
+                        "snippet": "Case ENF 269/2023 was decided on 2 November 2023.",
+                    }
+                ],
+            },
+        )
+        assert mini_check.status_code == 503
+        assert "Azure OpenAI" in mini_check.json()["detail"]
+
+        locked = client.post(
+            f"/v1/review/questions/q-review/lock-gold",
+            params={"run_id": run_id},
+            json={"gold_dataset_id": gold_dataset_id, "reviewer": "qa", "reviewer_confidence": 0.9},
+        )
+        assert locked.status_code == 200
+        assert locked.json()["status"] == "gold_locked"
+
+        unlocked = client.post(
+            f"/v1/review/questions/q-review/unlock-gold",
+            params={"run_id": run_id},
+            json={"gold_dataset_id": gold_dataset_id, "reviewer": "qa"},
+        )
+        assert unlocked.status_code == 200
+        assert unlocked.json()["status"] == "review_in_progress"
+
+        exported = client.post(f"/v1/review/report/{run_id}/export", json={"reviewer": "qa", "format": "both"})
+        assert exported.status_code == 200
+        export_payload = exported.json()
+        assert export_payload["summary"]["total_questions"] == 1
+        assert "review_report_json" in export_payload
+
+        report = client.get(f"/v1/review/report/{run_id}")
+        assert report.status_code == 200
+        assert report.json()["summary"]["total_questions"] == 1
+    finally:
+        _restore_solver_runtime_state(state)

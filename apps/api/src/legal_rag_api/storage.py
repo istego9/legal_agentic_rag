@@ -84,6 +84,8 @@ class InMemoryStore:
             self.feature_flags = {
                 "canonical_chunk_model_v1": os.getenv("CANONICAL_CHUNK_MODEL_V1", "1") not in {"0", "false", "False"},
                 "experiment_platform_v1": os.getenv("EXPERIMENT_PLATFORM_V1", "1") not in {"0", "false", "False"},
+                "review_console_v1": os.getenv("REVIEW_CONSOLE_V1", "1") not in {"0", "false", "False"},
+                "review_mini_check_v1": os.getenv("REVIEW_MINI_CHECK_V1", "1") not in {"0", "false", "False"},
             }
         if not self.scoring_policies:
             self.scoring_policies["contest_v2026_public_rules_v1"] = ScoringPolicy(
@@ -392,6 +394,14 @@ class InMemoryStore:
             return None
         return RunQuestionReviewArtifact(**payload)
 
+    def list_run_question_reviews(self, run_id: str) -> Dict[str, RunQuestionReviewArtifact]:
+        out: Dict[str, RunQuestionReviewArtifact] = {}
+        for question_id, payload in self.run_question_reviews.get(run_id, {}).items():
+            if not isinstance(payload, dict):
+                continue
+            out[str(question_id)] = RunQuestionReviewArtifact(**payload)
+        return out
+
     # ---------------------------------------------
     # Gold
     # ---------------------------------------------
@@ -478,6 +488,12 @@ class InMemoryStore:
             }
         )
         return q
+
+    def find_gold_question_by_dataset_question(self, dataset_id: str, question_id: str) -> Optional[GoldQuestion]:
+        for candidate in self.gold_questions.get(dataset_id, {}).values():
+            if candidate.question_id == question_id:
+                return candidate
+        return None
 
     # ---------------------------------------------
     # Synthetic

@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://legal.build/schemas/review_record.schema.json",
+  "title": "QuestionReviewRecord",
+  "type": "object",
+  "required": [
+    "question_id",
+    "question",
+    "answer_type",
+    "status",
+    "candidate_bundle"
+  ],
+  "properties": {
+    "question_id": {"type": "string"},
+    "question": {"type": "string"},
+    "answer_type": {"type": "string"},
+    "primary_route": {"type": ["string", "null"]},
+    "document_scope": {"type": ["string", "null"]},
+    "risk_tier": {"type": ["string", "null"]},
+    "status": {"type": "string"},
+    "disagreement_flags": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "candidate_bundle": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["candidate_kind", "answerability", "sources"],
+        "properties": {
+          "candidate_kind": {"type": "string"},
+          "answer": {},
+          "answerability": {"type": "string"},
+          "confidence": {"type": ["number", "null"]},
+          "reasoning_summary": {"type": ["string", "null"]},
+          "sources": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["doc_id", "page_number"],
+              "properties": {
+                "doc_id": {"type": "string"},
+                "page_number": {"type": "integer"},
+                "snippet": {"type": ["string", "null"]},
+                "is_used": {"type": ["boolean", "null"]}
+              }
+            }
+          }
+        }
+      }
+    },
+    "accepted_decision": {
+      "type": ["object", "null"],
+      "properties": {
+        "final_answer": {},
+        "final_sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["doc_id", "page_number"],
+            "properties": {
+              "doc_id": {"type": "string"},
+              "page_number": {"type": "integer"}
+            }
+          }
+        },
+        "answerability": {"type": ["string", "null"]},
+        "decision_source": {"type": ["string", "null"]},
+        "reviewer": {"type": ["string", "null"]},
+        "adjudication_note": {"type": ["string", "null"]}
+      }
+    }
+  }
+}

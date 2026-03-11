@@ -538,6 +538,167 @@ class CorpusEnrichmentJob(BaseModel):
     updated_at: datetime
 
 
+ReviewCandidateKind = Literal["system", "strong_model", "challenger", "mini_check"]
+ReviewQuestionStatus = Literal[
+    "not_ready",
+    "auto_lock_candidate",
+    "needs_review",
+    "review_in_progress",
+    "gold_locked",
+    "gold_rejected",
+    "exported",
+]
+MiniCheckVerdict = Literal["supported", "not_supported", "insufficient_evidence"]
+MiniCheckConflictType = Literal["none", "answer_mismatch", "answerability_mismatch", "source_insufficient"]
+SupportStatus = Literal["supported", "not_supported", "insufficient_evidence", "not_run", "unavailable"]
+
+
+class EvidenceRef(BaseModel):
+    doc_id: str
+    doc_title: Optional[str] = None
+    page_number: int = Field(ge=0)
+    snippet: Optional[str] = None
+    paragraph_id: Optional[str] = None
+    is_used: Optional[bool] = None
+    source_origin: Optional[ReviewCandidateKind] = None
+    highlight_offsets: List[int] = Field(default_factory=list)
+    source_page_id: Optional[str] = None
+    parse_warnings: List[str] = Field(default_factory=list)
+
+
+class CandidateAnswer(BaseModel):
+    candidate_id: str
+    candidate_kind: ReviewCandidateKind
+    answer: AnswerValue = None
+    answerability: Literal["answerable", "abstain"]
+    confidence: Optional[float] = Field(default=None, ge=0, le=1)
+    reasoning_summary: Optional[str] = None
+    sources: List[EvidenceRef] = Field(default_factory=list)
+    support_status: SupportStatus = "not_run"
+    run_id: Optional[str] = None
+    created_at: Optional[datetime] = None
+    label: Optional[str] = None
+    unavailable_reason: Optional[str] = None
+    metadata: Dict[str, Any] = Field(default_factory=dict)
+
+
+class AcceptedDecision(BaseModel):
+    final_answer: AnswerValue = None
+    final_sources: List[EvidenceRef] = Field(default_factory=list)
+    answerability: Optional[Literal["answerable", "abstain"]] = None
+    decision_source: Optional[str] = None
+    reviewer: Optional[str] = None
+    reviewer_confidence: Optional[float] = Field(default=None, ge=0, le=1)
+    adjudication_note: Optional[str] = None
+    locked_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+    gold_dataset_id: Optional[str] = None
+    gold_question_id: Optional[str] = None
+
+
+class MiniCheckResult(BaseModel):
+    verdict: MiniCheckVerdict
+    extracted_answer: AnswerValue = None
+    confidence: float = Field(ge=0, le=1)
+    rationale: str
+    conflict_type: MiniCheckConflictType = "none"
+    candidate_answer: AnswerValue = None
+    candidate_kind: Optional[ReviewCandidateKind] = None
+    created_at: Optional[datetime] = None
+    model_name: Optional[str] = None
+    unavailable_reason: Optional[str] = None
+
+
+class QuestionReviewRecord(BaseModel):
+    question_id: str
+    question: str
+    answer_type: AnswerType
+    primary_route: Optional[str] = None
+    document_scope: Optional[str] = None
+    risk_tier: Optional[str] = None
+    status: ReviewQuestionStatus
+    disagreement_flags: List[str] = Field(default_factory=list)
+    current_run_id: Optional[str] = None
+    trace_id: Optional[str] = None
+    candidate_bundle: List[CandidateAnswer] = Field(default_factory=list)
+    accepted_decision: Optional[AcceptedDecision] = None
+    mini_check_result: Optional[MiniCheckResult] = None
+    report_summary: Dict[str, Any] = Field(default_factory=dict)
+    question_metadata: Dict[str, Any] = Field(default_factory=dict)
+    evidence: Dict[str, Any] = Field(default_factory=dict)
+    document_viewer: Dict[str, Any] = Field(default_factory=dict)
+    promotion_preview: Dict[str, Any] = Field(default_factory=dict)
+    comparison_context: Dict[str, Any] = Field(default_factory=dict)
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
+
+class ReviewRunSummary(BaseModel):
+    run_id: str
+    total_questions: int = Field(default=0, ge=0)
+    auto_lock_candidates: int = Field(default=0, ge=0)
+    locked_gold_count: int = Field(default=0, ge=0)
+    needs_review_count: int = Field(default=0, ge=0)
+    disagreement_histogram: Dict[str, int] = Field(default_factory=dict)
+    answerability_conflict_count: int = Field(default=0, ge=0)
+    source_conflict_count: int = Field(default=0, ge=0)
+    mini_check_failure_count: int = Field(default=0, ge=0)
+    route_breakdown: Dict[str, int] = Field(default_factory=dict)
+    answer_type_breakdown: Dict[str, int] = Field(default_factory=dict)
+    exported_at: Optional[datetime] = None
+
+
+class ReviewCandidateGenerationRequest(BaseModel):
+    reviewer: Optional[str] = None
+    strong_run_id: Optional[str] = None
+    challenger_run_id: Optional[str] = None
+    strong_profile_id: Optional[str] = None
+    challenger_profile_id: Optional[str] = None
+
+
+class ReviewMiniCheckRequest(BaseModel):
+    reviewer: Optional[str] = None
+    candidate_kind: ReviewCandidateKind = "system"
+    candidate_answer: AnswerValue = None
+    candidate_answerability: Literal["answerable", "abstain"]
+    answer_type: AnswerType
+    evidence: List[EvidenceRef] = Field(default_factory=list)
+
+
+class ReviewAcceptCandidateRequest(BaseModel):
+    reviewer: Optional[str] = None
+    candidate_kind: ReviewCandidateKind
+    reviewer_confidence: Optional[float] = Field(default=None, ge=0, le=1)
+    adjudication_note: Optional[str] = None
+
+
+class ReviewCustomDecisionRequest(BaseModel):
+    reviewer: Optional[str] = None
+    final_answer: AnswerValue = None
+    answerability: Literal["answerable", "abstain"]
+    final_sources: List[EvidenceRef] = Field(default_factory=list)
+    reviewer_confidence: Optional[float] = Field(default=None, ge=0, le=1)
+    adjudication_note: Optional[str] = None
+
+
+class ReviewLockGoldRequest(BaseModel):
+    gold_dataset_id: str
+    reviewer: Optional[str] = None
+    reviewer_confidence: Optional[float] = Field(default=None, ge=0, le=1)
+    adjudication_note: Optional[str] = None
+
+
+class ReviewUnlockGoldRequest(BaseModel):
+    gold_dataset_id: str
+    reviewer: Optional[str] = None
+    adjudication_note: Optional[str] = None
+
+
+class ReviewExportRequest(BaseModel):
+    reviewer: Optional[str] = None
+    format: Literal["json", "markdown", "both"] = "both"
+
+
 class RunQuestionReviewArtifact(BaseModel):
     run_id: str
     question_id: str
@@ -546,6 +707,13 @@ class RunQuestionReviewArtifact(BaseModel):
     evidence: Dict[str, Any] = Field(default_factory=dict)
     document_viewer: Dict[str, Any] = Field(default_factory=dict)
     promotion_preview: Dict[str, Any] = Field(default_factory=dict)
+    status: ReviewQuestionStatus = "needs_review"
+    disagreement_flags: List[str] = Field(default_factory=list)
+    candidate_bundle: List[CandidateAnswer] = Field(default_factory=list)
+    accepted_decision: Optional[AcceptedDecision] = None
+    mini_check_result: Optional[MiniCheckResult] = None
+    comparison_context: Dict[str, Any] = Field(default_factory=dict)
+    report_summary: Dict[str, Any] = Field(default_factory=dict)
     created_at: datetime
 
 
