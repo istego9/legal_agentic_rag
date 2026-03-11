@@ -180,6 +180,8 @@ export function createApi(baseUrl: string) {
     },
     getReviewReport: (runId: string) =>
       request<Record<string, unknown>>(baseUrl, "GET", `/v1/review/report/${encodeURIComponent(runId)}`),
+    downloadReviewReportUrl: (runId: string) =>
+      joinUrl(baseUrl, `/v1/review/report/${encodeURIComponent(runId)}/export`),
     generateReviewCandidates: (runId: string, questionId: string, payload: Record<string, unknown>) =>
       request<Record<string, unknown>>(baseUrl, "POST", `/v1/review/questions/${encodeURIComponent(questionId)}/generate-candidates?run_id=${encodeURIComponent(runId)}`, payload),
     runReviewMiniCheck: (runId: string, questionId: string, payload: Record<string, unknown>) =>

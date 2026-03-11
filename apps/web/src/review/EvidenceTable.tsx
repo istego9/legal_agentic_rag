@@ -6,15 +6,21 @@ import { reviewSourceLabel } from "./utils";
 type EvidenceTableProps = {
   evidence: ReviewEvidenceRef[];
   selectedSourcePageId: string;
+  miniCheckTargetLabel: string;
   onPinToPdf: (sourcePageId: string) => void;
   onSendToMiniCheck: (evidence: ReviewEvidenceRef[]) => void;
 };
 
-export function EvidenceTable({ evidence, selectedSourcePageId, onPinToPdf, onSendToMiniCheck }: EvidenceTableProps) {
+export function EvidenceTable({ evidence, selectedSourcePageId, miniCheckTargetLabel, onPinToPdf, onSendToMiniCheck }: EvidenceTableProps) {
   return (
     <Stack gap="sm">
       <Group justify="space-between" align="center">
-        <Text fw={600}>{t("reviewEvidenceTitle")}</Text>
+        <Stack gap={2}>
+          <Text fw={600}>{t("reviewEvidenceTitle")}</Text>
+          <Text size="xs" c="dimmed">
+            {t("reviewMiniCheckTarget")}: {miniCheckTargetLabel}
+          </Text>
+        </Stack>
         <Button size="xs" variant="light" disabled={!evidence.length} onClick={() => onSendToMiniCheck(evidence.filter((item) => item.is_used !== false))}>
           {t("reviewSendToMiniCheck")}
         </Button>

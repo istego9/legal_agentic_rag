@@ -37,6 +37,25 @@ function renderPanel(overrides?: Partial<Record<string, unknown>>) {
           },
         ],
       },
+      {
+        candidate_id: "strong:1",
+        candidate_kind: "strong_model",
+        answer: "CFI 016/2025",
+        answerability: "answerable",
+        confidence: 0.8,
+        reasoning_summary: "strong summary",
+        sources: [
+          {
+            doc_id: "doc-2",
+            doc_title: "Case Matrix",
+            page_number: 1,
+            snippet: "Case CFI 016/2025 was decided on 14 May 2025.",
+            is_used: true,
+            source_origin: "strong_model",
+            source_page_id: "doc-2_1",
+          },
+        ],
+      },
     ],
     accepted_decision: null,
     evidence: { solver_trace: { path: "name_case_timeline" } },
@@ -79,6 +98,7 @@ function renderPanel(overrides?: Partial<Record<string, unknown>>) {
     lockReviewGold: vi.fn().mockResolvedValue({ ...record, status: "gold_locked", accepted_decision: { final_answer: "ENF 269/2023", final_sources: [], decision_source: "system", locked_at: "2026-03-11T00:00:00Z" } }),
     unlockReviewGold: vi.fn().mockResolvedValue({ ...record, status: "review_in_progress" }),
     exportReviewReport: vi.fn().mockResolvedValue({ summary: { total_questions: 1 } }),
+    downloadReviewReportUrl: vi.fn().mockReturnValue("/v1/review/report/run-1/export"),
     ...(overrides?.api as object),
   };
 
@@ -109,13 +129,28 @@ function renderPanel(overrides?: Partial<Record<string, unknown>>) {
 }
 
 describe("ReviewConsolePanel", () => {
-  it("renders review list and fallback pdf, then locks gold", async () => {
+  it("runs mini-check against the selected candidate and still supports lock gold", async () => {
     const { api } = renderPanel();
 
     await waitFor(() => {
       expect(screen.getAllByText("Which case was decided earlier?").length).toBeGreaterThan(0);
       expect(screen.getAllByText("answer_conflict").length).toBeGreaterThan(0);
       expect(screen.getByText("Structured fallback page text")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getAllByRole("button", { name: "Select for Mini-check" })[1]);
+    fireEvent.click(screen.getByRole("button", { name: "Send to Mini-check" }));
+
+    await waitFor(() => {
+      expect(api.runReviewMiniCheck).toHaveBeenCalledWith(
+        "run-1",
+        "q-review",
+        expect.objectContaining({
+          candidate_kind: "strong_model",
+          candidate_answer: "CFI 016/2025",
+          candidate_answerability: "answerable",
+        })
+      );
     });
 
     fireEvent.click(screen.getByRole("button", { name: "Lock Gold" }));

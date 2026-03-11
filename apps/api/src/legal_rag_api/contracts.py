@@ -690,7 +690,7 @@ class ReviewLockGoldRequest(BaseModel):
 
 class ReviewUnlockGoldRequest(BaseModel):
     gold_dataset_id: str
-    reviewer: Optional[str] = None
+    reviewer: str = Field(min_length=1)
     adjudication_note: Optional[str] = None
 
 

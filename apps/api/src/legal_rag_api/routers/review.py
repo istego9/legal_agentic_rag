@@ -9,6 +9,7 @@ from typing import Any, Dict, Iterable, List, Optional
 from uuid import uuid4
 
 from fastapi import APIRouter, HTTPException, Query
+from fastapi.responses import JSONResponse
 
 from legal_rag_api import corpus_pg, runtime_pg
 from legal_rag_api.azure_llm import AzureLLMClient
@@ -47,6 +48,7 @@ _CANDIDATE_ORDER = {
     "challenger": 2,
     "mini_check": 3,
 }
+REVIEW_EXPORT_SCHEMA_VERSION = "review_report_export.v1"
 
 
 def _utcnow() -> datetime:
@@ -692,6 +694,16 @@ def _report_markdown(summary: ReviewRunSummary, records: List[QuestionReviewReco
     return "\n".join(lines)
 
 
+def _build_review_export_payload(run_id: str, records: List[QuestionReviewRecord], summary: ReviewRunSummary) -> Dict[str, Any]:
+    return {
+        "schema_version": REVIEW_EXPORT_SCHEMA_VERSION,
+        "run_id": run_id,
+        "items": [_review_record_payload(record) for record in records],
+        "summary": summary.model_dump(mode="json"),
+        "exported_at": _utcnow().isoformat(),
+    }
+
+
 @router.get("/questions")
 def list_review_questions(
     run_id: str = Query(..., alias="run_id"),
@@ -759,6 +771,27 @@ def get_review_report(runId: str) -> dict:
         "items": [_review_record_payload(record) for record in records],
         "summary": _review_summary(runId, records).model_dump(mode="json"),
     }
+
+
+@router.get("/report/{runId}/export")
+def download_review_report(runId: str) -> JSONResponse:
+    _ensure_review_enabled()
+    _get_run(runId)
+    records = [_artifact_to_record(artifact) for artifact in _list_run_review_artifacts(runId).values()]
+    summary = _review_summary(runId, records)
+    payload = _build_review_export_payload(runId, records, summary)
+    output_dir = REPORTS_DIR / runId
+    output_dir.mkdir(parents=True, exist_ok=True)
+    json_path = output_dir / "review_report.json"
+    json_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    _append_review_audit("review_report_downloaded", runId, {"artifact_path": str(json_path)})
+    return JSONResponse(
+        content=payload,
+        headers={
+            "Content-Disposition": f'attachment; filename="review_report_{runId}.json"',
+            "Cache-Control": "no-store",
+        },
+    )
 
 
 @router.post("/questions/{questionId}/generate-candidates")
@@ -1086,11 +1119,7 @@ def export_review_report(runId: str, payload: ReviewExportRequest) -> dict:
     md_path = output_dir / "review_report.md"
     status_path = output_dir / "question_status.jsonl"
     bundle_path = output_dir / "candidate_bundle.jsonl"
-    json_payload = {
-        "run_id": runId,
-        "summary": summary.model_dump(mode="json"),
-        "items": [_review_record_payload(record) for record in records],
-    }
+    json_payload = _build_review_export_payload(runId, records, summary)
     if payload.format in {"json", "both"}:
         json_path.write_text(json.dumps(json_payload, ensure_ascii=False, indent=2), encoding="utf-8")
         status_path.write_text(

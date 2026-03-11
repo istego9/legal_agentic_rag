@@ -6,6 +6,8 @@ import { reviewAnswerPreview, reviewCandidateSlots, reviewSourcesSummary } from 
 type CandidateAnswerCardsProps = {
   candidates: ReviewCandidate[];
   acceptedDecisionSource?: string | null;
+  selectedCandidateKind?: ReviewCandidate["candidate_kind"] | "";
+  onSelectCandidate: (candidateKind: ReviewCandidate["candidate_kind"]) => void;
   onAcceptCandidate: (candidateKind: ReviewCandidate["candidate_kind"]) => void;
 };
 
@@ -35,7 +37,13 @@ function answerabilityLabel(value?: string | null): string {
   return t("reviewNotAvailable");
 }
 
-export function CandidateAnswerCards({ candidates, acceptedDecisionSource, onAcceptCandidate }: CandidateAnswerCardsProps) {
+export function CandidateAnswerCards({
+  candidates,
+  acceptedDecisionSource,
+  selectedCandidateKind,
+  onSelectCandidate,
+  onAcceptCandidate,
+}: CandidateAnswerCardsProps) {
   const slots = reviewCandidateSlots(candidates);
 
   return (
@@ -45,7 +53,13 @@ export function CandidateAnswerCards({ candidates, acceptedDecisionSource, onAcc
           key={candidate?.candidate_kind || index}
           withBorder
           p="md"
-          style={{ borderColor: borderColor(candidate, acceptedDecisionSource), minHeight: 220 }}
+          style={{
+            borderColor:
+              candidate && selectedCandidateKind === candidate.candidate_kind
+                ? "var(--mantine-color-blue-6)"
+                : borderColor(candidate, acceptedDecisionSource),
+            minHeight: 220,
+          }}
         >
           <Stack gap="xs">
             <Group justify="space-between" align="center">
@@ -75,9 +89,14 @@ export function CandidateAnswerCards({ candidates, acceptedDecisionSource, onAcc
                   <Text size="xs" c="dimmed">
                     {candidate.created_at ? new Date(candidate.created_at).toLocaleString() : "-"}
                   </Text>
-                  <Button size="xs" variant="light" onClick={() => onAcceptCandidate(candidate.candidate_kind)}>
-                    {t("reviewUseAsBaseline")}
-                  </Button>
+                  <Group gap={6}>
+                    <Button size="xs" variant={selectedCandidateKind === candidate.candidate_kind ? "filled" : "subtle"} onClick={() => onSelectCandidate(candidate.candidate_kind)}>
+                      {t("reviewSelectForMiniCheck")}
+                    </Button>
+                    <Button size="xs" variant="light" onClick={() => onAcceptCandidate(candidate.candidate_kind)}>
+                      {t("reviewUseAsBaseline")}
+                    </Button>
+                  </Group>
                 </Group>
               </>
             )}

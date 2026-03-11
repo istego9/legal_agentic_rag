@@ -59,6 +59,7 @@ export function ReviewConsolePanel(props: ReviewConsolePanelProps) {
   const [customAnswer, setCustomAnswer] = useState("");
   const [customAnswerability, setCustomAnswerability] = useState("answerable");
   const [adjudicationNote, setAdjudicationNote] = useState("");
+  const [selectedMiniCheckCandidateKind, setSelectedMiniCheckCandidateKind] = useState<ReviewCandidate["candidate_kind"] | "">("");
   const [strongRunId, setStrongRunId] = useState("");
   const [challengerRunId, setChallengerRunId] = useState("");
   const [strongProfileId, setStrongProfileId] = useState("");
@@ -86,6 +87,17 @@ export function ReviewConsolePanel(props: ReviewConsolePanelProps) {
         ).values()
       ),
     [selectedRecord]
+  );
+  const selectedMiniCheckCandidate = useMemo(
+    () =>
+      selectedRecord?.candidate_bundle.find((candidate) => candidate.candidate_kind === selectedMiniCheckCandidateKind) ??
+      selectedRecord?.candidate_bundle.find((candidate) => candidate.candidate_kind === "system") ??
+      null,
+    [selectedMiniCheckCandidateKind, selectedRecord]
+  );
+  const reviewDownloadUrl = useMemo(
+    () => (props.runId.trim() ? props.api.downloadReviewReportUrl(props.runId) : ""),
+    [props.api, props.runId]
   );
 
   async function loadReviewList(nextQuestionId?: string): Promise<void> {
@@ -131,6 +143,11 @@ export function ReviewConsolePanel(props: ReviewConsolePanelProps) {
       setCustomAnswer(record.accepted_decision?.final_answer == null ? "" : String(record.accepted_decision.final_answer));
       setCustomAnswerability(record.accepted_decision?.answerability || "answerable");
       setAdjudicationNote(record.accepted_decision?.adjudication_note || "");
+      setSelectedMiniCheckCandidateKind(
+        (record.accepted_decision?.decision_source as ReviewCandidate["candidate_kind"] | undefined) ||
+          record.candidate_bundle[0]?.candidate_kind ||
+          "system"
+      );
       await loadPdfPreview(nextQuestionId);
       setDetailState({ loading: false, error: "" });
     } catch (error) {
@@ -186,16 +203,15 @@ export function ReviewConsolePanel(props: ReviewConsolePanelProps) {
   }
 
   async function runMiniCheck(evidence: ReviewEvidenceRef[]): Promise<void> {
-    if (!selectedRecord) {
+    if (!selectedRecord || !selectedMiniCheckCandidate) {
       return;
     }
     try {
-      const systemCandidate = selectedRecord.candidate_bundle.find((candidate) => candidate.candidate_kind === "system");
       const result = await props.api.runReviewMiniCheck(props.runId, selectedRecord.question_id, {
         reviewer,
-        candidate_kind: "system",
-        candidate_answer: systemCandidate?.answer ?? null,
-        candidate_answerability: systemCandidate?.answerability ?? "answerable",
+        candidate_kind: selectedMiniCheckCandidate.candidate_kind,
+        candidate_answer: selectedMiniCheckCandidate.answer ?? null,
+        candidate_answerability: selectedMiniCheckCandidate.answerability ?? "answerable",
         answer_type: selectedRecord.answer_type,
         evidence,
       });
@@ -388,11 +404,14 @@ export function ReviewConsolePanel(props: ReviewConsolePanelProps) {
                 <CandidateAnswerCards
                   candidates={selectedRecord.candidate_bundle}
                   acceptedDecisionSource={selectedRecord.accepted_decision?.decision_source}
+                  selectedCandidateKind={selectedMiniCheckCandidateKind}
+                  onSelectCandidate={setSelectedMiniCheckCandidateKind}
                   onAcceptCandidate={(candidateKind) => void acceptCandidate(candidateKind)}
                 />
                 <EvidenceTable
                   evidence={flattenedEvidence}
                   selectedSourcePageId={reviewPdfPreview?.page.source_page_id || ""}
+                  miniCheckTargetLabel={selectedMiniCheckCandidate?.label || selectedMiniCheckCandidate?.candidate_kind || t("reviewNotAvailable")}
                   onPinToPdf={(sourcePageId) => {
                     const target = flattenedEvidence.find((item) => item.source_page_id === sourcePageId);
                     if (target) {
@@ -443,6 +462,7 @@ export function ReviewConsolePanel(props: ReviewConsolePanelProps) {
         opened={reportDrawerOpened}
         summary={reviewSummary}
         exportPayload={reviewReportPayload}
+        downloadUrl={reviewDownloadUrl}
         onClose={() => setReportDrawerOpened(false)}
         onExport={() => void exportReport()}
       />

@@ -4,6 +4,7 @@ import json
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 API_SRC = ROOT / "apps" / "api" / "src"
@@ -17,6 +18,7 @@ from legal_rag_api.contracts import (  # noqa: E402
     PageRef,
     QueryResponse,
     QuestionReviewRecord,
+    ReviewUnlockGoldRequest,
     RunQuestionReviewArtifact,
     Telemetry,
 )
@@ -102,3 +104,8 @@ def test_candidate_answer_supports_explicit_unavailable_state() -> None:
 
     assert record.candidate_bundle[0].support_status == "unavailable"
     assert record.candidate_bundle[0].unavailable_reason == "profile not configured"
+
+
+def test_review_unlock_gold_request_requires_reviewer_identity() -> None:
+    with pytest.raises(Exception):
+        ReviewUnlockGoldRequest(gold_dataset_id="gold-1", reviewer="")

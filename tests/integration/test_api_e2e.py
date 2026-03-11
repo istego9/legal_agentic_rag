@@ -1996,6 +1996,14 @@ def test_review_console_endpoints_support_generation_lock_export_and_minicheck_u
         assert export_payload["summary"]["total_questions"] == 1
         assert "review_report_json" in export_payload
 
+        downloadable = client.get(f"/v1/review/report/{run_id}/export")
+        assert downloadable.status_code == 200
+        assert downloadable.headers["content-disposition"].startswith("attachment;")
+        downloadable_payload = downloadable.json()
+        assert downloadable_payload["schema_version"] == "review_report_export.v1"
+        assert downloadable_payload["run_id"] == run_id
+        assert "exported_at" in downloadable_payload
+
         report = client.get(f"/v1/review/report/{run_id}")
         assert report.status_code == 200
         assert report.json()["summary"]["total_questions"] == 1
