@@ -60,6 +60,43 @@ This runs:
 - Web unit tests
 - Web build
 
+## Offline Competition Batch Runner
+
+Run local/offline dataset bundles end-to-end and emit official starter-kit `submission.json` artifacts.
+
+Prepare corpus from local documents bundle:
+
+```bash
+.venv/bin/python scripts/competition_batch.py prepare \
+  --documents datasets/official_fetch_2026-03-11/documents.zip \
+  --output reports/competition_runs/prepare_report.json
+```
+
+Run local batch inference and export official submission:
+
+```bash
+.venv/bin/python scripts/competition_batch.py run \
+  --questions datasets/official_fetch_2026-03-11/questions.json \
+  --output reports/competition_runs/dev_smoke \
+  --limit 10
+```
+
+Validate already-produced submission artifact without rerun:
+
+```bash
+.venv/bin/python scripts/competition_batch.py validate \
+  --submission reports/competition_runs/dev_smoke/submission.json
+```
+
+Run artifacts:
+
+- `submission.json` (official starter-kit shape)
+- `run_manifest.json` (machine-readable run metadata and validation status)
+- `question_status.jsonl` (per-question status/route/contract snapshot)
+- `preflight_report.json` (strict contract preflight)
+- `submission.validation_report.json` (official submission semantics validation)
+- `run_summary.md` (human-readable summary)
+
 ## Docker
 
 Minimal local product stack:

@@ -14,21 +14,21 @@ from legal_rag_api.contracts import (
     RunSummary,
     export_used_source_page_ids,
 )
-from packages.scorers.contracts import submission_contract_preflight
+from legal_rag_api.official_submission import (
+    DEFAULT_ARCHITECTURE_SUMMARY,
+    build_official_submission_answers,
+    submission_preflight_report,
+)
 from legal_rag_api.state import store
 
 router = APIRouter(prefix="/v1/runs", tags=["Runs"])
 REPORTS_DIR = Path(__file__).resolve().parents[5] / "reports"
 LOCKED_DATASET_ERROR_DETAIL = "gold dataset is locked and immutable"
 PROJECT_MISMATCH_ERROR_DETAIL = "gold dataset project does not match run project"
-DEFAULT_ARCHITECTURE_SUMMARY = (
-    "Legal Agentic RAG with deterministic, route-aware retrieval and page-grounded answering."
-)
 
 
 def _submission_contract_preflight_or_raise(run_id: str, questions: dict[str, object]) -> dict:
-    predictions = list(questions.values())
-    preflight = submission_contract_preflight(predictions)
+    preflight = submission_preflight_report(questions)
     if preflight.get("blocking_failed"):
         raise HTTPException(
             status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
@@ -53,109 +53,6 @@ def _artifact_project_id(artifact: object) -> str:
     if isinstance(document_viewer, dict):
         return str(document_viewer.get("project_id", "")).strip()
     return ""
-
-
-def _official_submission_tpot_ms(pred: object) -> int:
-    telemetry = getattr(pred, "telemetry", None)
-    if telemetry is None:
-        return 0
-    explicit = getattr(telemetry, "time_per_output_token_ms", None)
-    if explicit is not None:
-        try:
-            return max(0, int(round(float(explicit))))
-        except (TypeError, ValueError):
-            return 0
-    try:
-        output_tokens = int(getattr(telemetry, "output_tokens", 0) or 0)
-        total_time_ms = int(getattr(telemetry, "total_response_ms", 0) or 0)
-        ttft_ms = int(getattr(telemetry, "ttft_ms", 0) or 0)
-    except (TypeError, ValueError):
-        return 0
-    if output_tokens <= 0:
-        return 0
-    generation_window_ms = max(0, total_time_ms - ttft_ms)
-    return max(0, int(round(generation_window_ms / output_tokens)))
-
-
-def _source_page_to_retrieval_ref(source: object, default_page_index_base: int) -> dict:
-    pdf_id = str(getattr(source, "pdf_id", "") or "").strip()
-    page_num_raw = getattr(source, "page_num", 0)
-    page_index_base_raw = getattr(source, "page_index_base", default_page_index_base)
-    try:
-        page_num = int(page_num_raw or 0)
-    except (TypeError, ValueError):
-        page_num = 0
-    try:
-        page_index_base = int(page_index_base_raw or default_page_index_base)
-    except (TypeError, ValueError):
-        page_index_base = int(default_page_index_base)
-    physical_page_num = page_num if page_index_base == 1 else page_num + 1
-    if physical_page_num < 1:
-        physical_page_num = 1
-    return {
-        "doc_id": pdf_id or str(getattr(source, "source_page_id", "")).rsplit("_", 1)[0],
-        "page_number": int(physical_page_num),
-    }
-
-
-def _official_retrieval_chunk_pages(pred: object, *, default_page_index_base: int) -> list[dict]:
-    grouped: dict[str, set[int]] = {}
-    sources = getattr(pred, "sources", []) or []
-    for source in sources:
-        if not bool(getattr(source, "used", False)):
-            continue
-        ref = _source_page_to_retrieval_ref(source, default_page_index_base)
-        doc_id = str(ref.get("doc_id", "")).strip()
-        page_number = int(ref.get("page_number", 1) or 1)
-        if not doc_id:
-            continue
-        grouped.setdefault(doc_id, set()).add(page_number)
-    out: list[dict] = []
-    for doc_id in sorted(grouped.keys()):
-        out.append(
-            {
-                "doc_id": doc_id,
-                "page_numbers": sorted(grouped[doc_id]),
-            }
-        )
-    return out
-
-
-def _build_official_submission_answers(
-    questions: dict[str, object],
-    *,
-    default_page_index_base: int,
-) -> list[dict]:
-    answers: list[dict] = []
-    for qid in sorted(questions.keys()):
-        pred = questions[qid]
-        telemetry = getattr(pred, "telemetry", None)
-        ttft_ms = int(max(0, int(getattr(telemetry, "ttft_ms", 0) or 0))) if telemetry else 0
-        total_time_ms = int(max(ttft_ms, int(getattr(telemetry, "total_response_ms", 0) or 0))) if telemetry else 0
-        answer_payload = {
-            "question_id": qid,
-            "answer": getattr(pred, "answer", None),
-            "telemetry": {
-                "timing": {
-                    "ttft_ms": ttft_ms,
-                    "tpot_ms": _official_submission_tpot_ms(pred),
-                    "total_time_ms": total_time_ms,
-                },
-                "retrieval": {
-                    "retrieved_chunk_pages": _official_retrieval_chunk_pages(
-                        pred,
-                        default_page_index_base=default_page_index_base,
-                    )
-                },
-                "usage": {
-                    "input_tokens": int(max(0, int(getattr(telemetry, "input_tokens", 0) or 0))) if telemetry else 0,
-                    "output_tokens": int(max(0, int(getattr(telemetry, "output_tokens", 0) or 0))) if telemetry else 0,
-                },
-                "model_name": str(getattr(telemetry, "model_name", "") or ""),
-            },
-        }
-        answers.append(answer_payload)
-    return answers
 
 
 @router.get("/{runId}")
@@ -321,7 +218,7 @@ def export_submission_official(runId: str, payload: OfficialSubmissionExportRequ
 
     preflight = _submission_contract_preflight_or_raise(runId, qs)
     architecture_summary = str(payload.architecture_summary or "").strip() or DEFAULT_ARCHITECTURE_SUMMARY
-    answers = _build_official_submission_answers(
+    answers = build_official_submission_answers(
         qs,
         default_page_index_base=int(payload.page_index_base),
     )
