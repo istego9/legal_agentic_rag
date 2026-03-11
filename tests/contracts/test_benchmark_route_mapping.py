@@ -55,3 +55,16 @@ def test_normalization_uses_explicit_runtime_subroute_when_available() -> None:
     assert decision.normalized_taxonomy_route == "case_cross_compare"
     assert decision.runtime_taxonomy_subroute == "case_cross_compare"
     assert decision.normalization_source == "runtime_metadata.taxonomy_subroute"
+
+
+def test_normalization_does_not_infer_from_runtime_signals_or_text_fields() -> None:
+    decision = normalize_runtime_route_for_taxonomy(
+        "article_lookup",
+        runtime_metadata={
+            "question": "Which case was decided earlier: A or B?",
+            "route_signals": {"has_compare_signal": True, "has_case_signal": True},
+        },
+    )
+    assert decision.raw_taxonomy_route == UNMAPPED_TAXONOMY_ROUTE
+    assert decision.normalized_taxonomy_route == UNMAPPED_TAXONOMY_ROUTE
+    assert decision.normalization_source == "raw_unmapped"

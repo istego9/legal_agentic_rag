@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+from dataclasses import asdict
 from datetime import datetime, timezone
 import json
 from pathlib import Path
@@ -27,7 +28,7 @@ from packages.router.benchmark_mapping import (  # noqa: E402
     normalize_runtime_route_for_taxonomy,
     validate_benchmark_mapping,
 )
-from services.runtime.router import resolve_route  # noqa: E402
+from services.runtime.router import resolve_route_decision  # noqa: E402
 
 
 DEFAULT_MARKDOWN_OUTPUT_PATH = ROOT / "reports" / "router_benchmark_summary.md"
@@ -183,7 +184,7 @@ def render_markdown_summary(results: Mapping[str, Any]) -> str:
         f"- generated_at_utc: `{results.get('generated_at_utc', '')}`",
         f"- public_dataset_path: `{results.get('public_dataset_path', '')}`",
         f"- taxonomy_path: `{results.get('taxonomy_path', '')}`",
-        "- benchmark_target: `services.runtime.router.resolve_route`",
+        "- benchmark_target: `services.runtime.router.resolve_route_decision`",
         "- benchmark_mapping: `packages.router.benchmark_mapping.normalize_runtime_route_for_taxonomy`",
         f"- normalization_model_version: `{results.get('normalization_model_version', '')}`",
         f"- total_questions: `{results.get('total_questions', 0)}`",
@@ -290,25 +291,15 @@ def run_router_benchmark(
         question_text = question["question"]
         taxonomy_row = taxonomy_by_id[question_id]
 
-        runtime_route_output = resolve_route(
+        runtime_decision = resolve_route_decision(
             {
                 "id": question_id,
                 "question": question_text,
                 "answer_type": question["answer_type"],
             }
         )
-        runtime_route = str(runtime_route_output or "").strip()
-        runtime_metadata = None
-        if isinstance(runtime_route_output, dict):
-            runtime_route = str(
-                runtime_route_output.get("route_name")
-                or runtime_route_output.get("route")
-                or runtime_route_output.get("raw_runtime_route")
-                or ""
-            ).strip()
-            metadata_candidate = runtime_route_output.get("route_metadata")
-            if isinstance(metadata_candidate, dict):
-                runtime_metadata = metadata_candidate
+        runtime_route = str(runtime_decision.raw_route or "").strip()
+        runtime_metadata = asdict(runtime_decision)
 
         raw_predicted_route = map_raw_route_to_taxonomy(runtime_route)
         normalization_decision = normalize_runtime_route_for_taxonomy(runtime_route, runtime_metadata=runtime_metadata)
@@ -343,6 +334,10 @@ def run_router_benchmark(
                     "normalized_predicted_route": normalized_predicted_route,
                     "normalization_source": normalization_source,
                     "runtime_taxonomy_subroute": normalization_decision.runtime_taxonomy_subroute,
+                    "runtime_route_signals": runtime_decision.route_signals,
+                    "runtime_matched_rules": runtime_decision.matched_rules,
+                    "runtime_confidence": runtime_decision.confidence,
+                    "runtime_decision_version": runtime_decision.decision_version,
                     "taxonomy_notes": taxonomy_row.notes,
                 }
             )

@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict
 
-from packages.router.heuristics import choose_route
+from packages.router.heuristics import RouteDecision, choose_route_decision
 
 
 @dataclass(frozen=True)
@@ -78,8 +78,11 @@ def _normalized_max_pages(raw_limit: int) -> int:
 
 
 def resolve_route(question: Dict[str, object]) -> str:
-    route = choose_route(question)
-    return route
+    return resolve_route_decision(question).raw_route
+
+
+def resolve_route_decision(question: Dict[str, object]) -> RouteDecision:
+    return choose_route_decision(question)
 
 
 def _used_page_budget(template: _RetrievalProfileTemplate, answer_type: str) -> int:

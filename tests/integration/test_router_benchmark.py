@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 import importlib.util
 import json
 from pathlib import Path
@@ -60,7 +61,20 @@ def test_router_benchmark_script_smoke(tmp_path: Path) -> None:
     assert support_total == payload["total_questions"]
     assert raw_total == payload["total_questions"]
     assert normalized_total == payload["total_questions"]
-    assert "__unmapped__" in payload["normalized_taxonomy_route_counts"]
+    assert all(
+        route_name in {
+            "case_entity_lookup",
+            "case_outcome_or_value",
+            "case_cross_compare",
+            "law_article_lookup",
+            "law_relation_or_history",
+            "law_scope_or_definition",
+            "cross_law_compare",
+            "negative_or_unanswerable",
+            "__unmapped__",
+        }
+        for route_name in payload["normalized_taxonomy_route_counts"]
+    )
     assert "# Router Benchmark Summary" in markdown
     assert "- raw_route_accuracy:" in markdown
     assert "- normalized_route_accuracy:" in markdown
@@ -71,6 +85,7 @@ def test_router_benchmark_script_smoke(tmp_path: Path) -> None:
     assert "## Dead Routes" in markdown
     assert "## Confusion Matrix" in markdown
     assert "## Mismatches (" in markdown
+    assert "- benchmark_target: `services.runtime.router.resolve_route_decision`" in markdown
 
 
 def test_router_benchmark_mismatch_rendering_format() -> None:
@@ -110,3 +125,124 @@ def test_router_benchmark_dead_route_detection() -> None:
         {"primary_route": "case_cross_compare", "support": 17, "predicted": 0},
         {"primary_route": "negative_or_unanswerable", "support": 4, "predicted": 0},
     ]
+
+
+def test_router_benchmark_consumes_explicit_runtime_metadata(monkeypatch, tmp_path: Path) -> None:
+    module = _load_module()
+    dataset_path = tmp_path / "public_dataset.json"
+    taxonomy_path = tmp_path / "taxonomy.jsonl"
+
+    dataset_path.write_text(
+        json.dumps(
+            [
+                {
+                    "id": "q-1",
+                    "question": "According to Article 10, what is required?",
+                    "answer_type": "free_text",
+                },
+                {
+                    "id": "q-2",
+                    "question": "Summarize the ruling in case CFI 010/2024.",
+                    "answer_type": "free_text",
+                },
+            ],
+            ensure_ascii=False,
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    taxonomy_path.write_text(
+        "\n".join(
+            [
+                json.dumps(
+                    {
+                        "question_id": "q-1",
+                        "question": "According to Article 10, what is required?",
+                        "answer_type_expected": "free_text",
+                        "primary_route": "law_article_lookup",
+                        "document_scope": "single_doc",
+                        "target_doc_types": ["law"],
+                        "evidence_topology": "single_page",
+                        "temporal_sensitivity": "current_version",
+                        "answerability_risk": "low",
+                        "notes": "unit test row",
+                    },
+                    ensure_ascii=False,
+                ),
+                json.dumps(
+                    {
+                        "question_id": "q-2",
+                        "question": "Summarize the ruling in case CFI 010/2024.",
+                        "answer_type_expected": "free_text",
+                        "primary_route": "case_outcome_or_value",
+                        "document_scope": "single_doc",
+                        "target_doc_types": ["case"],
+                        "evidence_topology": "single_page",
+                        "temporal_sensitivity": "none",
+                        "answerability_risk": "low",
+                        "notes": "unit test row",
+                    },
+                    ensure_ascii=False,
+                ),
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    @dataclass(frozen=True)
+    class FakeDecision:
+        raw_route: str
+        taxonomy_subroute: str | None
+        normalized_taxonomy_route: str | None
+        route_signals: dict[str, bool]
+        target_doc_types_guess: list[str]
+        document_scope_guess: str | None
+        temporal_sensitivity_guess: str | None
+        matched_rules: list[str]
+        confidence: float
+        decision_version: str
+
+    def fake_resolve_route_decision(question: dict[str, object]) -> FakeDecision:
+        question_id = str(question.get("id", ""))
+        if question_id == "q-1":
+            return FakeDecision(
+                raw_route="article_lookup",
+                taxonomy_subroute=None,
+                normalized_taxonomy_route="law_article_lookup",
+                route_signals={"has_article_signal": True},
+                target_doc_types_guess=["law"],
+                document_scope_guess="single_doc",
+                temporal_sensitivity_guess="current_version",
+                matched_rules=["unit-test-explicit-route"],
+                confidence=0.99,
+                decision_version="route_decision.test",
+            )
+        return FakeDecision(
+            raw_route="single_case_extraction",
+            taxonomy_subroute="case_outcome_or_value",
+            normalized_taxonomy_route=None,
+            route_signals={"has_case_signal": True},
+            target_doc_types_guess=["case"],
+            document_scope_guess="single_doc",
+            temporal_sensitivity_guess="none",
+            matched_rules=["unit-test-explicit-subroute"],
+            confidence=0.95,
+            decision_version="route_decision.test",
+        )
+
+    monkeypatch.setattr(module, "resolve_route_decision", fake_resolve_route_decision)
+    results = module.run_router_benchmark(
+        public_dataset_path=dataset_path,
+        taxonomy_path=taxonomy_path,
+    )
+
+    assert results["total_questions"] == 2
+    assert results["raw_route_correct_predictions"] == 0
+    assert results["normalized_route_correct_predictions"] == 2
+    assert results["raw_route_accuracy"] == 0.0
+    assert results["normalized_route_accuracy"] == 1.0
+    assert results["normalized_taxonomy_route_counts"]["law_article_lookup"] == 1
+    assert results["normalized_taxonomy_route_counts"]["case_outcome_or_value"] == 1
+    assert results["mismatches"] == []
