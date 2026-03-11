@@ -1488,6 +1488,99 @@ def test_no_answer_run_exports_empty_sources_and_review_has_no_used_pages() -> N
     assert artifact_payload["items"][0]["sources"] == []
 
 
+def test_export_submission_official_matches_starter_kit_shape() -> None:
+    client = TestClient(app)
+
+    run = store.create_run(dataset_id=str(uuid4()), question_count=1, status="completed")
+    run_id = run["run_id"]
+    now = datetime(2026, 3, 10, tzinfo=timezone.utc)
+    prediction = QueryResponse(
+        question_id="q-official-shape",
+        answer="Fursa Consulting",
+        answer_normalized="Fursa Consulting",
+        answer_type="free_text",
+        confidence=0.91,
+        route_name="article_lookup",
+        abstained=False,
+        sources=[
+            PageRef(
+                project_id="proj",
+                document_id="doc",
+                pdf_id="443e04bc1a78940b3fcd5438d24b6c5f182a276d354a3108e738b193675de032",
+                page_num=0,
+                page_index_base=0,
+                source_page_id="443e04bc1a78940b3fcd5438d24b6c5f182a276d354a3108e738b193675de032_0",
+                used=True,
+                evidence_role="primary",
+                score=0.9,
+            )
+        ],
+        telemetry=Telemetry(
+            request_started_at=now,
+            first_token_at=now,
+            completed_at=now,
+            ttft_ms=1180,
+            total_response_ms=2440,
+            time_per_output_token_ms=52.0,
+            input_tokens=1420,
+            output_tokens=188,
+            model_name="participant-case10",
+            route_name="article_lookup",
+            judge_model_name=None,
+            search_profile="default",
+            telemetry_complete=True,
+            trace_id=f"trace-{uuid4()}",
+        ),
+        debug=None,
+    )
+    store.upsert_run_question(run_id, prediction.question_id, prediction)
+
+    exported = client.post(
+        f"/v1/runs/{run_id}/export-submission-official",
+        json={
+            "page_index_base": 0,
+            "architecture_summary": "Naive RAG with vector search",
+        },
+    )
+    assert exported.status_code == 200
+    payload = exported.json()
+    assert payload["format"] == "official_starter_kit_v1"
+    artifact_url = payload["artifact_url"]
+    exported_path = Path(urlparse(artifact_url).path)
+    artifact_payload = json.loads(exported_path.read_text(encoding="utf-8"))
+
+    assert set(artifact_payload.keys()) == {"architecture_summary", "answers"}
+    assert artifact_payload["architecture_summary"] == "Naive RAG with vector search"
+    assert isinstance(artifact_payload["answers"], list) and len(artifact_payload["answers"]) == 1
+
+    answer_item = artifact_payload["answers"][0]
+    assert set(answer_item.keys()) == {"question_id", "answer", "telemetry"}
+    assert answer_item["question_id"] == "q-official-shape"
+    assert answer_item["answer"] == "Fursa Consulting"
+    assert "sources" not in answer_item
+
+    telemetry = answer_item["telemetry"]
+    assert set(telemetry.keys()) == {"timing", "retrieval", "usage", "model_name"}
+    assert telemetry["timing"] == {
+        "ttft_ms": 1180,
+        "tpot_ms": 52,
+        "total_time_ms": 2440,
+    }
+    assert telemetry["retrieval"] == {
+        "retrieved_chunk_pages": [
+            {
+                "doc_id": "443e04bc1a78940b3fcd5438d24b6c5f182a276d354a3108e738b193675de032",
+                "page_numbers": [1],
+            }
+        ]
+    }
+    assert telemetry["usage"] == {
+        "input_tokens": 1420,
+        "output_tokens": 188,
+    }
+    assert telemetry["model_name"] == "participant-case10"
+
+
 def test_export_submission_fails_closed_with_strict_contract_preflight(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("STRICT_COMPETITION_CONTRACTS", "1")
     client = TestClient(app)

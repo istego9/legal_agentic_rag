@@ -352,6 +352,10 @@ class ExportRequest(BaseModel):
     page_index_base: Literal[0, 1]
 
 
+class OfficialSubmissionExportRequest(ExportRequest):
+    architecture_summary: Optional[str] = Field(default=None, max_length=500)
+
+
 class DocumentManifest(BaseModel):
     document_id: str
     project_id: str
