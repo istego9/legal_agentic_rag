@@ -1034,15 +1034,19 @@ def choose_used_sources_with_trace(
     if used_page_limit is not None and used_page_limit > 0:
         selection_rule = "profile_used_page_limit"
         selection_limit = int(used_page_limit)
-    elif route_name in {"cross_case_compare", "history_lineage", "article_lookup"}:
+    elif route_name in {"cross_case_compare", "cross_law_compare", "history_lineage", "article_lookup"}:
         selection_rule = "route_default_top3"
         selection_limit = 3
 
     page_buckets: Dict[str, Dict[str, Any]] = {}
+    compare_instrument_order: List[str] = []
     for rank, ref in enumerate(candidate_refs):
         source_page_id = str(ref.get("source_page_id", "")).strip()
         if not source_page_id:
             continue
+        compare_instrument_identifier = _collapse_whitespace(str(ref.get("compare_instrument_identifier", "")))
+        if compare_instrument_identifier and compare_instrument_identifier not in compare_instrument_order:
+            compare_instrument_order.append(compare_instrument_identifier)
         bucket = page_buckets.setdefault(
             source_page_id,
             {
@@ -1053,6 +1057,7 @@ def choose_used_sources_with_trace(
                 "keywords": [],
                 "exact_identifier_hit": False,
                 "lineage_signal": False,
+                "compare_instrument_identifier": compare_instrument_identifier,
             },
         )
         bucket["refs"].append(ref)
@@ -1070,6 +1075,11 @@ def choose_used_sources_with_trace(
             or ref.get("lineage_signal")
             or route_name == "history_lineage"
         )
+        if (
+            compare_instrument_identifier
+            and not _collapse_whitespace(str(bucket.get("compare_instrument_identifier", "")))
+        ):
+            bucket["compare_instrument_identifier"] = compare_instrument_identifier
 
     all_keywords = _ordered_unique(
         keyword
@@ -1077,8 +1087,46 @@ def choose_used_sources_with_trace(
         for keyword in bucket["keywords"]
     )
     uncovered_keywords = set(all_keywords)
-    remaining_page_ids = list(page_buckets.keys())
     selected_pages: List[str] = []
+    compare_coverage_selected: set[str] = set()
+
+    if route_name == "cross_law_compare":
+        if compare_instrument_order:
+            selection_rule = "cross_law_compare_instrument_coverage"
+        best_page_by_instrument: Dict[str, str] = {}
+        for page_id, bucket in page_buckets.items():
+            instrument_id = _collapse_whitespace(str(bucket.get("compare_instrument_identifier", "")))
+            if not instrument_id:
+                continue
+            existing_page_id = best_page_by_instrument.get(instrument_id)
+            if not existing_page_id:
+                best_page_by_instrument[instrument_id] = page_id
+                continue
+            existing_bucket = page_buckets[existing_page_id]
+            current_score = _score_page_bucket_for_selection(
+                bucket,
+                uncovered_keywords=uncovered_keywords,
+                route_name=route_name,
+            )
+            existing_score = _score_page_bucket_for_selection(
+                existing_bucket,
+                uncovered_keywords=uncovered_keywords,
+                route_name=route_name,
+            )
+            if current_score > existing_score:
+                best_page_by_instrument[instrument_id] = page_id
+        for instrument_id in compare_instrument_order:
+            page_id = best_page_by_instrument.get(instrument_id)
+            if not page_id or page_id in selected_pages:
+                continue
+            if len(selected_pages) >= selection_limit:
+                break
+            selected_pages.append(page_id)
+            compare_coverage_selected.add(page_id)
+            for keyword in page_buckets[page_id]["keywords"]:
+                uncovered_keywords.discard(keyword)
+
+    remaining_page_ids = [page_id for page_id in page_buckets.keys() if page_id not in selected_pages]
     while remaining_page_ids and len(selected_pages) < selection_limit:
         ranked_page_ids = sorted(
             remaining_page_ids,
@@ -1107,18 +1155,27 @@ def choose_used_sources_with_trace(
     selected_page_ids = set(selected_pages)
     retrieved_source_page_ids: List[str] = []
     used_source_page_ids: List[str] = []
+    compare_instrument_ids_retrieved: List[str] = []
     seen_retrieved = set()
     seen_used = set()
+    seen_compare_retrieved = set()
+    seen_compare_used = set()
     decisions: List[Dict[str, Any]] = []
     for rank, ref in enumerate(candidate_refs):
         source_page_id = str(ref.get("source_page_id", "")).strip()
+        compare_instrument_identifier = _collapse_whitespace(str(ref.get("compare_instrument_identifier", "")))
         if source_page_id and source_page_id not in seen_retrieved:
             seen_retrieved.add(source_page_id)
             retrieved_source_page_ids.append(source_page_id)
+        if compare_instrument_identifier and compare_instrument_identifier not in seen_compare_retrieved:
+            seen_compare_retrieved.add(compare_instrument_identifier)
+            compare_instrument_ids_retrieved.append(compare_instrument_identifier)
         selected_for_use = id(ref) in selected_ids
         if selected_for_use and source_page_id and source_page_id not in seen_used:
             seen_used.add(source_page_id)
             used_source_page_ids.append(source_page_id)
+        if selected_for_use and compare_instrument_identifier and compare_instrument_identifier not in seen_compare_used:
+            seen_compare_used.add(compare_instrument_identifier)
         try:
             score = float(ref.get("score", 0.0))
         except (TypeError, ValueError):
@@ -1134,6 +1191,12 @@ def choose_used_sources_with_trace(
             decision = "dropped_over_limit"
         if route_name == "history_lineage" and source_page_id in selected_page_ids and bucket.get("lineage_signal"):
             decision = "lineage_retained" if not selected_for_use else "selected"
+        if (
+            route_name == "cross_law_compare"
+            and source_page_id in compare_coverage_selected
+            and selected_for_use
+        ):
+            decision = "compare_coverage_selected"
         decisions.append(
             {
                 "rank": rank,
@@ -1141,8 +1204,13 @@ def choose_used_sources_with_trace(
                 "score": score,
                 "selected": selected_for_use,
                 "decision": decision,
+                "compare_instrument_identifier": compare_instrument_identifier,
             }
         )
+
+    compare_coverage_complete = True
+    if route_name == "cross_law_compare" and compare_instrument_ids_retrieved:
+        compare_coverage_complete = set(compare_instrument_ids_retrieved).issubset(set(seen_compare_used))
 
     trace = {
         "trace_version": "evidence_selection_trace_v1",
@@ -1158,6 +1226,9 @@ def choose_used_sources_with_trace(
             (len(retrieved_source_page_ids) / max(1, len(candidate_refs))),
             4,
         ),
+        "compare_instrument_ids_retrieved": compare_instrument_ids_retrieved,
+        "compare_instrument_ids_used": sorted(seen_compare_used),
+        "compare_coverage_complete": compare_coverage_complete,
         "uncovered_keywords": sorted(uncovered_keywords),
         "decisions": decisions,
     }
