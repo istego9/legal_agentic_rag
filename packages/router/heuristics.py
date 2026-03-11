@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from typing import Dict, List, Literal, Optional
 
@@ -27,6 +28,41 @@ _ARTICLE_TOKENS = ("article", "clause", "section", "paragraph", "schedule")
 _CASE_TOKENS = ("case", "court", "judge", "appeal")
 _NEGATIVE_TOKENS = ("jury", "parole", "miranda", "plea bargain")
 _ENTITY_TOKENS = ("claimant", "respondent", "party", "parties", "judge", "entity", "individual")
+_CASE_COMPARE_TOKENS = (
+    "same judge",
+    "in common",
+    "common to both",
+    "both cases",
+    "both case",
+    "appeared in both",
+    "any of the same",
+    "main party",
+    "earlier",
+    "later",
+    "issued first",
+    "higher monetary amount",
+    "higher amount",
+)
+_LAW_COMPARE_TOKENS = (
+    "which laws",
+    "both laws",
+    "common elements",
+    "same year",
+    "earlier in the year",
+    "same day",
+    "same date",
+    "common commencement date",
+    "titles of",
+    "administer",
+    "same entity",
+    "respective citation",
+    "define their administration",
+)
+
+_CASE_REFERENCE_PATTERN = re.compile(r"\b(?:cfi|ca|arb|tcd|enf|dec|sct)\s*\d{1,3}/\d{4}\b", re.IGNORECASE)
+_LAW_NUMBER_REFERENCE_PATTERN = re.compile(r"\blaw\s+no\.?\s*\d+\s+of\s+\d{4}\b", re.IGNORECASE)
+_LAW_WORD_PATTERN = re.compile(r"\blaws?\b", re.IGNORECASE)
+_REGULATION_WORD_PATTERN = re.compile(r"\bregulations?\b", re.IGNORECASE)
 
 
 @dataclass(frozen=True)
@@ -45,16 +81,54 @@ class RouteDecision:
 
 def _route_signals(question_text: str) -> Dict[str, bool]:
     text = question_text.lower()
+    case_reference_count = len(_CASE_REFERENCE_PATTERN.findall(text))
+    law_reference_count = len(_LAW_NUMBER_REFERENCE_PATTERN.findall(text))
+    law_word_count = len(_LAW_WORD_PATTERN.findall(text))
+    regulation_word_count = len(_REGULATION_WORD_PATTERN.findall(text))
+    has_compare_signal = any(token in text for token in _COMPARE_TOKENS)
+    has_case_signal = case_reference_count > 0 or any(token in text for token in _CASE_TOKENS)
+    has_law_signal = law_word_count > 0
+    has_regulation_signal = regulation_word_count > 0
+    has_case_compare_phrase = any(token in text for token in _CASE_COMPARE_TOKENS)
+    has_law_compare_phrase = any(token in text for token in _LAW_COMPARE_TOKENS)
+    has_multiple_case_refs = case_reference_count >= 2
+    has_multiple_law_refs = law_reference_count >= 2 or law_word_count >= 2 or regulation_word_count >= 2
+    has_case_cross_compare_signal = has_case_signal and has_multiple_case_refs and (
+        has_compare_signal
+        or has_case_compare_phrase
+        or " and " in text
+        or " or " in text
+        or "between " in text
+    )
+    has_law_cross_compare_signal = has_law_signal and (
+        has_law_compare_phrase
+        or (
+            has_multiple_law_refs
+            and (
+                has_compare_signal
+                or " and " in text
+                or " or " in text
+                or "between " in text
+            )
+        )
+    )
+    has_strong_negative_signal = any(token in text for token in _NEGATIVE_TOKENS)
+
     return {
-        "has_compare_signal": any(token in text for token in _COMPARE_TOKENS),
+        "has_compare_signal": has_compare_signal,
         "has_history_signal": any(token in text for token in _HISTORY_TOKENS),
         "has_article_signal": any(token in text for token in _ARTICLE_TOKENS),
-        "has_case_signal": any(token in text for token in _CASE_TOKENS),
-        "has_negative_signal": any(token in text for token in _NEGATIVE_TOKENS),
+        "has_case_signal": has_case_signal,
+        "has_negative_signal": has_strong_negative_signal,
         "has_entity_signal": any(token in text for token in _ENTITY_TOKENS),
-        "has_law_signal": "law" in text or "laws" in text,
-        "has_regulation_signal": "regulation" in text or "regulations" in text,
+        "has_law_signal": has_law_signal,
+        "has_regulation_signal": has_regulation_signal,
         "has_enactment_notice_signal": "enactment notice" in text,
+        "has_multiple_case_refs": has_multiple_case_refs,
+        "has_multiple_law_refs": has_multiple_law_refs,
+        "has_case_cross_compare_signal": has_case_cross_compare_signal,
+        "has_law_cross_compare_signal": has_law_cross_compare_signal,
+        "has_strong_negative_signal": has_strong_negative_signal,
     }
 
 
@@ -63,10 +137,12 @@ def _select_raw_route(question: Dict[str, object], signals: Dict[str, bool]) -> 
     if isinstance(route_hint, str) and route_hint:
         return route_hint, ["rule:route_hint"], 0.99
 
-    if signals["has_compare_signal"]:
-        if signals["has_case_signal"]:
-            return "cross_case_compare", ["rule:compare_case"], 0.9
-        return "cross_law_compare", ["rule:compare_law"], 0.9
+    if signals["has_case_cross_compare_signal"]:
+        return "cross_case_compare", ["rule:cross_case_compare_signal"], 0.93
+    if signals["has_law_cross_compare_signal"]:
+        return "cross_law_compare", ["rule:cross_law_compare_signal"], 0.92
+    if signals["has_strong_negative_signal"]:
+        return "no_answer", ["rule:strong_negative_signal"], 0.94
     if signals["has_history_signal"]:
         return "history_lineage", ["rule:history"], 0.85
     if signals["has_article_signal"]:
@@ -95,14 +171,23 @@ def _taxonomy_alignment(
     elif raw_route == "no_answer":
         taxonomy_subroute = "negative_or_unanswerable"
     elif raw_route == "single_case_extraction":
-        if answer_type in {"name", "names"} and signals["has_entity_signal"]:
+        if signals["has_case_cross_compare_signal"]:
+            taxonomy_subroute = "case_cross_compare"
+            matched_rules.append("subroute:single_case_compare_signal")
+        elif signals["has_strong_negative_signal"]:
+            taxonomy_subroute = "negative_or_unanswerable"
+            matched_rules.append("subroute:single_case_negative_signal")
+        elif answer_type in {"name", "names"} and signals["has_entity_signal"]:
             taxonomy_subroute = "case_entity_lookup"
             matched_rules.append("subroute:single_case_entity")
         else:
             taxonomy_subroute = "case_outcome_or_value"
             matched_rules.append("subroute:single_case_outcome")
     elif raw_route == "article_lookup":
-        if signals["has_negative_signal"]:
+        if signals["has_law_cross_compare_signal"]:
+            taxonomy_subroute = "cross_law_compare"
+            matched_rules.append("subroute:law_compare_signal")
+        elif signals["has_negative_signal"]:
             taxonomy_subroute = "negative_or_unanswerable"
             matched_rules.append("subroute:negative_signal")
         elif signals["has_history_signal"]:

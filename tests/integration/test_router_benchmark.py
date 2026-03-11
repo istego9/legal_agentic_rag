@@ -246,3 +246,17 @@ def test_router_benchmark_consumes_explicit_runtime_metadata(monkeypatch, tmp_pa
     assert results["normalized_taxonomy_route_counts"]["law_article_lookup"] == 1
     assert results["normalized_taxonomy_route_counts"]["case_outcome_or_value"] == 1
     assert results["mismatches"] == []
+
+
+def test_router_benchmark_delta_report_shape() -> None:
+    delta_path = ROOT / "reports" / "router_benchmark_delta.md"
+    assert delta_path.exists()
+    content = delta_path.read_text(encoding="utf-8")
+
+    assert "# Router Benchmark Delta" in content
+    assert "## Metrics" in content
+    assert "raw_route_accuracy" in content
+    assert "normalized_route_accuracy" in content
+    assert "normalized_macro_f1" in content
+    assert "## Dead Routes" in content
+    assert "## Top Confusion Pairs (After)" in content
