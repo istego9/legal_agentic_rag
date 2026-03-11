@@ -1,0 +1,25 @@
+{
+  "source": {
+    "base_url": "https://platform.agentic-challenge.ai/api/v1",
+    "questions_endpoint": "/questions",
+    "documents_endpoint": "/documents"
+  },
+  "fetched_at_utc": "2026-03-11T13:33:00Z",
+  "artifacts": {
+    "questions": {
+      "relative_path": "datasets/official_fetch_2026-03-11/questions.json",
+      "bytes": 23264,
+      "sha256": "406cb4f46328f6e103bd38117ddd6bee6745be66dee881c5edc08b745958d5a1",
+      "question_count": 100
+    },
+    "documents_zip": {
+      "relative_path": "datasets/official_fetch_2026-03-11/documents.zip",
+      "bytes": 6142717,
+      "sha256": "965d75c8db33362ffe44cc0e6760d712c69c4c27fc4286c2a129fed23b5ae3eb"
+    }
+  },
+  "notes": [
+    "Raw fetched artifacts are intentionally excluded from git history.",
+    "Re-fetch locally via scripts/fetch_official_dataset.py and verify checksums against this manifest."
+  ]
+}

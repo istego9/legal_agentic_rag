@@ -20,3 +20,6 @@ reports/uploads/
 logs/
 
 *.tsbuildinfo
+
+# Competition dataset bundles are fetched locally using API key and must not be committed.
+datasets/official_fetch_*/
