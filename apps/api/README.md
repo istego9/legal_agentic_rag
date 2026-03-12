@@ -10,6 +10,23 @@ FastAPI gateway and API layer for Legal Agentic RAG.
 
 See `apps/api/src/legal_rag_api/contracts.py` and `docs/product-specs/` for API contracts and behavior.
 
+## Artifact storage
+
+Generated run artifacts are not intended to live in tracked `reports/` paths anymore.
+
+- `LEGAL_RAG_ARTIFACTS_ROOT` controls the writable artifact root for:
+  - competition batch reports
+  - chunk-processing pilot bundles
+  - run exports
+  - gold exports
+  - synth exports
+  - review reports
+  - experiment reports
+- default when unset: hidden repo-local directory `.artifacts/`
+- recommended Docker value: `/workspace/.artifacts`
+
+Keep long-lived manifests/docs in the repo when needed, but store large generated JSON/ZIP/PDF outputs under the artifact root.
+
 ## Azure OpenAI (runtime LLM)
 
 Runtime LLM calls are optional and gated by env variables. Recommended economical defaults:

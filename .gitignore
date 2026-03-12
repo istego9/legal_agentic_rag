@@ -21,5 +21,18 @@ logs/
 
 *.tsbuildinfo
 
+.env
+.env.*
+!.env.example
+!**/.env.example
+
 # Competition dataset bundles are fetched locally using API key and must not be committed.
 datasets/official_fetch_*/
+
+# Generated local artifact root for batch runs, pilot bundles, exports, and audit packages.
+.artifacts/
+
+# Legacy generated report locations that should stay untracked even if users still write into repo-local paths.
+reports/competition_runs/
+reports/review_runs/
+reports/cache/

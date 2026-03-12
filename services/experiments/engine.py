@@ -11,6 +11,7 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple
 from uuid import uuid4
 
 from legal_rag_api import runtime_pg
+from legal_rag_api.artifacts import artifact_path, artifact_uri
 from legal_rag_api.contracts import EvalRun, ExperimentRunCreateRequest, QueryResponse, RuntimePolicy
 from legal_rag_api.routers import qa as qa_router
 from legal_rag_api.state import store
@@ -29,7 +30,7 @@ from services.eval.engine import (
     runtime_policy_with_resolved_scoring,
 )
 
-REPORTS_DIR = Path(__file__).resolve().parents[2] / "reports"
+REPORTS_DIR = artifact_path("experiments")
 COMPARE_SLICE_VERSION = "compare_slices.v1"
 PROXY_GATE_RULE_VERSION = "proxy_gate.v1"
 RUN_METADATA_VERSION = "run_metadata.v1"
@@ -501,14 +502,14 @@ def _save_stage_artifact(experiment_run_id: str, payload: Dict[str, Any]) -> str
     REPORTS_DIR.mkdir(parents=True, exist_ok=True)
     path = REPORTS_DIR / f"experiment_run_{experiment_run_id}.json"
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-    return path.as_uri()
+    return artifact_uri(path)
 
 
 def _save_compare_artifact(left_run_id: str, right_run_id: str, payload: Dict[str, Any]) -> str:
     REPORTS_DIR.mkdir(parents=True, exist_ok=True)
     path = REPORTS_DIR / f"experiment_compare_{left_run_id}_{right_run_id}.json"
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-    return path.as_uri()
+    return artifact_uri(path)
 
 
 def _request_metadata(request: ExperimentRunCreateRequest) -> Dict[str, Any]:

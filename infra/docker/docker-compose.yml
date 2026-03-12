@@ -22,6 +22,7 @@ services:
              uvicorn legal_rag_api.main:app --host 0.0.0.0 --port 8000 --workers 1"
     environment:
       PYTHONPATH: /workspace/apps/api/src:/workspace
+      LEGAL_RAG_ARTIFACTS_ROOT: ${LEGAL_RAG_ARTIFACTS_ROOT:-/workspace/.artifacts}
       DATABASE_URL: postgresql://legal:legal@postgres:5432/legal_rag
       OTEL_ENABLED: "1"
       OTEL_TRACE_REQUIRED_FOR_COMPLETENESS: "1"

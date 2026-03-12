@@ -7,6 +7,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 DOCKER_COMPOSE_PATH = REPO_ROOT / "infra" / "docker" / "docker-compose.yml"
 DOCKER_ENV_EXAMPLE_PATH = REPO_ROOT / "infra" / "docker" / ".env.example"
 REQUIRED_AZURE_VARS = (
+    "LEGAL_RAG_ARTIFACTS_ROOT",
     "AZURE_OPENAI_ENDPOINT",
     "AZURE_OPENAI_API_KEY",
     "AZURE_OPENAI_DEPLOYMENT",

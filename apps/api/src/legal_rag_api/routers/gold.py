@@ -10,13 +10,14 @@ from uuid import uuid4
 from fastapi import APIRouter, HTTPException
 
 from legal_rag_api import runtime_pg
+from legal_rag_api.artifacts import artifact_path, artifact_uri
 from legal_rag_api.contracts import ReviewRequest, SourceSetCreate
 from legal_rag_api.state import store
 from services.eval.engine import build_gold_export_compatibility_assertions
 from services.gold.engine import add_source_set, lock_dataset
 
 router = APIRouter(prefix="/v1/gold", tags=["Gold"])
-REPORTS_DIR = Path(__file__).resolve().parents[5] / "reports"
+REPORTS_DIR = artifact_path("gold")
 LOCKED_DATASET_ERROR_DETAIL = "gold dataset is locked and immutable"
 LOCKED_MUTATION_AUDIT_EVENT = "gold_dataset_mutation_rejected_locked"
 
@@ -231,7 +232,7 @@ def export_dataset(goldDatasetId: str) -> dict:
         encoding="utf-8",
     )
     return {
-        "artifact_url": path.as_uri(),
+        "artifact_url": artifact_uri(path),
         "artifact_count": len(qs),
         "eval_export_compatibility": eval_export_compatibility,
     }

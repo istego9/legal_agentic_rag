@@ -7,12 +7,13 @@ import json
 from fastapi import APIRouter, HTTPException
 
 from legal_rag_api import runtime_pg
+from legal_rag_api.artifacts import artifact_path, artifact_uri
 from legal_rag_api.contracts import CandidateApproveRequest, SyntheticJob
 from legal_rag_api.state import store
 from services.synth.engine import apply_candidate_decision, build_candidates
 
 router = APIRouter(prefix="/v1/synth", tags=["Synthetic"])
-REPORTS_DIR = Path(__file__).resolve().parents[5] / "reports"
+REPORTS_DIR = artifact_path("synth")
 
 
 @router.post("/jobs")
@@ -110,4 +111,4 @@ def publish(jobId: str, payload: dict) -> dict:
     path = REPORTS_DIR / f"synth_{jobId}.json"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps({"items": candidates}, ensure_ascii=False, indent=2), encoding="utf-8")
-    return {"dataset_id": dataset_id, "artifact_url": path.as_uri()}
+    return {"dataset_id": dataset_id, "artifact_url": artifact_uri(path)}

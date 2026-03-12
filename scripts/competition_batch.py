@@ -22,6 +22,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from legal_rag_api import corpus_pg, runtime_pg  # noqa: E402
+from legal_rag_api.artifacts import artifact_path  # noqa: E402
 from legal_rag_api.contracts import QueryResponse, RuntimePolicy  # noqa: E402
 from legal_rag_api.official_submission import (  # noqa: E402
     DEFAULT_ARCHITECTURE_SUMMARY,
@@ -34,7 +35,7 @@ from legal_rag_api.routers import qa as qa_router  # noqa: E402
 from legal_rag_api.state import competition_mode_enabled, store  # noqa: E402
 from packages.scorers.contracts import evaluate_query_response_contract  # noqa: E402
 
-DEFAULT_OUTPUT_ROOT = ROOT / "reports" / "competition_runs"
+DEFAULT_OUTPUT_ROOT = artifact_path("competition_runs")
 DEFAULT_PROJECT_ID = "competition_local"
 RUN_MANIFEST_VERSION = "competition_batch_run_manifest.v1"
 QUESTION_STATUS_VERSION = "competition_question_status.v1"

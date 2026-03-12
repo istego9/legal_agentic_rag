@@ -24,6 +24,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from legal_rag_api.contracts import Question, QueryRequest, RuntimePolicy  # noqa: E402
+from legal_rag_api.artifacts import artifact_path  # noqa: E402
 from legal_rag_api.routers import corpus as corpus_router  # noqa: E402
 from legal_rag_api.routers import qa as qa_router  # noqa: E402
 from legal_rag_api.state import store  # noqa: E402
@@ -33,9 +34,9 @@ from services.ingest.agentic_enrichment import retry_agentic_corpus_enrichment  
 
 FIXTURE_PATH = ROOT / "tests" / "fixtures" / "chunk_processing_pilot_v1.json"
 SOURCE_ZIP_PATH = ROOT / "datasets" / "official_fetch_2026-03-11" / "documents.zip"
-DEFAULT_OUTPUT_DIR = ROOT / "reports" / "competition_runs" / "pilots" / "chunk_processing_pilot_v1"
+DEFAULT_OUTPUT_DIR = artifact_path("competition_runs", "pilots", "chunk_processing_pilot_v1")
 DEFAULT_PROJECT_ID = "competition_chunk_processing_pilot_v1"
-DEFAULT_AUDIT_EXPORT_DIR = ROOT / "reports" / "corpus_investigation" / "2026-03-12-version-lineage-rca" / "chunk_processing_external_audit_export"
+DEFAULT_AUDIT_EXPORT_DIR = artifact_path("corpus_investigation", "2026-03-12-version-lineage-rca", "chunk_processing_external_audit_export")
 
 
 def _utcnow() -> datetime:
