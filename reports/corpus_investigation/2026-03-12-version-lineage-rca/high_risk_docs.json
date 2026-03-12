@@ -1,0 +1,521 @@
+[
+  {
+    "pdf_id": "22442c5ee999e2519c68de908be511875a84f2b810ed540c2dcfcbcc65031434",
+    "document_id": "doc_29eeb17f6bbd2734956ca0a0",
+    "doc_type": "law",
+    "title": "Document 22442c5ee999",
+    "page_count": 47,
+    "text_quality_score": 0.5729606226659847,
+    "law_number": "DIFC",
+    "case_id": "of",
+    "version_group_id": "law:difc",
+    "effective_end_date": "2024-01-01",
+    "is_current_version": false,
+    "source_pdf_path": "/Users/artemgendler/dev/legal_agentic_rag/datasets/official_fetch_2026-03-11/_source_pdfs/22442c5ee999e2519c68de908be511875a84f2b810ed540c2dcfcbcc65031434_a5ee18a6825f.pdf",
+    "reasons": [
+      "low_text_quality_score:0.5730",
+      "opaque_source_title"
+    ]
+  },
+  {
+    "pdf_id": "4e387152960c1029b3711cacb05b287b13c977bc61f2558059a62b7b427a62eb",
+    "document_id": "doc_f043cecc713e1c7d6ef2df5d",
+    "doc_type": "law",
+    "title": "Document 4e387152960c",
+    "page_count": 53,
+    "text_quality_score": 0.5801731115587454,
+    "law_number": "DIFC",
+    "case_id": "of",
+    "version_group_id": "law:difc",
+    "effective_end_date": "2024-01-01",
+    "is_current_version": false,
+    "source_pdf_path": "/Users/artemgendler/dev/legal_agentic_rag/datasets/official_fetch_2026-03-11/_source_pdfs/4e387152960c1029b3711cacb05b287b13c977bc61f2558059a62b7b427a62eb_d6248c771e2c.pdf",
+    "reasons": [
+      "low_text_quality_score:0.5802",
+      "opaque_source_title"
+    ]
+  },
+  {
+    "pdf_id": "72ea171147bf30326fe6fd2e6798f607c7cef4bf9d43761dbccd2f1b6a356849",
+    "document_id": "doc_413b50434f1160ec0509591d",
+    "doc_type": "law",
+    "title": "Document 72ea171147bf",
+    "page_count": 43,
+    "text_quality_score": 0.5807501749184583,
+    "law_number": "DIFC",
+    "case_id": "and",
+    "version_group_id": "law:difc",
+    "effective_end_date": null,
+    "is_current_version": true,
+    "source_pdf_path": "/Users/artemgendler/dev/legal_agentic_rag/datasets/official_fetch_2026-03-11/_source_pdfs/72ea171147bf30326fe6fd2e6798f607c7cef4bf9d43761dbccd2f1b6a356849_c50807a9cecc.pdf",
+    "reasons": [
+      "low_text_quality_score:0.5808",
+      "opaque_source_title"
+    ]
+  },
+  {
+    "pdf_id": "33bc02044716acdfedb164b065bdaec098aaadcae863c591f9931c88e7307d16",
+    "document_id": "doc_e3d5c2c37434a72d15dd0a9c",
+    "doc_type": "law",
+    "title": "Document 33bc02044716",
+    "page_count": 44,
+    "text_quality_score": 0.5843221903864202,
+    "law_number": "DIFC",
+    "case_id": "the",
+    "version_group_id": "law:difc",
+    "effective_end_date": null,
+    "is_current_version": true,
+    "source_pdf_path": "/Users/artemgendler/dev/legal_agentic_rag/datasets/official_fetch_2026-03-11/_source_pdfs/33bc02044716acdfedb164b065bdaec098aaadcae863c591f9931c88e7307d16_e305ebc7bbe7.pdf",
+    "reasons": [
+      "low_text_quality_score:0.5843",
+      "opaque_source_title"
+    ]
+  },
+  {
+    "pdf_id": "b82ac8228e051d96bf8d706d3251893ebff1c9457b066fce3b7cb99af956f2a7",
+    "document_id": "doc_b4ccb7ff0098f72a61ce27c5",
+    "doc_type": "law",
+    "title": "Document b82ac8228e05",
+    "page_count": 25,
+    "text_quality_score": 0.6216723769809134,
+    "law_number": "DIFC",
+    "case_id": "may",
+    "version_group_id": "law:difc",
+    "effective_end_date": "2022-01-01",
+    "is_current_version": false,
+    "source_pdf_path": "/Users/artemgendler/dev/legal_agentic_rag/datasets/official_fetch_2026-03-11/_source_pdfs/b82ac8228e051d96bf8d706d3251893ebff1c9457b066fce3b7cb99af956f2a7_36990bac3884.pdf",
+    "reasons": [
+      "low_text_quality_score:0.6217",
+      "opaque_source_title"
+    ]
+  },
+  {
+    "pdf_id": "302a0bd8d67775e8dc5960ecec7879be566300d8b32c4b0153ba15ebdb279425",
+    "document_id": "doc_449b78431b3d2435b5607967",
+    "doc_type": "law",
+    "title": "Document 302a0bd8d677",
+    "page_count": 23,
+    "text_quality_score": 0.6309806777303357,
+    "law_number": "DIFC",
+    "case_id": "of",
+    "version_group_id": "law:difc",
+    "effective_end_date": "2022-01-01",
+    "is_current_version": false,
+    "source_pdf_path": "/Users/artemgendler/dev/legal_agentic_rag/datasets/official_fetch_2026-03-11/_source_pdfs/302a0bd8d67775e8dc5960ecec7879be566300d8b32c4b0153ba15ebdb279425_1493e1aa4168.pdf",
+    "reasons": [
+      "low_text_quality_score:0.6310",
+      "opaque_source_title"
+    ]
+  },
+  {
+    "pdf_id": "536bbce854b9406cc22697e04fcdabd645e030c0e55b918252643b00e0b2b25f",
+    "document_id": "doc_62806b334bcdedb15705a9b3",
+    "doc_type": "law",
+    "title": "Document 536bbce854b9",
+    "page_count": 21,
+    "text_quality_score": 0.6312216538397555,
+    "law_number": "DIFC",
+    "case_id": "of",
+    "version_group_id": "law:difc",
+    "effective_end_date": "2024-01-01",
+    "is_current_version": false,
+    "source_pdf_path": "/Users/artemgendler/dev/legal_agentic_rag/datasets/official_fetch_2026-03-11/_source_pdfs/536bbce854b9406cc22697e04fcdabd645e030c0e55b918252643b00e0b2b25f_a035b91cc849.pdf",
+    "reasons": [
+      "low_text_quality_score:0.6312",
+      "opaque_source_title"
+    ]
+  },
+  {
+    "pdf_id": "fbdd7f9dd299d83b1f398778da2e6765dfaaed62005667264734a1f76ec09071",
+    "document_id": "doc_6ba0a3b33098614383aa16f1",
+    "doc_type": "law",
+    "title": "Document fbdd7f9dd299",
+    "page_count": 17,
+    "text_quality_score": 0.6481979775239801,
+    "law_number": "DIFC",
+    "case_id": "and",
+    "version_group_id": "law:difc",
+    "effective_end_date": "2022-01-01",
+    "is_current_version": false,
+    "source_pdf_path": "/Users/artemgendler/dev/legal_agentic_rag/datasets/official_fetch_2026-03-11/_source_pdfs/fbdd7f9dd299d83b1f398778da2e6765dfaaed62005667264734a1f76ec09071_34bb4f97aadc.pdf",
+    "reasons": [
+      "low_text_quality_score:0.6482",
+      "opaque_source_title"
+    ]
+  },
+  {
+    "pdf_id": "ff746f7b583490a80ba104361c0a82a1ebbf7ed9097cd03dc49d744cb5057761",
+    "document_id": "doc_af163723209725ea503c74fb",
+    "doc_type": "law",
+    "title": "Document ff746f7b5834",
+    "page_count": 7,
+    "text_quality_score": 0.6508862204706758,
+    "law_number": "ON",
+    "case_id": "may",
+    "version_group_id": "law:on",
+    "effective_end_date": null,
+    "is_current_version": true,
+    "source_pdf_path": "/Users/artemgendler/dev/legal_agentic_rag/datasets/official_fetch_2026-03-11/_source_pdfs/ff746f7b583490a80ba104361c0a82a1ebbf7ed9097cd03dc49d744cb5057761_62a85cbb2c08.pdf",
+    "reasons": [
+      "low_text_quality_score:0.6509",
+      "opaque_source_title"
+    ]
+  },
+  {
+    "pdf_id": "1a255edc261961ec64870466a27ac4e25b5ebc2abe298e1b69f8dd2fc27288f6",
+    "document_id": "doc_8a65cdfd86d4f25ad63b2217",
+    "doc_type": "case",
+    "title": "Document 1a255edc2619",
+    "page_count": 112,
+    "text_quality_score": 0.7855589360022213,
+    "law_number": "MY",
+    "case_id": "CFI-",
+    "version_group_id": "case:cfi-",
+    "effective_end_date": null,
+    "is_current_version": true,
+    "source_pdf_path": "/Users/artemgendler/dev/legal_agentic_rag/datasets/official_fetch_2026-03-11/_source_pdfs/1a255edc261961ec64870466a27ac4e25b5ebc2abe298e1b69f8dd2fc27288f6_1eed739be989.pdf",
+    "reasons": [
+      "opaque_source_title"
+    ]
+  },
+  {
+    "pdf_id": "839de9798f377492eee68f82b202d7cd3544be83d799f6226a02f3678c9bb914",
+    "document_id": "doc_a2d6794342380919c3e4dc81",
+    "doc_type": "regulation",
+    "title": "Document 839de9798f37",
+    "page_count": 41,
+    "text_quality_score": 0.8245939141262113,
+    "law_number": "MY",
+    "case_id": "602/2023",
+    "version_group_id": "regulation:my",
+    "effective_end_date": null,
+    "is_current_version": true,
+    "source_pdf_path": "/Users/artemgendler/dev/legal_agentic_rag/datasets/official_fetch_2026-03-11/_source_pdfs/839de9798f377492eee68f82b202d7cd3544be83d799f6226a02f3678c9bb914_0c2a4ef69967.pdf",
+    "reasons": [
+      "opaque_source_title"
+    ]
+  },
+  {
+    "pdf_id": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2",
+    "document_id": "doc_b530aeca9810485b5403729c",
+    "doc_type": "case",
+    "title": "Document 5d3df6d69fac",
+    "page_count": 19,
+    "text_quality_score": 0.8554895864409644,
+    "law_number": "ARB-016-2023",
+    "case_id": "No",
+    "version_group_id": "case:no",
+    "effective_end_date": "2022-01-01",
+    "is_current_version": false,
+    "source_pdf_path": "/Users/artemgendler/dev/legal_agentic_rag/datasets/official_fetch_2026-03-11/_source_pdfs/5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_e1262810ea8a.pdf",
+    "reasons": [
+      "opaque_source_title"
+    ]
+  },
+  {
+    "pdf_id": "09660f78c26cd56c08c7253ed21ba01fb246092f482ccd8acd8e6f9b6fd2d917",
+    "document_id": "doc_45ae141f013024a87dbaa035",
+    "doc_type": "case",
+    "title": "Document 09660f78c26c",
+    "page_count": 12,
+    "text_quality_score": 0.8671478994600919,
+    "law_number": "tice",
+    "case_id": "of",
+    "version_group_id": "case:of",
+    "effective_end_date": "2025-01-01",
+    "is_current_version": false,
+    "source_pdf_path": "/Users/artemgendler/dev/legal_agentic_rag/datasets/official_fetch_2026-03-11/_source_pdfs/09660f78c26cd56c08c7253ed21ba01fb246092f482ccd8acd8e6f9b6fd2d917_4ca07ff6440b.pdf",
+    "reasons": [
+      "opaque_source_title"
+    ]
+  },
+  {
+    "pdf_id": "3f8a5ea0e051ba3af7a02da340c911fe0970ebece6c852c3e61a10c00cac6d6e",
+    "document_id": "doc_91a498cabf9d78122aa98b78",
+    "doc_type": "case",
+    "title": "Document 3f8a5ea0e051",
+    "page_count": 25,
+    "text_quality_score": 0.8705460587126552,
+    "law_number": "MY",
+    "case_id": "CFI-",
+    "version_group_id": "case:cfi-",
+    "effective_end_date": "2025-01-01",
+    "is_current_version": false,
+    "source_pdf_path": "/Users/artemgendler/dev/legal_agentic_rag/datasets/official_fetch_2026-03-11/_source_pdfs/3f8a5ea0e051ba3af7a02da340c911fe0970ebece6c852c3e61a10c00cac6d6e_83c335c6244f.pdf",
+    "reasons": [
+      "opaque_source_title"
+    ]
+  },
+  {
+    "pdf_id": "897ab23ed5a70034d3d708d871ad1da8bc7b6608d94b1ca46b5d578d985d3c13",
+    "document_id": "doc_20e790a6c3e6369718932814",
+    "doc_type": "regulation",
+    "title": "Document 897ab23ed5a7",
+    "page_count": 2,
+    "text_quality_score": 0.8765065996547874,
+    "law_number": "logies",
+    "case_id": null,
+    "version_group_id": "regulation:logies",
+    "effective_end_date": null,
+    "is_current_version": true,
+    "source_pdf_path": "/Users/artemgendler/dev/legal_agentic_rag/datasets/official_fetch_2026-03-11/_source_pdfs/897ab23ed5a70034d3d708d871ad1da8bc7b6608d94b1ca46b5d578d985d3c13_ec220240a86e.pdf",
+    "reasons": [
+      "opaque_source_title"
+    ]
+  },
+  {
+    "pdf_id": "437568a801115019fe8278385c0484bdf07ab86f9a499ecaba2b7969b37c764b",
+    "document_id": "doc_c4c399ed255ad2e2fa28db63",
+    "doc_type": "case",
+    "title": "Document 437568a80111",
+    "page_count": 15,
+    "text_quality_score": 0.8813338943328886,
+    "law_number": "unced",
+    "case_id": "Management",
+    "version_group_id": "case:management",
+    "effective_end_date": null,
+    "is_current_version": true,
+    "source_pdf_path": "/Users/artemgendler/dev/legal_agentic_rag/datasets/official_fetch_2026-03-11/_source_pdfs/437568a801115019fe8278385c0484bdf07ab86f9a499ecaba2b7969b37c764b_301690e70c71.pdf",
+    "reasons": [
+      "opaque_source_title"
+    ]
+  },
+  {
+    "pdf_id": "443e04bc1a78940b3fcd5438d24b6c5f182a276d354a3108e738b193675de032",
+    "document_id": "doc_ca612594760e816d1687a257",
+    "doc_type": "case",
+    "title": "Document 443e04bc1a78",
+    "page_count": 3,
+    "text_quality_score": 0.887426158608759,
+    "law_number": "CFI",
+    "case_id": "documents",
+    "version_group_id": "case:documents",
+    "effective_end_date": null,
+    "is_current_version": true,
+    "source_pdf_path": "/Users/artemgendler/dev/legal_agentic_rag/datasets/official_fetch_2026-03-11/_source_pdfs/443e04bc1a78940b3fcd5438d24b6c5f182a276d354a3108e738b193675de032_308bdaab995a.pdf",
+    "reasons": [
+      "opaque_source_title"
+    ]
+  },
+  {
+    "pdf_id": "c98c1475692bc22f4abab6a7a7d7969467c94e46a7e68919aaf127179ebf3f54",
+    "document_id": "doc_7dddb442f8af56a35622e974",
+    "doc_type": "case",
+    "title": "Document c98c1475692b",
+    "page_count": 13,
+    "text_quality_score": 0.8899643339349869,
+    "law_number": "LOGY",
+    "case_id": "something",
+    "version_group_id": "case:something",
+    "effective_end_date": null,
+    "is_current_version": true,
+    "source_pdf_path": "/Users/artemgendler/dev/legal_agentic_rag/datasets/official_fetch_2026-03-11/_source_pdfs/c98c1475692bc22f4abab6a7a7d7969467c94e46a7e68919aaf127179ebf3f54_1342648b3856.pdf",
+    "reasons": [
+      "opaque_source_title"
+    ]
+  },
+  {
+    "pdf_id": "bd2d222ee0a636a745434cfb457321cd658db5bb32b5f0a3f5643236cc1503d8",
+    "document_id": "doc_ace7113b386229fe8d607cab",
+    "doc_type": "case",
+    "title": "Document bd2d222ee0a6",
+    "page_count": 14,
+    "text_quality_score": 0.8904713001802207,
+    "law_number": "CA",
+    "case_id": "being",
+    "version_group_id": "case:being",
+    "effective_end_date": null,
+    "is_current_version": true,
+    "source_pdf_path": "/Users/artemgendler/dev/legal_agentic_rag/datasets/official_fetch_2026-03-11/_source_pdfs/bd2d222ee0a636a745434cfb457321cd658db5bb32b5f0a3f5643236cc1503d8_137cc4d36338.pdf",
+    "reasons": [
+      "opaque_source_title"
+    ]
+  },
+  {
+    "pdf_id": "0471e83c1ea18086cfb6b3ff51da6f22b0efee337f10315b2593f782297ccb84",
+    "document_id": "doc_3c9d17586f055452ae270acd",
+    "doc_type": "case",
+    "title": "Document 0471e83c1ea1",
+    "page_count": 2,
+    "text_quality_score": 0.890512746972594,
+    "law_number": "LOGY",
+    "case_id": null,
+    "version_group_id": "0471e83c1ea18086cfb6b3ff51da6f22b0efee337f10315b2593f782297ccb84",
+    "effective_end_date": null,
+    "is_current_version": true,
+    "source_pdf_path": "/Users/artemgendler/dev/legal_agentic_rag/datasets/official_fetch_2026-03-11/_source_pdfs/0471e83c1ea18086cfb6b3ff51da6f22b0efee337f10315b2593f782297ccb84_369f4ed097b1.pdf",
+    "reasons": [
+      "opaque_source_title"
+    ]
+  },
+  {
+    "pdf_id": "d32e76d495ac7d855d805fb71682b98d254520e3799aa4529ebc983212648335",
+    "document_id": "doc_89bea188ca82f5b985cd4a28",
+    "doc_type": "case",
+    "title": "Document d32e76d495ac",
+    "page_count": 11,
+    "text_quality_score": 0.9057711602134675,
+    "law_number": "CFI-092-2024/2",
+    "case_id": "by",
+    "version_group_id": "case:by",
+    "effective_end_date": null,
+    "is_current_version": true,
+    "source_pdf_path": "/Users/artemgendler/dev/legal_agentic_rag/datasets/official_fetch_2026-03-11/_source_pdfs/d32e76d495ac7d855d805fb71682b98d254520e3799aa4529ebc983212648335_eee3631cbf44.pdf",
+    "reasons": [
+      "opaque_source_title"
+    ]
+  },
+  {
+    "pdf_id": "1b446e196b4d1752241c8ff689a31ea705e98ad0c16b9d343c303664f72b64a1",
+    "document_id": "doc_87829d12cdda0199021a023a",
+    "doc_type": "case",
+    "title": "Document 1b446e196b4d",
+    "page_count": 3,
+    "text_quality_score": 0.9071731601731602,
+    "law_number": "CFI",
+    "case_id": "involved",
+    "version_group_id": "case:involved",
+    "effective_end_date": null,
+    "is_current_version": true,
+    "source_pdf_path": "/Users/artemgendler/dev/legal_agentic_rag/datasets/official_fetch_2026-03-11/_source_pdfs/1b446e196b4d1752241c8ff689a31ea705e98ad0c16b9d343c303664f72b64a1_f903b6cd5604.pdf",
+    "reasons": [
+      "opaque_source_title"
+    ]
+  },
+  {
+    "pdf_id": "03b621728fe29eb6113fcdb57f6458d793fd2d5c5b833ae26d40f04a29c85359",
+    "document_id": "doc_e22d219f8fc82793bf4f31cb",
+    "doc_type": "case",
+    "title": "Document 03b621728fe2",
+    "page_count": 3,
+    "text_quality_score": 0.9257689489997183,
+    "law_number": "tice",
+    "case_id": null,
+    "version_group_id": "03b621728fe29eb6113fcdb57f6458d793fd2d5c5b833ae26d40f04a29c85359",
+    "effective_end_date": null,
+    "is_current_version": true,
+    "source_pdf_path": "/Users/artemgendler/dev/legal_agentic_rag/datasets/official_fetch_2026-03-11/_source_pdfs/03b621728fe29eb6113fcdb57f6458d793fd2d5c5b833ae26d40f04a29c85359_c619d1f0de2f.pdf",
+    "reasons": [
+      "opaque_source_title"
+    ]
+  },
+  {
+    "pdf_id": "6306079a16b1dec85690f75c715cdbd78b0685a3e19ee30250d481bc32f2e29a",
+    "document_id": "doc_104c8f4e2a35d924744c44a5",
+    "doc_type": "case",
+    "title": "Document 6306079a16b1",
+    "page_count": 6,
+    "text_quality_score": 0.9340598482787705,
+    "law_number": "vember",
+    "case_id": "the",
+    "version_group_id": "case:the",
+    "effective_end_date": null,
+    "is_current_version": true,
+    "source_pdf_path": "/Users/artemgendler/dev/legal_agentic_rag/datasets/official_fetch_2026-03-11/_source_pdfs/6306079a16b1dec85690f75c715cdbd78b0685a3e19ee30250d481bc32f2e29a_0254e17bdd08.pdf",
+    "reasons": [
+      "opaque_source_title"
+    ]
+  },
+  {
+    "pdf_id": "6248961b681ea0deb189f354be0c8286f35974dcdb211c13c921c3dd0e566a6e",
+    "document_id": "doc_a35c6e84ef3e9a57dc16ec93",
+    "doc_type": "case",
+    "title": "Document 6248961b681e",
+    "page_count": 7,
+    "text_quality_score": 0.9357036487995605,
+    "law_number": "CFI-016-2025/3",
+    "case_id": "management",
+    "version_group_id": "case:management",
+    "effective_end_date": null,
+    "is_current_version": true,
+    "source_pdf_path": "/Users/artemgendler/dev/legal_agentic_rag/datasets/official_fetch_2026-03-11/_source_pdfs/6248961b681ea0deb189f354be0c8286f35974dcdb211c13c921c3dd0e566a6e_d4bea472222e.pdf",
+    "reasons": [
+      "opaque_source_title"
+    ]
+  },
+  {
+    "pdf_id": "62930da32fa3172edf2f2bbf3da268455bd99a7b5fab34d72358730d8cd5da30",
+    "document_id": "doc_b50860b2eb5f84d1c272984f",
+    "doc_type": "case",
+    "title": "Document 62930da32fa3",
+    "page_count": 4,
+    "text_quality_score": 0.948025242084648,
+    "law_number": "LOGY",
+    "case_id": "where",
+    "version_group_id": "case:where",
+    "effective_end_date": null,
+    "is_current_version": true,
+    "source_pdf_path": "/Users/artemgendler/dev/legal_agentic_rag/datasets/official_fetch_2026-03-11/_source_pdfs/62930da32fa3172edf2f2bbf3da268455bd99a7b5fab34d72358730d8cd5da30_47cb6b780486.pdf",
+    "reasons": [
+      "opaque_source_title"
+    ]
+  },
+  {
+    "pdf_id": "78ffe994cdc61ce6a2a6937c79fc52751bb5d2b4eaa4019f088fbccf70569c26",
+    "document_id": "doc_abd6f1969945e2b26d6d4384",
+    "doc_type": "case",
+    "title": "Document 78ffe994cdc6",
+    "page_count": 5,
+    "text_quality_score": 0.9546497365068793,
+    "law_number": "vember",
+    "case_id": "No",
+    "version_group_id": "case:no",
+    "effective_end_date": null,
+    "is_current_version": true,
+    "source_pdf_path": "/Users/artemgendler/dev/legal_agentic_rag/datasets/official_fetch_2026-03-11/_source_pdfs/78ffe994cdc61ce6a2a6937c79fc52751bb5d2b4eaa4019f088fbccf70569c26_819f3248cf07.pdf",
+    "reasons": [
+      "opaque_source_title"
+    ]
+  },
+  {
+    "pdf_id": "3a574fc4f0baa5ec7ff0dcc822d7c55e4f9c493c24addc217c8df3d848c16fa5",
+    "document_id": "doc_0fae7096ff0949028093f5e0",
+    "doc_type": "case",
+    "title": "Document 3a574fc4f0ba",
+    "page_count": 5,
+    "text_quality_score": 0.9606003904978848,
+    "law_number": "rton",
+    "case_id": null,
+    "version_group_id": "3a574fc4f0baa5ec7ff0dcc822d7c55e4f9c493c24addc217c8df3d848c16fa5",
+    "effective_end_date": null,
+    "is_current_version": true,
+    "source_pdf_path": "/Users/artemgendler/dev/legal_agentic_rag/datasets/official_fetch_2026-03-11/_source_pdfs/3a574fc4f0baa5ec7ff0dcc822d7c55e4f9c493c24addc217c8df3d848c16fa5_c95bfb82fda9.pdf",
+    "reasons": [
+      "opaque_source_title"
+    ]
+  },
+  {
+    "pdf_id": "f4c4d051d514270964adcf58e124569e396602340b7d9172671759de10a95897",
+    "document_id": "doc_403be03e9b3ac6a798775795",
+    "doc_type": "case",
+    "title": "Document f4c4d051d514",
+    "page_count": 4,
+    "text_quality_score": 0.9700946950412382,
+    "law_number": "tice",
+    "case_id": null,
+    "version_group_id": "f4c4d051d514270964adcf58e124569e396602340b7d9172671759de10a95897",
+    "effective_end_date": null,
+    "is_current_version": true,
+    "source_pdf_path": "/Users/artemgendler/dev/legal_agentic_rag/datasets/official_fetch_2026-03-11/_source_pdfs/f4c4d051d514270964adcf58e124569e396602340b7d9172671759de10a95897_744cebabbb4f.pdf",
+    "reasons": [
+      "opaque_source_title"
+    ]
+  },
+  {
+    "pdf_id": "58eae81bf668e7f6c58619f419a49b5e35e2e5c9c7475475ace28ec562580545",
+    "document_id": "doc_2b9f5a157b8236874a1407bc",
+    "doc_type": "regulation",
+    "title": "Document 58eae81bf668",
+    "page_count": 4,
+    "text_quality_score": 0.9736575481256332,
+    "law_number": "ra",
+    "case_id": "was",
+    "version_group_id": "regulation:ra",
+    "effective_end_date": null,
+    "is_current_version": true,
+    "source_pdf_path": "/Users/artemgendler/dev/legal_agentic_rag/datasets/official_fetch_2026-03-11/_source_pdfs/58eae81bf668e7f6c58619f419a49b5e35e2e5c9c7475475ace28ec562580545_36c98b09df05.pdf",
+    "reasons": [
+      "opaque_source_title"
+    ]
+  }
+]

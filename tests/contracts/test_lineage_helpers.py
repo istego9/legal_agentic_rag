@@ -145,6 +145,101 @@ def test_sanitize_preview_text_repairs_split_caps_words_and_dedupes_heading_line
     assert "J U S TICE" not in cleaned
 
 
+def test_extract_law_number_prefers_explicit_instrument_number_over_jurisdiction_token() -> None:
+    sample = "FOUNDATIONS LAW DIFC LAW NO.3 OF 2018 Consolidated Version No. 3 (March 2024)"
+    assert ingest_module._extract_law_number(sample) == "3"
+
+
+def test_extract_law_number_does_not_treat_generic_claim_no_as_law_number() -> None:
+    sample = "Claim No. DEC 001/2025 IN THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS"
+    assert ingest_module._extract_law_number(sample) is None
+
+
+def test_extract_case_id_handles_colon_claim_and_hyphenated_identifiers() -> None:
+    assert ingest_module._extract_case_id("Case No: CA 004/2025 THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS") == "CA 004/2025"
+    assert ingest_module._extract_case_id("Claim No. DEC 001/2025 IN THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS") == "DEC 001/2025"
+    assert ingest_module._extract_case_id("Permission application in CFI-016-2025/3 before the court") == "CFI-016-2025/3"
+
+
+def test_resolve_version_group_id_uses_legislative_title_anchor_when_available() -> None:
+    assert ingest_module._resolve_version_group_id(
+        doc_type="law",
+        law_number="2",
+        case_id=None,
+        pdf_id="doc-a",
+        summary_text="EMPLOYMENT LAW DIFC LAW NO. 2 of 2019 Consolidated Version No. 5",
+    ) == "law:employment:2"
+    assert ingest_module._resolve_version_group_id(
+        doc_type="law",
+        law_number="2",
+        case_id=None,
+        pdf_id="doc-b",
+        summary_text="COMMON REPORTING STANDARD LAW DIFC LAW NO. 2 OF 2018 Consolidated Version No.2",
+    ) == "law:common_reporting_standard:2"
+
+
+def test_case_ingest_uses_strong_case_ids_and_skips_legislative_temporal_semantics(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    def fake_extract_pdf_page_texts(raw: bytes) -> tuple[list[str], int, str | None]:
+        marker = raw.decode("utf-8")
+        if marker == "CASE_ORDER":
+            return (
+                [
+                    (
+                        "DEC 001/2025 COURT OF APPEAL - ORDERS Claim No. DEC 001/2025 "
+                        "IN THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS. "
+                        "The shareholder relationship lasted until 2022."
+                    )
+                ],
+                1,
+                None,
+            )
+        return (
+            [
+                (
+                    "DEC 001/2025 DIGITAL ECONOMY COURT - JUDGMENTS Claim No. DEC 001/2025 "
+                    "IN THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS. "
+                    "Article 13 of the Court Law 2004 has been superseded by the Court Law 2025."
+                )
+            ],
+            1,
+            None,
+        )
+
+    monkeypatch.setattr(ingest_module, "_extract_pdf_page_texts", fake_extract_pdf_page_texts)
+
+    payload = io.BytesIO()
+    with zipfile.ZipFile(payload, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
+        zf.writestr("dec_case_order.pdf", b"CASE_ORDER")
+        zf.writestr("dec_case_judgment.pdf", b"CASE_JUDGMENT")
+    zip_path = tmp_path / "case-fixture-pack.zip"
+    zip_path.write_bytes(payload.getvalue())
+
+    result = ingest_module.ingest_zip_stub(
+        blob_url=str(zip_path),
+        project_id="wb-in-002",
+        parse_policy="balanced",
+        dedupe_enabled=True,
+    )
+    docs_by_pdf = {row["pdf_id"]: row for row in result["documents"]}
+
+    order_doc = docs_by_pdf["dec_case_order"]
+    judgment_doc = docs_by_pdf["dec_case_judgment"]
+
+    assert order_doc["case_id"] == "DEC 001/2025"
+    assert judgment_doc["case_id"] == "DEC 001/2025"
+    assert order_doc["version_group_id"] == "case:dec_001_2025"
+    assert judgment_doc["version_group_id"] == "case:dec_001_2025"
+    assert order_doc["version_sequence"] == 0
+    assert judgment_doc["version_sequence"] == 0
+    assert order_doc["effective_end_date"] is None
+    assert judgment_doc["effective_end_date"] is None
+    assert order_doc["is_current_version"] is True
+    assert judgment_doc["is_current_version"] is True
+
+
 def test_ingest_fixture_pack_covers_duplicate_grouping_and_parse_quality_expectations(
     tmp_path: Path,
     monkeypatch,

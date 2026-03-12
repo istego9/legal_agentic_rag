@@ -476,3 +476,68 @@ def test_pg_persist_ingest_result_strips_nul_bytes_from_text_and_json(monkeypatc
     assert "bad\x00page" not in page_params
     assert "badpage" in page_params
     assert page_params[-2] == ["oneentity"]
+
+
+def test_pg_persist_ingest_result_deletes_stale_relation_edges_for_imported_documents(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    executed: list[tuple[str, tuple[object, ...] | None]] = []
+
+    class FakeCursor:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+        def execute(self, query: str, params=None):
+            executed.append((query, tuple(params) if params is not None else None))
+
+    class FakeConnection:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+        def cursor(self, row_factory=None):
+            return FakeCursor()
+
+    monkeypatch.setattr(corpus_pg, "ensure_schema", lambda: None)
+    monkeypatch.setattr(corpus_pg, "_connect", lambda: FakeConnection())
+    monkeypatch.setattr(corpus_pg, "Json", lambda payload: payload)
+
+    corpus_pg.persist_ingest_result(
+        {
+            "documents": [
+                {
+                    "document_id": "doc-1",
+                    "project_id": "proj-1",
+                    "pdf_id": "law",
+                    "canonical_doc_id": "law-v1",
+                    "content_hash": "a" * 64,
+                    "doc_type": "law",
+                    "page_count": 1,
+                    "status": "parsed",
+                    "processing": {},
+                }
+            ],
+            "pages": [],
+            "paragraphs": [],
+            "chunk_search_documents": [],
+            "relation_edges": [
+                {
+                    "edge_id": "edge-1",
+                    "source_object_type": "document",
+                    "source_object_id": "doc-1",
+                    "target_object_type": "document",
+                    "target_object_id": "doc-2",
+                    "edge_type": "refers_to",
+                }
+            ],
+        }
+    )
+
+    delete_queries = [item for item in executed if "DELETE FROM corpus_relation_edges" in item[0]]
+    assert len(delete_queries) == 1
+    assert delete_queries[0][1] == (["doc-1"],)

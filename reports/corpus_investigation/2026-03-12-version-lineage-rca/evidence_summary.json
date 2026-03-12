@@ -1,0 +1,70 @@
+{
+  "generated_from_prepare_report": "/Users/artemgendler/dev/legal_agentic_rag/reports/competition_runs/prepare_report.json",
+  "generated_from_prepare_report_rerun": "/Users/artemgendler/dev/legal_agentic_rag/reports/competition_runs/prepare_report.rerun.json",
+  "documents_zip": "/Users/artemgendler/dev/legal_agentic_rag/datasets/official_fetch_2026-03-11/documents.zip",
+  "documents_zip_sha256": "965d75c8db33362ffe44cc0e6760d712c69c4c27fc4286c2a129fed23b5ae3eb",
+  "prepare_report_sha256": "2d0f8acdf73045c956a6c30be188f6ce621885eb5863e11e98a8a2a89152fd0e",
+  "prepare_report_rerun_sha256": "68b0f497f40b448dac22160de04a0953693a174d135e0a37f6da4303bf877500",
+  "counts": {
+    "documents": 30,
+    "pages": 590,
+    "paragraphs": 1932,
+    "relation_edges": 1939
+  },
+  "determinism": {
+    "prepare_identity_fingerprint": "8d1ad99d48c92b983ac90697697c74f8572b9baa02366745606ec8c811abdcac",
+    "rerun_identity_fingerprint": "8d1ad99d48c92b983ac90697697c74f8572b9baa02366745606ec8c811abdcac",
+    "prepare_artifact_fingerprint": "81738d64c6839f3fff28e57c73ce8268e35987402fd85f2c48cff836eeb08959",
+    "rerun_artifact_fingerprint": "81738d64c6839f3fff28e57c73ce8268e35987402fd85f2c48cff836eeb08959",
+    "identity_match": true,
+    "artifact_match": true
+  },
+  "parser_failures": {
+    "parse_errors": [],
+    "parse_warnings": [],
+    "ocr_docs": []
+  },
+  "versioning": {
+    "duplicate_group_count": 0,
+    "duplicate_groups": {},
+    "multi_doc_version_group_count": 4,
+    "multi_doc_version_groups": [
+      "case:cfi-",
+      "case:management",
+      "case:no",
+      "law:difc"
+    ],
+    "case_temporal_false_positive_count": 3
+  },
+  "storage_contract_gap": {
+    "pg_document_keys": [
+      "canonical_doc_id",
+      "case_id",
+      "citation_title",
+      "content_hash",
+      "created_at",
+      "doc_type",
+      "document_id",
+      "duplicate_group_id",
+      "edition_date",
+      "law_number",
+      "page_count",
+      "pdf_id",
+      "processing",
+      "project_id",
+      "status",
+      "title",
+      "year"
+    ],
+    "expected_top_level_fields_missing_from_pg_document_rows": [
+      "effective_end_date",
+      "effective_start_date",
+      "extraction_confidence",
+      "is_current_version",
+      "ocr_used",
+      "version_group_id",
+      "version_sequence"
+    ],
+    "present_only_inside_processing_json": []
+  }
+}

@@ -412,6 +412,12 @@ def persist_ingest_result(result: Dict[str, Any]) -> None:
         resolve_corpus_import_project_id(),
     )
     with _connect() as conn, conn.cursor() as cur:
+        imported_document_ids = [str(item.get("document_id", "")).strip() for item in docs if str(item.get("document_id", "")).strip()]
+        if imported_document_ids:
+            cur.execute(
+                "DELETE FROM corpus_relation_edges WHERE source_document_id = ANY(%s)",
+                (imported_document_ids,),
+            )
         for doc in docs:
             cur.execute(
                 """

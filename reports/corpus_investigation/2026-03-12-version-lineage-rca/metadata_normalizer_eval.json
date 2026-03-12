@@ -1,0 +1,725 @@
+{
+  "prepare_report_path": "/Users/artemgendler/dev/legal_agentic_rag/reports/competition_runs/prepare_report.with_metadata_normalizer.json",
+  "metadata_normalization_profile_version": "corpus_metadata_normalizer_v1",
+  "metadata_normalization_job": {
+    "job_id": "metadata_norm_3d8023ced3cb0d20f155118e",
+    "project_id": "00000000-0000-0000-0000-000000000000",
+    "import_job_id": "e9401c92-62c3-477e-ba81-901f5bd76db0",
+    "processing_profile_version": "corpus_metadata_normalizer_v1",
+    "llm_enabled": false,
+    "llm_model_version": "gpt-4o-mini",
+    "title_page_prompt_version": "corpus_title_page_metadata_normalizer_v1",
+    "case_relation_prompt_version": "corpus_case_relation_resolver_v1",
+    "status": "completed",
+    "document_count": 30,
+    "processed_document_count": 30,
+    "grouped_case_family_count": 2,
+    "failed_document_ids": [],
+    "failed_group_ids": [],
+    "llm_calls": 0,
+    "token_usage": {
+      "prompt_tokens": 0,
+      "completion_tokens": 0
+    },
+    "document_stage_runs": {
+      "doc_e22d219f8fc82793bf4f31cb": {
+        "title_page_normalizer": {
+          "role": "title_page_normalizer",
+          "status": "completed",
+          "payload": {
+            "mode": "rules_only",
+            "llm_enabled": false,
+            "llm_model_version": "gpt-4o-mini",
+            "llm_prompt_version": "corpus_title_page_metadata_normalizer_v1",
+            "manual_review_required": false,
+            "source_page_ids": [
+              "03b621728fe29eb6113fcdb57f6458d793fd2d5c5b833ae26d40f04a29c85359_0",
+              "03b621728fe29eb6113fcdb57f6458d793fd2d5c5b833ae26d40f04a29c85359_1"
+            ],
+            "keys": []
+          },
+          "error": null,
+          "updated_at": "2026-03-12T03:52:24.011674+00:00"
+        }
+      },
+      "doc_3c9d17586f055452ae270acd": {
+        "title_page_normalizer": {
+          "role": "title_page_normalizer",
+          "status": "completed",
+          "payload": {
+            "mode": "rules_only",
+            "llm_enabled": false,
+            "llm_model_version": "gpt-4o-mini",
+            "llm_prompt_version": "corpus_title_page_metadata_normalizer_v1",
+            "manual_review_required": true,
+            "source_page_ids": [
+              "0471e83c1ea18086cfb6b3ff51da6f22b0efee337f10315b2593f782297ccb84_0",
+              "0471e83c1ea18086cfb6b3ff51da6f22b0efee337f10315b2593f782297ccb84_1"
+            ],
+            "keys": []
+          },
+          "error": null,
+          "updated_at": "2026-03-12T03:52:24.011864+00:00"
+        }
+      },
+      "doc_45ae141f013024a87dbaa035": {
+        "title_page_normalizer": {
+          "role": "title_page_normalizer",
+          "status": "completed",
+          "payload": {
+            "mode": "rules_only",
+            "llm_enabled": false,
+            "llm_model_version": "gpt-4o-mini",
+            "llm_prompt_version": "corpus_title_page_metadata_normalizer_v1",
+            "manual_review_required": true,
+            "source_page_ids": [
+              "09660f78c26cd56c08c7253ed21ba01fb246092f482ccd8acd8e6f9b6fd2d917_0",
+              "09660f78c26cd56c08c7253ed21ba01fb246092f482ccd8acd8e6f9b6fd2d917_1"
+            ],
+            "keys": []
+          },
+          "error": null,
+          "updated_at": "2026-03-12T03:52:24.012057+00:00"
+        }
+      },
+      "doc_8a65cdfd86d4f25ad63b2217": {
+        "title_page_normalizer": {
+          "role": "title_page_normalizer",
+          "status": "completed",
+          "payload": {
+            "mode": "rules_only",
+            "llm_enabled": false,
+            "llm_model_version": "gpt-4o-mini",
+            "llm_prompt_version": "corpus_title_page_metadata_normalizer_v1",
+            "manual_review_required": false,
+            "source_page_ids": [
+              "1a255edc261961ec64870466a27ac4e25b5ebc2abe298e1b69f8dd2fc27288f6_0",
+              "1a255edc261961ec64870466a27ac4e25b5ebc2abe298e1b69f8dd2fc27288f6_1"
+            ],
+            "keys": []
+          },
+          "error": null,
+          "updated_at": "2026-03-12T03:52:24.012436+00:00"
+        }
+      },
+      "doc_87829d12cdda0199021a023a": {
+        "title_page_normalizer": {
+          "role": "title_page_normalizer",
+          "status": "completed",
+          "payload": {
+            "mode": "rules_only",
+            "llm_enabled": false,
+            "llm_model_version": "gpt-4o-mini",
+            "llm_prompt_version": "corpus_title_page_metadata_normalizer_v1",
+            "manual_review_required": false,
+            "source_page_ids": [
+              "1b446e196b4d1752241c8ff689a31ea705e98ad0c16b9d343c303664f72b64a1_0",
+              "1b446e196b4d1752241c8ff689a31ea705e98ad0c16b9d343c303664f72b64a1_1"
+            ],
+            "keys": []
+          },
+          "error": null,
+          "updated_at": "2026-03-12T03:52:24.012622+00:00"
+        }
+      },
+      "doc_29eeb17f6bbd2734956ca0a0": {
+        "title_page_normalizer": {
+          "role": "title_page_normalizer",
+          "status": "completed",
+          "payload": {
+            "mode": "rules_only",
+            "llm_enabled": false,
+            "llm_model_version": "gpt-4o-mini",
+            "llm_prompt_version": "corpus_title_page_metadata_normalizer_v1",
+            "manual_review_required": false,
+            "source_page_ids": [
+              "22442c5ee999e2519c68de908be511875a84f2b810ed540c2dcfcbcc65031434_0",
+              "22442c5ee999e2519c68de908be511875a84f2b810ed540c2dcfcbcc65031434_1"
+            ],
+            "keys": []
+          },
+          "error": null,
+          "updated_at": "2026-03-12T03:52:24.012833+00:00"
+        }
+      },
+      "doc_449b78431b3d2435b5607967": {
+        "title_page_normalizer": {
+          "role": "title_page_normalizer",
+          "status": "completed",
+          "payload": {
+            "mode": "rules_only",
+            "llm_enabled": false,
+            "llm_model_version": "gpt-4o-mini",
+            "llm_prompt_version": "corpus_title_page_metadata_normalizer_v1",
+            "manual_review_required": false,
+            "source_page_ids": [
+              "302a0bd8d67775e8dc5960ecec7879be566300d8b32c4b0153ba15ebdb279425_0",
+              "302a0bd8d67775e8dc5960ecec7879be566300d8b32c4b0153ba15ebdb279425_1"
+            ],
+            "keys": []
+          },
+          "error": null,
+          "updated_at": "2026-03-12T03:52:24.012993+00:00"
+        }
+      },
+      "doc_e3d5c2c37434a72d15dd0a9c": {
+        "title_page_normalizer": {
+          "role": "title_page_normalizer",
+          "status": "completed",
+          "payload": {
+            "mode": "rules_only",
+            "llm_enabled": false,
+            "llm_model_version": "gpt-4o-mini",
+            "llm_prompt_version": "corpus_title_page_metadata_normalizer_v1",
+            "manual_review_required": false,
+            "source_page_ids": [
+              "33bc02044716acdfedb164b065bdaec098aaadcae863c591f9931c88e7307d16_0",
+              "33bc02044716acdfedb164b065bdaec098aaadcae863c591f9931c88e7307d16_1"
+            ],
+            "keys": []
+          },
+          "error": null,
+          "updated_at": "2026-03-12T03:52:24.013185+00:00"
+        }
+      },
+      "doc_0fae7096ff0949028093f5e0": {
+        "title_page_normalizer": {
+          "role": "title_page_normalizer",
+          "status": "completed",
+          "payload": {
+            "mode": "rules_only",
+            "llm_enabled": false,
+            "llm_model_version": "gpt-4o-mini",
+            "llm_prompt_version": "corpus_title_page_metadata_normalizer_v1",
+            "manual_review_required": true,
+            "source_page_ids": [
+              "3a574fc4f0baa5ec7ff0dcc822d7c55e4f9c493c24addc217c8df3d848c16fa5_0",
+              "3a574fc4f0baa5ec7ff0dcc822d7c55e4f9c493c24addc217c8df3d848c16fa5_1"
+            ],
+            "keys": []
+          },
+          "error": null,
+          "updated_at": "2026-03-12T03:52:24.013364+00:00"
+        }
+      },
+      "doc_91a498cabf9d78122aa98b78": {
+        "title_page_normalizer": {
+          "role": "title_page_normalizer",
+          "status": "completed",
+          "payload": {
+            "mode": "rules_only",
+            "llm_enabled": false,
+            "llm_model_version": "gpt-4o-mini",
+            "llm_prompt_version": "corpus_title_page_metadata_normalizer_v1",
+            "manual_review_required": false,
+            "source_page_ids": [
+              "3f8a5ea0e051ba3af7a02da340c911fe0970ebece6c852c3e61a10c00cac6d6e_0",
+              "3f8a5ea0e051ba3af7a02da340c911fe0970ebece6c852c3e61a10c00cac6d6e_1"
+            ],
+            "keys": []
+          },
+          "error": null,
+          "updated_at": "2026-03-12T03:52:24.013580+00:00"
+        }
+      },
+      "doc_c4c399ed255ad2e2fa28db63": {
+        "title_page_normalizer": {
+          "role": "title_page_normalizer",
+          "status": "completed",
+          "payload": {
+            "mode": "rules_only",
+            "llm_enabled": false,
+            "llm_model_version": "gpt-4o-mini",
+            "llm_prompt_version": "corpus_title_page_metadata_normalizer_v1",
+            "manual_review_required": false,
+            "source_page_ids": [
+              "437568a801115019fe8278385c0484bdf07ab86f9a499ecaba2b7969b37c764b_0",
+              "437568a801115019fe8278385c0484bdf07ab86f9a499ecaba2b7969b37c764b_1"
+            ],
+            "keys": []
+          },
+          "error": null,
+          "updated_at": "2026-03-12T03:52:24.013798+00:00"
+        }
+      },
+      "doc_ca612594760e816d1687a257": {
+        "title_page_normalizer": {
+          "role": "title_page_normalizer",
+          "status": "completed",
+          "payload": {
+            "mode": "rules_only",
+            "llm_enabled": false,
+            "llm_model_version": "gpt-4o-mini",
+            "llm_prompt_version": "corpus_title_page_metadata_normalizer_v1",
+            "manual_review_required": false,
+            "source_page_ids": [
+              "443e04bc1a78940b3fcd5438d24b6c5f182a276d354a3108e738b193675de032_0",
+              "443e04bc1a78940b3fcd5438d24b6c5f182a276d354a3108e738b193675de032_1"
+            ],
+            "keys": []
+          },
+          "error": null,
+          "updated_at": "2026-03-12T03:52:24.013962+00:00"
+        }
+      },
+      "doc_f043cecc713e1c7d6ef2df5d": {
+        "title_page_normalizer": {
+          "role": "title_page_normalizer",
+          "status": "completed",
+          "payload": {
+            "mode": "rules_only",
+            "llm_enabled": false,
+            "llm_model_version": "gpt-4o-mini",
+            "llm_prompt_version": "corpus_title_page_metadata_normalizer_v1",
+            "manual_review_required": false,
+            "source_page_ids": [
+              "4e387152960c1029b3711cacb05b287b13c977bc61f2558059a62b7b427a62eb_0",
+              "4e387152960c1029b3711cacb05b287b13c977bc61f2558059a62b7b427a62eb_1"
+            ],
+            "keys": []
+          },
+          "error": null,
+          "updated_at": "2026-03-12T03:52:24.014181+00:00"
+        }
+      },
+      "doc_62806b334bcdedb15705a9b3": {
+        "title_page_normalizer": {
+          "role": "title_page_normalizer",
+          "status": "completed",
+          "payload": {
+            "mode": "rules_only",
+            "llm_enabled": false,
+            "llm_model_version": "gpt-4o-mini",
+            "llm_prompt_version": "corpus_title_page_metadata_normalizer_v1",
+            "manual_review_required": false,
+            "source_page_ids": [
+              "536bbce854b9406cc22697e04fcdabd645e030c0e55b918252643b00e0b2b25f_0",
+              "536bbce854b9406cc22697e04fcdabd645e030c0e55b918252643b00e0b2b25f_1"
+            ],
+            "keys": []
+          },
+          "error": null,
+          "updated_at": "2026-03-12T03:52:24.014334+00:00"
+        }
+      },
+      "doc_2b9f5a157b8236874a1407bc": {
+        "title_page_normalizer": {
+          "role": "title_page_normalizer",
+          "status": "completed",
+          "payload": {
+            "mode": "rules_only",
+            "llm_enabled": false,
+            "llm_model_version": "gpt-4o-mini",
+            "llm_prompt_version": "corpus_title_page_metadata_normalizer_v1",
+            "manual_review_required": true,
+            "source_page_ids": [
+              "58eae81bf668e7f6c58619f419a49b5e35e2e5c9c7475475ace28ec562580545_0",
+              "58eae81bf668e7f6c58619f419a49b5e35e2e5c9c7475475ace28ec562580545_1"
+            ],
+            "keys": []
+          },
+          "error": null,
+          "updated_at": "2026-03-12T03:52:24.014507+00:00"
+        }
+      },
+      "doc_b530aeca9810485b5403729c": {
+        "title_page_normalizer": {
+          "role": "title_page_normalizer",
+          "status": "completed",
+          "payload": {
+            "mode": "rules_only",
+            "llm_enabled": false,
+            "llm_model_version": "gpt-4o-mini",
+            "llm_prompt_version": "corpus_title_page_metadata_normalizer_v1",
+            "manual_review_required": false,
+            "source_page_ids": [
+              "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_0",
+              "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2_1"
+            ],
+            "keys": []
+          },
+          "error": null,
+          "updated_at": "2026-03-12T03:52:24.014718+00:00"
+        }
+      },
+      "doc_a35c6e84ef3e9a57dc16ec93": {
+        "title_page_normalizer": {
+          "role": "title_page_normalizer",
+          "status": "completed",
+          "payload": {
+            "mode": "rules_only",
+            "llm_enabled": false,
+            "llm_model_version": "gpt-4o-mini",
+            "llm_prompt_version": "corpus_title_page_metadata_normalizer_v1",
+            "manual_review_required": false,
+            "source_page_ids": [
+              "6248961b681ea0deb189f354be0c8286f35974dcdb211c13c921c3dd0e566a6e_0",
+              "6248961b681ea0deb189f354be0c8286f35974dcdb211c13c921c3dd0e566a6e_1"
+            ],
+            "keys": []
+          },
+          "error": null,
+          "updated_at": "2026-03-12T03:52:24.014901+00:00"
+        }
+      },
+      "doc_b50860b2eb5f84d1c272984f": {
+        "title_page_normalizer": {
+          "role": "title_page_normalizer",
+          "status": "completed",
+          "payload": {
+            "mode": "rules_only",
+            "llm_enabled": false,
+            "llm_model_version": "gpt-4o-mini",
+            "llm_prompt_version": "corpus_title_page_metadata_normalizer_v1",
+            "manual_review_required": true,
+            "source_page_ids": [
+              "62930da32fa3172edf2f2bbf3da268455bd99a7b5fab34d72358730d8cd5da30_0",
+              "62930da32fa3172edf2f2bbf3da268455bd99a7b5fab34d72358730d8cd5da30_1"
+            ],
+            "keys": []
+          },
+          "error": null,
+          "updated_at": "2026-03-12T03:52:24.015073+00:00"
+        }
+      },
+      "doc_104c8f4e2a35d924744c44a5": {
+        "title_page_normalizer": {
+          "role": "title_page_normalizer",
+          "status": "completed",
+          "payload": {
+            "mode": "rules_only",
+            "llm_enabled": false,
+            "llm_model_version": "gpt-4o-mini",
+            "llm_prompt_version": "corpus_title_page_metadata_normalizer_v1",
+            "manual_review_required": true,
+            "source_page_ids": [
+              "6306079a16b1dec85690f75c715cdbd78b0685a3e19ee30250d481bc32f2e29a_0",
+              "6306079a16b1dec85690f75c715cdbd78b0685a3e19ee30250d481bc32f2e29a_1"
+            ],
+            "keys": []
+          },
+          "error": null,
+          "updated_at": "2026-03-12T03:52:24.015247+00:00"
+        }
+      },
+      "doc_413b50434f1160ec0509591d": {
+        "title_page_normalizer": {
+          "role": "title_page_normalizer",
+          "status": "completed",
+          "payload": {
+            "mode": "rules_only",
+            "llm_enabled": false,
+            "llm_model_version": "gpt-4o-mini",
+            "llm_prompt_version": "corpus_title_page_metadata_normalizer_v1",
+            "manual_review_required": false,
+            "source_page_ids": [
+              "72ea171147bf30326fe6fd2e6798f607c7cef4bf9d43761dbccd2f1b6a356849_0",
+              "72ea171147bf30326fe6fd2e6798f607c7cef4bf9d43761dbccd2f1b6a356849_1"
+            ],
+            "keys": []
+          },
+          "error": null,
+          "updated_at": "2026-03-12T03:52:24.015443+00:00"
+        }
+      },
+      "doc_abd6f1969945e2b26d6d4384": {
+        "title_page_normalizer": {
+          "role": "title_page_normalizer",
+          "status": "completed",
+          "payload": {
+            "mode": "rules_only",
+            "llm_enabled": false,
+            "llm_model_version": "gpt-4o-mini",
+            "llm_prompt_version": "corpus_title_page_metadata_normalizer_v1",
+            "manual_review_required": false,
+            "source_page_ids": [
+              "78ffe994cdc61ce6a2a6937c79fc52751bb5d2b4eaa4019f088fbccf70569c26_0",
+              "78ffe994cdc61ce6a2a6937c79fc52751bb5d2b4eaa4019f088fbccf70569c26_1"
+            ],
+            "keys": []
+          },
+          "error": null,
+          "updated_at": "2026-03-12T03:52:24.015624+00:00"
+        }
+      },
+      "doc_a2d6794342380919c3e4dc81": {
+        "title_page_normalizer": {
+          "role": "title_page_normalizer",
+          "status": "completed",
+          "payload": {
+            "mode": "rules_only",
+            "llm_enabled": false,
+            "llm_model_version": "gpt-4o-mini",
+            "llm_prompt_version": "corpus_title_page_metadata_normalizer_v1",
+            "manual_review_required": true,
+            "source_page_ids": [
+              "839de9798f377492eee68f82b202d7cd3544be83d799f6226a02f3678c9bb914_0",
+              "839de9798f377492eee68f82b202d7cd3544be83d799f6226a02f3678c9bb914_1"
+            ],
+            "keys": []
+          },
+          "error": null,
+          "updated_at": "2026-03-12T03:52:24.015855+00:00"
+        }
+      },
+      "doc_20e790a6c3e6369718932814": {
+        "title_page_normalizer": {
+          "role": "title_page_normalizer",
+          "status": "completed",
+          "payload": {
+            "mode": "rules_only",
+            "llm_enabled": false,
+            "llm_model_version": "gpt-4o-mini",
+            "llm_prompt_version": "corpus_title_page_metadata_normalizer_v1",
+            "manual_review_required": true,
+            "source_page_ids": [
+              "897ab23ed5a70034d3d708d871ad1da8bc7b6608d94b1ca46b5d578d985d3c13_0",
+              "897ab23ed5a70034d3d708d871ad1da8bc7b6608d94b1ca46b5d578d985d3c13_1"
+            ],
+            "keys": []
+          },
+          "error": null,
+          "updated_at": "2026-03-12T03:52:24.016017+00:00"
+        }
+      },
+      "doc_b4ccb7ff0098f72a61ce27c5": {
+        "title_page_normalizer": {
+          "role": "title_page_normalizer",
+          "status": "completed",
+          "payload": {
+            "mode": "rules_only",
+            "llm_enabled": false,
+            "llm_model_version": "gpt-4o-mini",
+            "llm_prompt_version": "corpus_title_page_metadata_normalizer_v1",
+            "manual_review_required": false,
+            "source_page_ids": [
+              "b82ac8228e051d96bf8d706d3251893ebff1c9457b066fce3b7cb99af956f2a7_0",
+              "b82ac8228e051d96bf8d706d3251893ebff1c9457b066fce3b7cb99af956f2a7_1"
+            ],
+            "keys": []
+          },
+          "error": null,
+          "updated_at": "2026-03-12T03:52:24.016292+00:00"
+        }
+      },
+      "doc_ace7113b386229fe8d607cab": {
+        "title_page_normalizer": {
+          "role": "title_page_normalizer",
+          "status": "completed",
+          "payload": {
+            "mode": "rules_only",
+            "llm_enabled": false,
+            "llm_model_version": "gpt-4o-mini",
+            "llm_prompt_version": "corpus_title_page_metadata_normalizer_v1",
+            "manual_review_required": false,
+            "source_page_ids": [
+              "bd2d222ee0a636a745434cfb457321cd658db5bb32b5f0a3f5643236cc1503d8_0",
+              "bd2d222ee0a636a745434cfb457321cd658db5bb32b5f0a3f5643236cc1503d8_1"
+            ],
+            "keys": []
+          },
+          "error": null,
+          "updated_at": "2026-03-12T03:52:24.016681+00:00"
+        }
+      },
+      "doc_7dddb442f8af56a35622e974": {
+        "title_page_normalizer": {
+          "role": "title_page_normalizer",
+          "status": "completed",
+          "payload": {
+            "mode": "rules_only",
+            "llm_enabled": false,
+            "llm_model_version": "gpt-4o-mini",
+            "llm_prompt_version": "corpus_title_page_metadata_normalizer_v1",
+            "manual_review_required": true,
+            "source_page_ids": [
+              "c98c1475692bc22f4abab6a7a7d7969467c94e46a7e68919aaf127179ebf3f54_0",
+              "c98c1475692bc22f4abab6a7a7d7969467c94e46a7e68919aaf127179ebf3f54_1"
+            ],
+            "keys": []
+          },
+          "error": null,
+          "updated_at": "2026-03-12T03:52:24.016921+00:00"
+        }
+      },
+      "doc_89bea188ca82f5b985cd4a28": {
+        "title_page_normalizer": {
+          "role": "title_page_normalizer",
+          "status": "completed",
+          "payload": {
+            "mode": "rules_only",
+            "llm_enabled": false,
+            "llm_model_version": "gpt-4o-mini",
+            "llm_prompt_version": "corpus_title_page_metadata_normalizer_v1",
+            "manual_review_required": false,
+            "source_page_ids": [
+              "d32e76d495ac7d855d805fb71682b98d254520e3799aa4529ebc983212648335_0",
+              "d32e76d495ac7d855d805fb71682b98d254520e3799aa4529ebc983212648335_1"
+            ],
+            "keys": []
+          },
+          "error": null,
+          "updated_at": "2026-03-12T03:52:24.017116+00:00"
+        }
+      },
+      "doc_403be03e9b3ac6a798775795": {
+        "title_page_normalizer": {
+          "role": "title_page_normalizer",
+          "status": "completed",
+          "payload": {
+            "mode": "rules_only",
+            "llm_enabled": false,
+            "llm_model_version": "gpt-4o-mini",
+            "llm_prompt_version": "corpus_title_page_metadata_normalizer_v1",
+            "manual_review_required": true,
+            "source_page_ids": [
+              "f4c4d051d514270964adcf58e124569e396602340b7d9172671759de10a95897_0",
+              "f4c4d051d514270964adcf58e124569e396602340b7d9172671759de10a95897_1"
+            ],
+            "keys": []
+          },
+          "error": null,
+          "updated_at": "2026-03-12T03:52:24.017300+00:00"
+        }
+      },
+      "doc_6ba0a3b33098614383aa16f1": {
+        "title_page_normalizer": {
+          "role": "title_page_normalizer",
+          "status": "completed",
+          "payload": {
+            "mode": "rules_only",
+            "llm_enabled": false,
+            "llm_model_version": "gpt-4o-mini",
+            "llm_prompt_version": "corpus_title_page_metadata_normalizer_v1",
+            "manual_review_required": false,
+            "source_page_ids": [
+              "fbdd7f9dd299d83b1f398778da2e6765dfaaed62005667264734a1f76ec09071_0",
+              "fbdd7f9dd299d83b1f398778da2e6765dfaaed62005667264734a1f76ec09071_1"
+            ],
+            "keys": []
+          },
+          "error": null,
+          "updated_at": "2026-03-12T03:52:24.017474+00:00"
+        }
+      },
+      "doc_af163723209725ea503c74fb": {
+        "title_page_normalizer": {
+          "role": "title_page_normalizer",
+          "status": "completed",
+          "payload": {
+            "mode": "rules_only",
+            "llm_enabled": false,
+            "llm_model_version": "gpt-4o-mini",
+            "llm_prompt_version": "corpus_title_page_metadata_normalizer_v1",
+            "manual_review_required": false,
+            "source_page_ids": [
+              "ff746f7b583490a80ba104361c0a82a1ebbf7ed9097cd03dc49d744cb5057761_0",
+              "ff746f7b583490a80ba104361c0a82a1ebbf7ed9097cd03dc49d744cb5057761_1"
+            ],
+            "keys": []
+          },
+          "error": null,
+          "updated_at": "2026-03-12T03:52:24.017625+00:00"
+        }
+      }
+    },
+    "case_group_stage_runs": {
+      "ca_005_2025": {
+        "case_relation_resolver": {
+          "role": "case_relation_resolver",
+          "status": "completed",
+          "payload": {
+            "mode": "rules_only",
+            "llm_enabled": false,
+            "llm_model_version": "gpt-4o-mini",
+            "llm_prompt_version": "corpus_case_relation_resolver_v1",
+            "case_family_id": "ca_005_2025",
+            "primary_merits_document_id": "doc_c4c399ed255ad2e2fa28db63",
+            "relation_count": 1
+          },
+          "error": null,
+          "updated_at": "2026-03-12T03:52:24.018067+00:00"
+        }
+      },
+      "dec_001_2025": {
+        "case_relation_resolver": {
+          "role": "case_relation_resolver",
+          "status": "completed",
+          "payload": {
+            "mode": "rules_only",
+            "llm_enabled": false,
+            "llm_model_version": "gpt-4o-mini",
+            "llm_prompt_version": "corpus_case_relation_resolver_v1",
+            "case_family_id": "dec_001_2025",
+            "primary_merits_document_id": "doc_8a65cdfd86d4f25ad63b2217",
+            "relation_count": 1
+          },
+          "error": null,
+          "updated_at": "2026-03-12T03:52:24.018084+00:00"
+        }
+      }
+    },
+    "created_at": "2026-03-12T03:52:24.018089+00:00",
+    "updated_at": "2026-03-12T03:52:24.018091+00:00"
+  },
+  "prepare_summary": {
+    "documents": 30,
+    "pages": 590,
+    "paragraphs": 1932,
+    "relation_edges": 1939,
+    "duplicate_documents": 0,
+    "parse_errors": 0,
+    "parse_warnings": 0
+  },
+  "metadata_normalized_doc_count": 30,
+  "case_relation_doc_count": 4,
+  "case_relation_edge_count": 2,
+  "case_relation_edges": [
+    {
+      "edge_id": "edge_57596d02dc22a391a50483f4",
+      "source_object_id": "doc_91a498cabf9d78122aa98b78",
+      "target_object_id": "doc_8a65cdfd86d4f25ad63b2217",
+      "case_family_id": "dec_001_2025",
+      "case_relation_type": "reasons_for",
+      "created_by": "case_relation_resolver"
+    },
+    {
+      "edge_id": "edge_e740753f10040861d89b8175",
+      "source_object_id": "doc_e22d219f8fc82793bf4f31cb",
+      "target_object_id": "doc_c4c399ed255ad2e2fa28db63",
+      "case_family_id": "ca_005_2025",
+      "case_relation_type": "order_for",
+      "created_by": "case_relation_resolver"
+    }
+  ],
+  "case_relation_docs": [
+    {
+      "pdf_id": "1a255edc261961ec64870466a27ac4e25b5ebc2abe298e1b69f8dd2fc27288f6",
+      "document_id": "doc_8a65cdfd86d4f25ad63b2217",
+      "case_family_id": "dec_001_2025",
+      "document_role_confirmed": "judgment",
+      "primary_merits_document_id": "doc_8a65cdfd86d4f25ad63b2217"
+    },
+    {
+      "pdf_id": "3f8a5ea0e051ba3af7a02da340c911fe0970ebece6c852c3e61a10c00cac6d6e",
+      "document_id": "doc_91a498cabf9d78122aa98b78",
+      "case_family_id": "dec_001_2025",
+      "document_role_confirmed": "reasons",
+      "primary_merits_document_id": "doc_8a65cdfd86d4f25ad63b2217"
+    },
+    {
+      "pdf_id": "437568a801115019fe8278385c0484bdf07ab86f9a499ecaba2b7969b37c764b",
+      "document_id": "doc_c4c399ed255ad2e2fa28db63",
+      "case_family_id": "ca_005_2025",
+      "document_role_confirmed": "reasons",
+      "primary_merits_document_id": "doc_c4c399ed255ad2e2fa28db63"
+    },
+    {
+      "pdf_id": "03b621728fe29eb6113fcdb57f6458d793fd2d5c5b833ae26d40f04a29c85359",
+      "document_id": "doc_e22d219f8fc82793bf4f31cb",
+      "case_family_id": "ca_005_2025",
+      "document_role_confirmed": "order",
+      "primary_merits_document_id": "doc_c4c399ed255ad2e2fa28db63"
+    }
+  ]
+}

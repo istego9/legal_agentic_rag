@@ -51,6 +51,10 @@ from services.ingest.case_judgment_router import (
     PROMPT_VERSION as CASE_ROUTER_PROMPT_VERSION,
     choose_router_model,
 )
+from services.ingest.corpus_metadata_normalizer import (
+    NORMALIZATION_PROFILE_VERSION,
+    run_corpus_metadata_normalization,
+)
 from services.ingest.ingest import compact_ingest_diagnostics, run_deterministic_ingest
 
 router = APIRouter(prefix="/v1/corpus", tags=["Corpus"])
@@ -102,6 +106,47 @@ def _merge_enrichment_into_result(result: Dict[str, Any], enrichment: Dict[str, 
     result["paragraphs"] = [
         updated_paragraphs.get(str(item.get("paragraph_id")), item)
         for item in result.get("paragraphs", [])
+    ]
+    result["chunk_search_documents"] = [
+        updated_chunk_projections.get(str(item.get("chunk_id")), item)
+        for item in result.get("chunk_search_documents", [])
+    ]
+    result["relation_edges"] = relation_edges
+
+
+def _merge_metadata_normalization_into_result(result: Dict[str, Any], normalization: Dict[str, Any]) -> None:
+    updated_documents = normalization.get("updated_documents", {})
+    updated_document_bases = normalization.get("updated_document_bases", {})
+    updated_law_docs = normalization.get("updated_law_documents", {})
+    updated_reg_docs = normalization.get("updated_regulation_documents", {})
+    updated_notice_docs = normalization.get("updated_enactment_notice_documents", {})
+    updated_case_docs = normalization.get("updated_case_documents", {})
+    updated_chunk_projections = normalization.get("updated_chunk_projections", {})
+    relation_edges = normalization.get("projected_relation_edges", [])
+
+    result["documents"] = [
+        updated_documents.get(str(item.get("document_id")), item)
+        for item in result.get("documents", [])
+    ]
+    result["document_bases"] = [
+        updated_document_bases.get(str(item.get("document_id")), item)
+        for item in result.get("document_bases", [])
+    ]
+    result["law_documents"] = [
+        updated_law_docs.get(str(item.get("document_id")), item)
+        for item in result.get("law_documents", [])
+    ]
+    result["regulation_documents"] = [
+        updated_reg_docs.get(str(item.get("document_id")), item)
+        for item in result.get("regulation_documents", [])
+    ]
+    result["enactment_notice_documents"] = [
+        updated_notice_docs.get(str(item.get("document_id")), item)
+        for item in result.get("enactment_notice_documents", [])
+    ]
+    result["case_documents"] = [
+        updated_case_docs.get(str(item.get("document_id")), item)
+        for item in result.get("case_documents", [])
     ]
     result["chunk_search_documents"] = [
         updated_chunk_projections.get(str(item.get("chunk_id")), item)
@@ -196,6 +241,20 @@ def _run_import(project_id: Optional[str], blob_url: str, parse_policy: str, ded
         )
         result = ingest_payload["result"]
         diagnostics = compact_ingest_diagnostics(ingest_payload["diagnostics"])
+        metadata_normalization = run_corpus_metadata_normalization(
+            project_id=corpus_project_id,
+            import_job_id=job_id,
+            documents=result.get("documents", []),
+            pages=result.get("pages", []),
+            chunk_search_documents=result.get("chunk_search_documents", []),
+            relation_edges=result.get("relation_edges", []),
+            document_bases=result.get("document_bases", []),
+            law_documents=result.get("law_documents", []),
+            regulation_documents=result.get("regulation_documents", []),
+            enactment_notice_documents=result.get("enactment_notice_documents", []),
+            case_documents=result.get("case_documents", []),
+        )
+        _merge_metadata_normalization_into_result(result, metadata_normalization)
         enrichment = run_agentic_corpus_enrichment(
             project_id=corpus_project_id,
             import_job_id=job_id,
@@ -247,6 +306,7 @@ def _run_import(project_id: Optional[str], blob_url: str, parse_policy: str, ded
         store.import_jobs[job_id]["ingest_diagnostics"] = diagnostics
         store.import_jobs[job_id]["status"] = "completed"
         store.import_jobs[job_id]["processing_profile_version"] = ENRICHMENT_PROFILE_VERSION
+        store.import_jobs[job_id]["metadata_normalization_job"] = metadata_normalization.get("job")
         store.import_jobs[job_id]["enrichment_job"] = enrichment.get("job")
         return {
             "job_id": job_id,
@@ -256,6 +316,8 @@ def _run_import(project_id: Optional[str], blob_url: str, parse_policy: str, ded
             "canonical_chunk_write_enabled": canonical_enabled_for_job,
             "ingest_diagnostics": diagnostics,
             "processing_profile_version": ENRICHMENT_PROFILE_VERSION,
+            "metadata_normalization_profile_version": NORMALIZATION_PROFILE_VERSION,
+            "metadata_normalization_job": metadata_normalization.get("job"),
             "enrichment_job": enrichment.get("job"),
         }
     except Exception:

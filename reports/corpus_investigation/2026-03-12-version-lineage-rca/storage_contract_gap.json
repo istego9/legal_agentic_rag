@@ -1,0 +1,31 @@
+{
+  "pg_document_keys": [
+    "canonical_doc_id",
+    "case_id",
+    "citation_title",
+    "content_hash",
+    "created_at",
+    "doc_type",
+    "document_id",
+    "duplicate_group_id",
+    "edition_date",
+    "law_number",
+    "page_count",
+    "pdf_id",
+    "processing",
+    "project_id",
+    "status",
+    "title",
+    "year"
+  ],
+  "expected_top_level_fields_missing_from_pg_document_rows": [
+    "effective_end_date",
+    "effective_start_date",
+    "extraction_confidence",
+    "is_current_version",
+    "ocr_used",
+    "version_group_id",
+    "version_sequence"
+  ],
+  "present_only_inside_processing_json": []
+}

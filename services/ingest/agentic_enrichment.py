@@ -7,10 +7,11 @@ from collections import Counter, defaultdict
 from datetime import datetime, timezone
 import hashlib
 import json
+import os
 import re
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
-from legal_rag_api.azure_llm import AzureLLMClient
+from legal_rag_api.azure_llm import AzureLLMClient, AzureOpenAIConfig
 
 ENRICHMENT_PROFILE_VERSION = "agentic_corpus_enrichment_v1"
 CHUNK_INTERPRETER_PROMPT_VERSION = "chunk_ontology_frame.v1"
@@ -85,6 +86,27 @@ ACTION_PATTERNS: Tuple[re.Pattern[str], ...] = (
     re.compile(r"\b(shall|must|may|is required to|is prohibited from)\s+([a-z][a-z -]{2,48})", re.I),
     re.compile(r"\b([a-z][a-z -]{2,48})\s+shall\b", re.I),
 )
+
+
+def _env_enabled(name: str, default: bool = True) -> bool:
+    raw = os.getenv(name)
+    if raw is None:
+        return default
+    return str(raw).strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _resolve_enrichment_client() -> AzureLLMClient:
+    if not _env_enabled("AGENTIC_ENRICHMENT_LLM_ENABLED", default=True):
+        return AzureLLMClient(
+            AzureOpenAIConfig(
+                provider="azure",
+                endpoint=None,
+                api_key=None,
+                deployment=None,
+                model=None,
+            )
+        )
+    return AzureLLMClient()
 
 
 def _utcnow() -> datetime:
@@ -655,7 +677,7 @@ def run_agentic_corpus_enrichment(
     page_by_id = {str(item.get("page_id")): item for item in pages}
     doc_by_id = {str(item.get("document_id")): item for item in documents}
     chunk_projection_by_id = {str(item.get("chunk_id")): item for item in chunk_search_documents}
-    client = AzureLLMClient()
+    client = _resolve_enrichment_client()
     target_document_set = {str(item) for item in (target_document_ids or []) if str(item).strip()}
     target_paragraph_set = {str(item) for item in (target_paragraph_ids or []) if str(item).strip()}
     selected_paragraphs = [

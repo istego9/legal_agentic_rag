@@ -1,0 +1,239 @@
+{
+  "before": {
+    "multi_doc_version_group_count": 4,
+    "multi_doc_version_groups": [
+      "case:cfi-",
+      "case:management",
+      "case:no",
+      "law:difc"
+    ],
+    "case_temporal_false_positive_count": 3,
+    "high_risk_count": 30
+  },
+  "after": {
+    "prepare_summary": {
+      "documents": 30,
+      "pages": 590,
+      "paragraphs": 1932,
+      "relation_edges": 1939,
+      "duplicate_documents": 0,
+      "parse_errors": 0,
+      "parse_warnings": 0
+    },
+    "multi_doc_version_group_count": 2,
+    "multi_doc_version_groups": [
+      "case:ca_005_2025",
+      "case:dec_001_2025"
+    ],
+    "case_temporal_false_positive_count": 0,
+    "case_ids": [
+      {
+        "pdf_id": "03b621728fe29eb6113fcdb57f6458d793fd2d5c5b833ae26d40f04a29c85359",
+        "case_id": "CA 005/2025",
+        "version_group_id": "case:ca_005_2025"
+      },
+      {
+        "pdf_id": "0471e83c1ea18086cfb6b3ff51da6f22b0efee337f10315b2593f782297ccb84",
+        "case_id": null,
+        "version_group_id": "0471e83c1ea18086cfb6b3ff51da6f22b0efee337f10315b2593f782297ccb84"
+      },
+      {
+        "pdf_id": "09660f78c26cd56c08c7253ed21ba01fb246092f482ccd8acd8e6f9b6fd2d917",
+        "case_id": null,
+        "version_group_id": "09660f78c26cd56c08c7253ed21ba01fb246092f482ccd8acd8e6f9b6fd2d917"
+      },
+      {
+        "pdf_id": "1a255edc261961ec64870466a27ac4e25b5ebc2abe298e1b69f8dd2fc27288f6",
+        "case_id": "DEC 001/2025",
+        "version_group_id": "case:dec_001_2025"
+      },
+      {
+        "pdf_id": "1b446e196b4d1752241c8ff689a31ea705e98ad0c16b9d343c303664f72b64a1",
+        "case_id": "CFI 057/2025",
+        "version_group_id": "case:cfi_057_2025"
+      },
+      {
+        "pdf_id": "3a574fc4f0baa5ec7ff0dcc822d7c55e4f9c493c24addc217c8df3d848c16fa5",
+        "case_id": null,
+        "version_group_id": "3a574fc4f0baa5ec7ff0dcc822d7c55e4f9c493c24addc217c8df3d848c16fa5"
+      },
+      {
+        "pdf_id": "3f8a5ea0e051ba3af7a02da340c911fe0970ebece6c852c3e61a10c00cac6d6e",
+        "case_id": "DEC 001/2025",
+        "version_group_id": "case:dec_001_2025"
+      },
+      {
+        "pdf_id": "437568a801115019fe8278385c0484bdf07ab86f9a499ecaba2b7969b37c764b",
+        "case_id": "CA 005/2025",
+        "version_group_id": "case:ca_005_2025"
+      },
+      {
+        "pdf_id": "443e04bc1a78940b3fcd5438d24b6c5f182a276d354a3108e738b193675de032",
+        "case_id": "CFI 010/2024",
+        "version_group_id": "case:cfi_010_2024"
+      },
+      {
+        "pdf_id": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2",
+        "case_id": "ENF 269/2023",
+        "version_group_id": "case:enf_269_2023"
+      },
+      {
+        "pdf_id": "6248961b681ea0deb189f354be0c8286f35974dcdb211c13c921c3dd0e566a6e",
+        "case_id": "CFI 016/2025",
+        "version_group_id": "case:cfi_016_2025"
+      },
+      {
+        "pdf_id": "62930da32fa3172edf2f2bbf3da268455bd99a7b5fab34d72358730d8cd5da30",
+        "case_id": null,
+        "version_group_id": "62930da32fa3172edf2f2bbf3da268455bd99a7b5fab34d72358730d8cd5da30"
+      },
+      {
+        "pdf_id": "6306079a16b1dec85690f75c715cdbd78b0685a3e19ee30250d481bc32f2e29a",
+        "case_id": null,
+        "version_group_id": "6306079a16b1dec85690f75c715cdbd78b0685a3e19ee30250d481bc32f2e29a"
+      },
+      {
+        "pdf_id": "78ffe994cdc61ce6a2a6937c79fc52751bb5d2b4eaa4019f088fbccf70569c26",
+        "case_id": "CA 004/2025",
+        "version_group_id": "case:ca_004_2025"
+      },
+      {
+        "pdf_id": "bd2d222ee0a636a745434cfb457321cd658db5bb32b5f0a3f5643236cc1503d8",
+        "case_id": "CA 009/2024",
+        "version_group_id": "case:ca_009_2024"
+      },
+      {
+        "pdf_id": "c98c1475692bc22f4abab6a7a7d7969467c94e46a7e68919aaf127179ebf3f54",
+        "case_id": null,
+        "version_group_id": "c98c1475692bc22f4abab6a7a7d7969467c94e46a7e68919aaf127179ebf3f54"
+      },
+      {
+        "pdf_id": "d32e76d495ac7d855d805fb71682b98d254520e3799aa4529ebc983212648335",
+        "case_id": "CFI 092/2024",
+        "version_group_id": "case:cfi_092_2024"
+      },
+      {
+        "pdf_id": "f4c4d051d514270964adcf58e124569e396602340b7d9172671759de10a95897",
+        "case_id": null,
+        "version_group_id": "f4c4d051d514270964adcf58e124569e396602340b7d9172671759de10a95897"
+      }
+    ],
+    "legislative_law_numbers": [
+      {
+        "pdf_id": "22442c5ee999e2519c68de908be511875a84f2b810ed540c2dcfcbcc65031434",
+        "doc_type": "law",
+        "law_number": "3"
+      },
+      {
+        "pdf_id": "302a0bd8d67775e8dc5960ecec7879be566300d8b32c4b0153ba15ebdb279425",
+        "doc_type": "law",
+        "law_number": "11"
+      },
+      {
+        "pdf_id": "33bc02044716acdfedb164b065bdaec098aaadcae863c591f9931c88e7307d16",
+        "doc_type": "law",
+        "law_number": "2"
+      },
+      {
+        "pdf_id": "4e387152960c1029b3711cacb05b287b13c977bc61f2558059a62b7b427a62eb",
+        "doc_type": "law",
+        "law_number": "4"
+      },
+      {
+        "pdf_id": "536bbce854b9406cc22697e04fcdabd645e030c0e55b918252643b00e0b2b25f",
+        "doc_type": "law",
+        "law_number": "9"
+      },
+      {
+        "pdf_id": "58eae81bf668e7f6c58619f419a49b5e35e2e5c9c7475475ace28ec562580545",
+        "doc_type": "regulation",
+        "law_number": null
+      },
+      {
+        "pdf_id": "72ea171147bf30326fe6fd2e6798f607c7cef4bf9d43761dbccd2f1b6a356849",
+        "doc_type": "law",
+        "law_number": "7"
+      },
+      {
+        "pdf_id": "839de9798f377492eee68f82b202d7cd3544be83d799f6226a02f3678c9bb914",
+        "doc_type": "regulation",
+        "law_number": null
+      },
+      {
+        "pdf_id": "897ab23ed5a70034d3d708d871ad1da8bc7b6608d94b1ca46b5d578d985d3c13",
+        "doc_type": "regulation",
+        "law_number": null
+      },
+      {
+        "pdf_id": "b82ac8228e051d96bf8d706d3251893ebff1c9457b066fce3b7cb99af956f2a7",
+        "doc_type": "law",
+        "law_number": "5"
+      },
+      {
+        "pdf_id": "fbdd7f9dd299d83b1f398778da2e6765dfaaed62005667264734a1f76ec09071",
+        "doc_type": "law",
+        "law_number": "2"
+      },
+      {
+        "pdf_id": "ff746f7b583490a80ba104361c0a82a1ebbf7ed9097cd03dc49d744cb5057761",
+        "doc_type": "law",
+        "law_number": "3"
+      }
+    ]
+  },
+  "delta": {
+    "multi_doc_version_group_count": -2,
+    "case_temporal_false_positive_count": -3
+  },
+  "current_problematic_groups": {
+    "case:ca_005_2025": [
+      {
+        "pdf_id": "03b621728fe29eb6113fcdb57f6458d793fd2d5c5b833ae26d40f04a29c85359",
+        "document_id": "doc_e22d219f8fc82793bf4f31cb",
+        "doc_type": "case",
+        "law_number": null,
+        "case_id": "CA 005/2025",
+        "effective_end_date": null,
+        "is_current_version": true,
+        "version_sequence": 0,
+        "summary": "CA 005/2025 LXT Real Estate Broker L.L.C v S IR Real Estate LLC JANUARY 13, 2026 COURT OF APPEAL - ORDERS Claim No: CA 005/2025 THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS IN THE COURT OF APPEAL BETWEEN LXT REAL ES TATE BROKER L.L.C Claimant and S IR REAL ES TATE LLC Defendan"
+      },
+      {
+        "pdf_id": "437568a801115019fe8278385c0484bdf07ab86f9a499ecaba2b7969b37c764b",
+        "document_id": "doc_c4c399ed255ad2e2fa28db63",
+        "doc_type": "case",
+        "law_number": null,
+        "case_id": "CA 005/2025",
+        "effective_end_date": null,
+        "is_current_version": true,
+        "version_sequence": 0,
+        "summary": "CA 005/2025 LXT Real Estate Broker L.L.C v S IR Real Estate LLC JANUARY 21, 2026 COURT OF APPEAL - ORDERS Claim No: CA 005/2025 THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS IN THE COURT OF APPEAL BEFORE H.E. CHIEF JUSTICE WAYNE MARTIN, H.E. JUSTICE S IR PETER G ROS S AND H.E. "
+      }
+    ],
+    "case:dec_001_2025": [
+      {
+        "pdf_id": "1a255edc261961ec64870466a27ac4e25b5ebc2abe298e1b69f8dd2fc27288f6",
+        "document_id": "doc_8a65cdfd86d4f25ad63b2217",
+        "doc_type": "case",
+        "law_number": null,
+        "case_id": "DEC 001/2025",
+        "effective_end_date": null,
+        "is_current_version": true,
+        "version_sequence": 0,
+        "summary": "Techteryx Ltd v (1) Aria Commodities DM CC (2) M ashreq Bank PSC (3) Emirates Nbd Bank PJSC (4) Abu Dhabi Islamic Bank PJSC [2025] DIFC DEC 001 OCTOBER 17, 2025 DIGITAL ECONOMY COURT - JUDGMENTS Claim No. DEC 001/2025 IN THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS IN THE COUR"
+      },
+      {
+        "pdf_id": "3f8a5ea0e051ba3af7a02da340c911fe0970ebece6c852c3e61a10c00cac6d6e",
+        "document_id": "doc_91a498cabf9d78122aa98b78",
+        "doc_type": "case",
+        "law_number": null,
+        "case_id": "DEC 001/2025",
+        "effective_end_date": null,
+        "is_current_version": true,
+        "version_sequence": 0,
+        "summary": "DEC 001/2025 Techteryx Ltd v (1) Aria Commodities DM CC (2) M ashreq Bank PS C (3) Emirates Nbd Bank PJ S C (4) Abu Dhabi Islamic Bank PJ S C OCTOBER 17, 2025 DIGITAL ECONOMY COURT - ORDERS Claim No. DEC 001/2025 IN THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS IN THE COURT OF "
+      }
+    ]
+  },
+  "current_case_temporal_false_positives": []
+}

@@ -174,3 +174,29 @@ def test_chunk_retry_is_idempotent_for_assertion_identity(monkeypatch) -> None:
 
     assert first["chunk_assertions"][0]["assertion_id"] == second["chunk_assertions"][0]["assertion_id"]
     assert second["job"]["chunk_stage_runs"]["para-1"]["chunk_interpreter"]["status"] == "completed"
+
+
+def test_agentic_enrichment_env_guard_disables_llm_client(monkeypatch) -> None:
+    payload = _fixture_payload()
+
+    class _FakeClient:
+        def __init__(self, config=None) -> None:
+            self.config = config
+
+    monkeypatch.setenv("AGENTIC_ENRICHMENT_LLM_ENABLED", "0")
+    monkeypatch.setattr(enrichment_module, "AzureLLMClient", _FakeClient)
+    monkeypatch.setattr(enrichment_module, "_llm_chunk_frame", lambda client, paragraph: {"modality": "obligation"})
+
+    result = enrichment_module.run_agentic_corpus_enrichment(
+        project_id="proj-1",
+        import_job_id="job-1",
+        documents=payload["documents"],
+        pages=payload["pages"],
+        paragraphs=payload["paragraphs"],
+        chunk_search_documents=payload["chunk_search_documents"],
+        relation_edges=payload["relation_edges"],
+    )
+
+    job = result["job"]
+    assert job["llm_enabled"] is False
+    assert job["llm_model_version"] == "disabled"

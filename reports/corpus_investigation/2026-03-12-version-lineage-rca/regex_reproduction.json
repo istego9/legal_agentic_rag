@@ -1,0 +1,20 @@
+[
+  {
+    "name": "law_header_difc",
+    "input": "FOUNDATIONS LAW DIFC LAW NO.3 OF 2018 Consolidated Version No. 3 (March 2024)",
+    "law_number_extracted": "DIFC",
+    "case_id_extracted": null
+  },
+  {
+    "name": "case_no_with_colon",
+    "input": "Case No: CA 004/2025 THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS",
+    "law_number_extracted": null,
+    "case_id_extracted": "No"
+  },
+  {
+    "name": "claim_no_deterministic_case",
+    "input": "Claim No. DEC 001/2025 IN THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS",
+    "law_number_extracted": "DEC",
+    "case_id_extracted": null
+  }
+]

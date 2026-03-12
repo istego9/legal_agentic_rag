@@ -1,0 +1,1284 @@
+{
+  "run_artifact": "reports/competition_runs/prepare_report.azure_fast_classifier_pg.json",
+  "summary": {
+    "manual_review_count": 15,
+    "manual_review_doc_type_counts": {
+      "case": 11,
+      "law": 2,
+      "regulation": 2
+    },
+    "manual_review_reason_counts": {
+      "missing_case_anchor": 4,
+      "insufficient details for full normalization": 1,
+      "missing_legislative_number": 2
+    },
+    "llm_run_completed": true,
+    "llm_failed_document_count": 0,
+    "rate_limit_retry_count": 7,
+    "token_usage": {
+      "prompt_tokens": 37616,
+      "completion_tokens": 11503,
+      "total_tokens": 49119
+    }
+  },
+  "root_cause_buckets": {
+    "prompt_contract_allows_empty_review_reasons": {
+      "count": 8,
+      "documents": [
+        {
+          "pdf_id": "0471e83c1ea18086cfb6b3ff51da6f22b0efee337f10315b2593f782297ccb84",
+          "document_id": "doc_3c9d17586f055452ae270acd",
+          "doc_type": "case",
+          "title": "Document 0471e83c1ea1",
+          "reasons": [],
+          "case_id": "TCD 001/2024",
+          "law_number": null,
+          "same_case_anchor_candidate": "TCD 001/2024",
+          "compact_summary": "TCD 001/2024 Architeriors Interior Design (L.L.C) v Emirates National Investment Co (L.L.C) JANUARY 29, 2026 TECHNOLOGY AND CONSTRUCTION DIVISION - ORDERS Claim No: TCD 001/2024 IN THE COURTS OF DUBAI INTERNATIONAL FINANCIAL CENTRE IN THE COURT OF APPEAL BETWEEN ARCHITERIORS INTE"
+        },
+        {
+          "pdf_id": "1a255edc261961ec64870466a27ac4e25b5ebc2abe298e1b69f8dd2fc27288f6",
+          "document_id": "doc_8a65cdfd86d4f25ad63b2217",
+          "doc_type": "case",
+          "title": "Techteryx Ltd v (1) Aria Commodities DM CC (2) M ashreq Bank PSC (3) Emirates Nbd Bank PJSC (4) Abu Dhabi Islamic Bank PJSC [2025] DIFC DEC 001 OCTOBER 17, 2025 DIGITAL ECONOMY COURT - JUDGMENTS",
+          "reasons": [],
+          "case_id": "DEC 001/2025",
+          "law_number": null,
+          "same_case_anchor_candidate": "dec_001_2025",
+          "compact_summary": "Techteryx Ltd v (1) Aria Commodities DM CC (2) M ashreq Bank PSC (3) Emirates Nbd Bank PJSC (4) Abu Dhabi Islamic Bank PJSC [2025] DIFC DEC 001 OCTOBER 17, 2025 DIGITAL ECONOMY COURT - JUDGMENTS Claim No. DEC 001/2025 IN THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS IN THE COUR"
+        },
+        {
+          "pdf_id": "1b446e196b4d1752241c8ff689a31ea705e98ad0c16b9d343c303664f72b64a1",
+          "document_id": "doc_87829d12cdda0199021a023a",
+          "doc_type": "case",
+          "title": "Document 1b446e196b4d",
+          "reasons": [],
+          "case_id": "CFI 057/2025",
+          "law_number": null,
+          "same_case_anchor_candidate": "cfi_057_2025",
+          "compact_summary": "CFI 057/2025 Clyde & Co LLP v (1) U nion Properties P.J.S .C. (2) U PP Capital Investment LLC FEBRUARY 02, 2026 COURT OF FIRST INSTANCE - ORDERS Claim No. CFI 057/2025 IN THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS IN THE COURT OF FIRS T INS TANCE BETWEEN CLYDE & CO LLP Claim"
+        },
+        {
+          "pdf_id": "437568a801115019fe8278385c0484bdf07ab86f9a499ecaba2b7969b37c764b",
+          "document_id": "doc_c4c399ed255ad2e2fa28db63",
+          "doc_type": "case",
+          "title": "Document 437568a80111",
+          "reasons": [],
+          "case_id": "CA 005/2025",
+          "law_number": null,
+          "same_case_anchor_candidate": "ca_005_2025",
+          "compact_summary": "CA 005/2025 LXT Real Estate Broker L.L.C v S IR Real Estate LLC JANUARY 21, 2026 COURT OF APPEAL - ORDERS Claim No: CA 005/2025 THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS IN THE COURT OF APPEAL BEFORE H.E. CHIEF JUSTICE WAYNE MARTIN, H.E. JUSTICE S IR PETER G ROS S AND H.E. "
+        },
+        {
+          "pdf_id": "443e04bc1a78940b3fcd5438d24b6c5f182a276d354a3108e738b193675de032",
+          "document_id": "doc_ca612594760e816d1687a257",
+          "doc_type": "case",
+          "title": "Document 443e04bc1a78",
+          "reasons": [],
+          "case_id": "CFI 010/2024",
+          "law_number": null,
+          "same_case_anchor_candidate": "cfi_010_2024",
+          "compact_summary": "CFI 010/2024 Fursa Consulting v Bay Gate Investment LLC JANUARY 23, 2026 COURT OF FIRST INSTANCE - ORDERS Claim No. CFI 010/2024 THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS IN THE COURT OF FIRS T INS TANCE BETWEEN FU RS A CONS U LTING Claimant and BAY GATE INVES TM ENT LLC De"
+        },
+        {
+          "pdf_id": "4e387152960c1029b3711cacb05b287b13c977bc61f2558059a62b7b427a62eb",
+          "document_id": "doc_f043cecc713e1c7d6ef2df5d",
+          "doc_type": "law",
+          "title": "TRUST LAW DIFC LAW NO. 4 OF 2018 Consolidated Version No. 3 (March 2024)",
+          "reasons": [],
+          "case_id": null,
+          "law_number": "4",
+          "same_case_anchor_candidate": null,
+          "compact_summary": "TRUST LAW DIFC LAW NO. 4 OF 2018 Consolidated Version No. 3 (March 2024) As Amended by DIFC Laws Amendment Law DIFC Law No. 3 of 2024 DIFC Laws Amendment Law DIFC Law No. 1 of 2024 DIFC Laws Amendment Law DIFC Law No. 2 of 2022 DIFC Laws Amendment Law DIFC Law No. 8 of 2018 TRUST"
+        },
+        {
+          "pdf_id": "536bbce854b9406cc22697e04fcdabd645e030c0e55b918252643b00e0b2b25f",
+          "document_id": "doc_62806b334bcdedb15705a9b3",
+          "doc_type": "law",
+          "title": "PERSONAL PROPERTY LAW DIFC LAW NO. 9 OF 2005 Consolidated Version (March 2024)",
+          "reasons": [],
+          "case_id": null,
+          "law_number": "9",
+          "same_case_anchor_candidate": null,
+          "compact_summary": "PERSONAL PROPERTY LAW DIFC LAW NO. 9 OF 2005 Consolidated Version (March 2024) As amended by DIFC Laws Amendment Law DIFC Law No. 3 of 2024 DIFC Laws Amendment Law DIFC Law No. 2 of 2022 i PERSONAL PROPERTY LAW CONFIDENTIAL CONTENTS PART 1: GENERAL ..............................."
+        },
+        {
+          "pdf_id": "c98c1475692bc22f4abab6a7a7d7969467c94e46a7e68919aaf127179ebf3f54",
+          "document_id": "doc_7dddb442f8af56a35622e974",
+          "doc_type": "case",
+          "title": "Document c98c1475692b",
+          "reasons": [],
+          "case_id": null,
+          "law_number": null,
+          "same_case_anchor_candidate": null,
+          "compact_summary": "TCD 001/2024 Architeriors Interior Design (L.L.C) V Emirates National Investment Co (L.L.C) DECEMBER 30, 2025 TECHNOLOGY AND CONSTRUCTION DIVISION - ORDERS Claim No: TCD 001/2024 IN THE COURTS OF DUBAI INTERNATIONAL FINANCIAL CENTRE IN THE COURT OF APPEAL BETWEEN ARCHITERIORS INT"
+        }
+      ],
+      "why_it_matters": "manual_review_required=true is persisted without any actionable reason, so review queue quality becomes non-diagnostic.",
+      "code_refs": [
+        "services/ingest/corpus_metadata_normalizer.py:400-431",
+        "services/ingest/corpus_metadata_normalizer.py:751-769",
+        "services/ingest/corpus_metadata_normalizer.py:441-443",
+        "packages/prompts/corpus_title_page_metadata_normalizer_v1.md:16-27"
+      ]
+    },
+    "prompt_output_breaks_anchor_invariants": {
+      "count": 2,
+      "documents": [
+        {
+          "pdf_id": "09660f78c26cd56c08c7253ed21ba01fb246092f482ccd8acd8e6f9b6fd2d917",
+          "document_id": "doc_45ae141f013024a87dbaa035",
+          "doc_type": "case",
+          "title": "Olexa v Odon [2025] DIFC S CT 295",
+          "reasons": [
+            "missing_case_anchor"
+          ],
+          "case_id": "S CT 295/2025",
+          "law_number": "2",
+          "same_case_anchor_candidate": "S CT 295/2025",
+          "compact_summary": "Olexa v Odon [2025] DIFC S CT 295 DECEMBER 10, 2025 SCT - JUDGMENTS AND ORDERS Claim No: S CT 295/2025 THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS IN THE SMALL CLAIM S TRIBU NAL BETWEEN OLEXA Claimant and ODON Defendant ORDER WITH REASONS OF H.E. JUSTICE S APNA J HANG IANI UP"
+        },
+        {
+          "pdf_id": "3a574fc4f0baa5ec7ff0dcc822d7c55e4f9c493c24addc217c8df3d848c16fa5",
+          "document_id": "doc_0fae7096ff0949028093f5e0",
+          "doc_type": "case",
+          "title": "Obasi v Oreana [2025] DIFC S CT 169",
+          "reasons": [
+            "missing_case_anchor"
+          ],
+          "case_id": "S CT 169/2025",
+          "law_number": "2",
+          "same_case_anchor_candidate": "S CT 169/2025",
+          "compact_summary": "Obasi v Oreana [2025] DIFC S CT 169 DECEMBER 24, 2025 SCT - JUDGMENTS AND ORDERS Claim No: S CT 169/2025 THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS IN THE COURT OF FIRS T INS TANCE BETWEEN OBAS I Claimant and OREANA Defendant ORDER WITH REASONS OF H.E. JUSTICE ROG ER S TEW A"
+        }
+      ],
+      "why_it_matters": "The model says missing_case_anchor while simultaneously returning a same_case_anchor_candidate, so review reasons are semantically inconsistent with extracted fields.",
+      "code_refs": [
+        "services/ingest/corpus_metadata_normalizer.py:373-385",
+        "services/ingest/corpus_metadata_normalizer.py:400-431"
+      ]
+    },
+    "real_case_anchor_extraction_gaps_from_noisy_title_pages": {
+      "count": 4,
+      "documents": [
+        {
+          "pdf_id": "58eae81bf668e7f6c58619f419a49b5e35e2e5c9c7475475ace28ec562580545",
+          "document_id": "doc_2b9f5a157b8236874a1407bc",
+          "doc_type": "case",
+          "title": "Ohtli v Onora",
+          "reasons": [
+            "insufficient details for full normalization"
+          ],
+          "case_id": "ARB 034/2025",
+          "law_number": null,
+          "same_case_anchor_candidate": null,
+          "compact_summary": "ARB 034/2025 Ohtli v Onora DECEMBER 19, 2025 ARBITRATION - ORDERS Claim No. ARB 034/2025 IN THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS IN THE COURT OF FIRS T INS TANCE BETWEEN OHTLI Claimant and ONORA Defendant ORDER WITH REASONS OF H.E. JUSTICE S HAM LAN AL S AW ALEHI UPON "
+        },
+        {
+          "pdf_id": "62930da32fa3172edf2f2bbf3da268455bd99a7b5fab34d72358730d8cd5da30",
+          "document_id": "doc_b50860b2eb5f84d1c272984f",
+          "doc_type": "case",
+          "title": "Document 62930da32fa3",
+          "reasons": [
+            "missing_case_anchor"
+          ],
+          "case_id": "TCD 001/2024",
+          "law_number": null,
+          "same_case_anchor_candidate": null,
+          "compact_summary": "TCD 001/2024 Architeriors Interior Design (L.L.C) v Emirates National Investment Co (L.L.C) DECEMBER 03, 2025 TECHNOLOGY AND CONSTRUCTION DIVISION - ORDERS Claim No: TCD 001/2024 IN THE COURTS OF DUBAI INTERNATIONAL FINANCIAL CENTRE IN THE COURT OF FIRS T INS TANCE BETWEEN ARCHIT"
+        },
+        {
+          "pdf_id": "6306079a16b1dec85690f75c715cdbd78b0685a3e19ee30250d481bc32f2e29a",
+          "document_id": "doc_104c8f4e2a35d924744c44a5",
+          "doc_type": "case",
+          "title": "Okpara v Oralee [2025] DIFC S CT 514 JANUARY 07, 2026 SCT - JUDGMENTS AND ORDERS",
+          "reasons": [
+            "missing_case_anchor"
+          ],
+          "case_id": "S CT 514/2025",
+          "law_number": null,
+          "same_case_anchor_candidate": null,
+          "compact_summary": "Okpara v Oralee [2025] DIFC S CT 514 JANUARY 07, 2026 SCT - JUDGMENTS AND ORDERS Claim No: S CT 514/2025 THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS IN THE SMALL CLAIM S TRIBU NAL BETWEEN OKPARA Claimant and ORALEE Defendant ORDER WITH REASONS OF H.E. JUSTICE S APNA J HANG IA"
+        },
+        {
+          "pdf_id": "c98c1475692bc22f4abab6a7a7d7969467c94e46a7e68919aaf127179ebf3f54",
+          "document_id": "doc_7dddb442f8af56a35622e974",
+          "doc_type": "case",
+          "title": "Document c98c1475692b",
+          "reasons": [],
+          "case_id": null,
+          "law_number": null,
+          "same_case_anchor_candidate": null,
+          "compact_summary": "TCD 001/2024 Architeriors Interior Design (L.L.C) V Emirates National Investment Co (L.L.C) DECEMBER 30, 2025 TECHNOLOGY AND CONSTRUCTION DIVISION - ORDERS Claim No: TCD 001/2024 IN THE COURTS OF DUBAI INTERNATIONAL FINANCIAL CENTRE IN THE COURT OF APPEAL BETWEEN ARCHITERIORS INT"
+        }
+      ],
+      "why_it_matters": "These cases still do not produce a stable same_case_anchor_candidate, so relation grouping cannot be trusted for them.",
+      "code_refs": [
+        "services/ingest/corpus_metadata_normalizer.py:348-371",
+        "services/ingest/corpus_metadata_normalizer.py:383-385"
+      ]
+    },
+    "doc_type_confusion_case_vs_regulation": {
+      "count": 2,
+      "documents": [
+        {
+          "pdf_id": "839de9798f377492eee68f82b202d7cd3544be83d799f6226a02f3678c9bb914",
+          "document_id": "doc_a2d6794342380919c3e4dc81",
+          "doc_type": "regulation",
+          "title": "Document 839de9798f37",
+          "reasons": [
+            "missing_legislative_number"
+          ],
+          "case_id": "DEC 001/2025",
+          "law_number": null,
+          "same_case_anchor_candidate": null,
+          "compact_summary": "DEC 001/2025 Techteryx Ltd v (1) Aria Commodities DM CC (2) M ashreq Bank PS C (3) Emirates Nbd Bank PJ S C (4) Abu Dhabi Islamic Bank PJ SCMAY 21, 2025 DIGITAL ECONOMY COURT - ORDERS Claim No. DEC 001/202 IN THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS IN THE COURT OF FIRS T "
+        },
+        {
+          "pdf_id": "897ab23ed5a70034d3d708d871ad1da8bc7b6608d94b1ca46b5d578d985d3c13",
+          "document_id": "doc_20e790a6c3e6369718932814",
+          "doc_type": "regulation",
+          "title": "Order with Reasons of H.E. Justice Shamlan Al Sawalehi",
+          "reasons": [
+            "missing_legislative_number"
+          ],
+          "case_id": "CFI 067/2025",
+          "law_number": null,
+          "same_case_anchor_candidate": null,
+          "compact_summary": "CFI 067/2025 Coinmena B.S.C. (C) v Foloosi Technologies Ltd FEBRUARY 06, 2026 COURT OF FIRST INSTANCE - ORDERS Claim No: CFI 067/2025 IN THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS IN THE COURT OF FIRST INSTANCE BETWEEN COINM ENA B.S.C. (C) Claimant and FOLOOSI TECHNOLOGIES L"
+        }
+      ],
+      "why_it_matters": "Court orders are being normalized as regulations, which turns a case-classification failure into a fake missing_legislative_number review reason.",
+      "code_refs": [
+        "services/ingest/corpus_metadata_normalizer.py:316-332",
+        "services/ingest/corpus_metadata_normalizer.py:348-371",
+        "packages/prompts/corpus_title_page_metadata_normalizer_v1.md:30-39"
+      ]
+    },
+    "mixed_case_regulation_response_shape": {
+      "count": 1,
+      "documents": [
+        {
+          "pdf_id": "58eae81bf668e7f6c58619f419a49b5e35e2e5c9c7475475ace28ec562580545",
+          "document_id": "doc_2b9f5a157b8236874a1407bc",
+          "doc_type": "case",
+          "title": "Ohtli v Onora",
+          "reasons": [
+            "insufficient details for full normalization"
+          ],
+          "case_id": "ARB 034/2025",
+          "law_number": null,
+          "same_case_anchor_candidate": null,
+          "compact_summary": "ARB 034/2025 Ohtli v Onora DECEMBER 19, 2025 ARBITRATION - ORDERS Claim No. ARB 034/2025 IN THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS IN THE COURT OF FIRS T INS TANCE BETWEEN OHTLI Claimant and ONORA Defendant ORDER WITH REASONS OF H.E. JUSTICE S HAM LAN AL S AW ALEHI UPON "
+        }
+      ],
+      "why_it_matters": "The model can emit mutually incompatible type-specific fields and we merge them without schema-level rejection.",
+      "code_refs": [
+        "services/ingest/corpus_metadata_normalizer.py:405-431",
+        "services/ingest/corpus_metadata_normalizer.py:791-803"
+      ]
+    },
+    "placeholder_title_seed_leaks_into_final_metadata": {
+      "count": 7,
+      "documents": [
+        {
+          "pdf_id": "0471e83c1ea18086cfb6b3ff51da6f22b0efee337f10315b2593f782297ccb84",
+          "document_id": "doc_3c9d17586f055452ae270acd",
+          "doc_type": "case",
+          "title": "Document 0471e83c1ea1",
+          "reasons": [],
+          "case_id": "TCD 001/2024",
+          "law_number": null,
+          "same_case_anchor_candidate": "TCD 001/2024",
+          "compact_summary": "TCD 001/2024 Architeriors Interior Design (L.L.C) v Emirates National Investment Co (L.L.C) JANUARY 29, 2026 TECHNOLOGY AND CONSTRUCTION DIVISION - ORDERS Claim No: TCD 001/2024 IN THE COURTS OF DUBAI INTERNATIONAL FINANCIAL CENTRE IN THE COURT OF APPEAL BETWEEN ARCHITERIORS INTE"
+        },
+        {
+          "pdf_id": "1b446e196b4d1752241c8ff689a31ea705e98ad0c16b9d343c303664f72b64a1",
+          "document_id": "doc_87829d12cdda0199021a023a",
+          "doc_type": "case",
+          "title": "Document 1b446e196b4d",
+          "reasons": [],
+          "case_id": "CFI 057/2025",
+          "law_number": null,
+          "same_case_anchor_candidate": "cfi_057_2025",
+          "compact_summary": "CFI 057/2025 Clyde & Co LLP v (1) U nion Properties P.J.S .C. (2) U PP Capital Investment LLC FEBRUARY 02, 2026 COURT OF FIRST INSTANCE - ORDERS Claim No. CFI 057/2025 IN THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS IN THE COURT OF FIRS T INS TANCE BETWEEN CLYDE & CO LLP Claim"
+        },
+        {
+          "pdf_id": "437568a801115019fe8278385c0484bdf07ab86f9a499ecaba2b7969b37c764b",
+          "document_id": "doc_c4c399ed255ad2e2fa28db63",
+          "doc_type": "case",
+          "title": "Document 437568a80111",
+          "reasons": [],
+          "case_id": "CA 005/2025",
+          "law_number": null,
+          "same_case_anchor_candidate": "ca_005_2025",
+          "compact_summary": "CA 005/2025 LXT Real Estate Broker L.L.C v S IR Real Estate LLC JANUARY 21, 2026 COURT OF APPEAL - ORDERS Claim No: CA 005/2025 THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS IN THE COURT OF APPEAL BEFORE H.E. CHIEF JUSTICE WAYNE MARTIN, H.E. JUSTICE S IR PETER G ROS S AND H.E. "
+        },
+        {
+          "pdf_id": "443e04bc1a78940b3fcd5438d24b6c5f182a276d354a3108e738b193675de032",
+          "document_id": "doc_ca612594760e816d1687a257",
+          "doc_type": "case",
+          "title": "Document 443e04bc1a78",
+          "reasons": [],
+          "case_id": "CFI 010/2024",
+          "law_number": null,
+          "same_case_anchor_candidate": "cfi_010_2024",
+          "compact_summary": "CFI 010/2024 Fursa Consulting v Bay Gate Investment LLC JANUARY 23, 2026 COURT OF FIRST INSTANCE - ORDERS Claim No. CFI 010/2024 THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS IN THE COURT OF FIRS T INS TANCE BETWEEN FU RS A CONS U LTING Claimant and BAY GATE INVES TM ENT LLC De"
+        },
+        {
+          "pdf_id": "62930da32fa3172edf2f2bbf3da268455bd99a7b5fab34d72358730d8cd5da30",
+          "document_id": "doc_b50860b2eb5f84d1c272984f",
+          "doc_type": "case",
+          "title": "Document 62930da32fa3",
+          "reasons": [
+            "missing_case_anchor"
+          ],
+          "case_id": "TCD 001/2024",
+          "law_number": null,
+          "same_case_anchor_candidate": null,
+          "compact_summary": "TCD 001/2024 Architeriors Interior Design (L.L.C) v Emirates National Investment Co (L.L.C) DECEMBER 03, 2025 TECHNOLOGY AND CONSTRUCTION DIVISION - ORDERS Claim No: TCD 001/2024 IN THE COURTS OF DUBAI INTERNATIONAL FINANCIAL CENTRE IN THE COURT OF FIRS T INS TANCE BETWEEN ARCHIT"
+        },
+        {
+          "pdf_id": "839de9798f377492eee68f82b202d7cd3544be83d799f6226a02f3678c9bb914",
+          "document_id": "doc_a2d6794342380919c3e4dc81",
+          "doc_type": "regulation",
+          "title": "Document 839de9798f37",
+          "reasons": [
+            "missing_legislative_number"
+          ],
+          "case_id": "DEC 001/2025",
+          "law_number": null,
+          "same_case_anchor_candidate": null,
+          "compact_summary": "DEC 001/2025 Techteryx Ltd v (1) Aria Commodities DM CC (2) M ashreq Bank PS C (3) Emirates Nbd Bank PJ S C (4) Abu Dhabi Islamic Bank PJ SCMAY 21, 2025 DIGITAL ECONOMY COURT - ORDERS Claim No. DEC 001/202 IN THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS IN THE COURT OF FIRS T "
+        },
+        {
+          "pdf_id": "c98c1475692bc22f4abab6a7a7d7969467c94e46a7e68919aaf127179ebf3f54",
+          "document_id": "doc_7dddb442f8af56a35622e974",
+          "doc_type": "case",
+          "title": "Document c98c1475692b",
+          "reasons": [],
+          "case_id": null,
+          "law_number": null,
+          "same_case_anchor_candidate": null,
+          "compact_summary": "TCD 001/2024 Architeriors Interior Design (L.L.C) V Emirates National Investment Co (L.L.C) DECEMBER 30, 2025 TECHNOLOGY AND CONSTRUCTION DIVISION - ORDERS Claim No: TCD 001/2024 IN THE COURTS OF DUBAI INTERNATIONAL FINANCIAL CENTRE IN THE COURT OF APPEAL BETWEEN ARCHITERIORS INT"
+        }
+      ],
+      "why_it_matters": "Synthetic fallback titles like Document <hash> survive into normalized metadata, which weakens reviewability and title-based family matching.",
+      "code_refs": [
+        "services/ingest/corpus_metadata_normalizer.py:281-286",
+        "services/ingest/corpus_metadata_normalizer.py:776-782"
+      ]
+    }
+  },
+  "all_manual_review_documents": [
+    {
+      "document_id": "doc_3c9d17586f055452ae270acd",
+      "pdf_id": "0471e83c1ea18086cfb6b3ff51da6f22b0efee337f10315b2593f782297ccb84",
+      "doc_type": "case",
+      "title": "Document 0471e83c1ea1",
+      "law_number": null,
+      "case_id": "TCD 001/2024",
+      "review": {
+        "manual_review_reasons": [],
+        "manual_review_required": true
+      },
+      "processing_candidates": {
+        "claim_number": "TCD 001/2024",
+        "appeal_number": null,
+        "document_role": "reasons",
+        "same_case_anchor_candidate": "TCD 001/2024"
+      },
+      "type_specific_document": {
+        "court_name": "Dubai International Financial Centre Courts",
+        "case_number": "TCD 001/2024",
+        "court_level": "appellate",
+        "judge_names": [
+          "H.E. Chief Justice Wayne Martin"
+        ],
+        "decision_date": "2026-01-29",
+        "judgment_date": null,
+        "claimant_names": [
+          "Architeriors Interior Design (L.L.C)"
+        ],
+        "appellant_names": [],
+        "defendant_names": [
+          "Emirates National Investment Co (L.L.C)"
+        ],
+        "presiding_judge": "H.E. Chief Justice Wayne Martin",
+        "neutral_citation": null,
+        "procedural_stage": "reasons",
+        "respondent_names": [
+          "Emirates National Investment Co (L.L.C)"
+        ]
+      },
+      "canonical_document": {
+        "doc_type": "case",
+        "language": "unknown",
+        "ocr_used": false,
+        "title_raw": "Document 0471e83c1ea1",
+        "issued_date": "2026-01-29",
+        "short_title": "Document 0471e83c1ea1",
+        "jurisdiction": "unknown",
+        "citation_title": "Document 0471e83c1ea1",
+        "title_normalized": "document 0471e83c1ea1",
+        "effective_end_date": null,
+        "effective_start_date": null,
+        "extraction_confidence": 0.95
+      },
+      "compact_summary": "TCD 001/2024 Architeriors Interior Design (L.L.C) v Emirates National Investment Co (L.L.C) JANUARY 29, 2026 TECHNOLOGY AND CONSTRUCTION DIVISION - ORDERS Claim No: TCD 001/2024 IN THE COURTS OF DUBAI INTERNATIONAL FINANCIAL CENTRE IN THE COURT OF APPEAL BETWEEN ARCHITERIORS INTE",
+      "bucket_flags": {
+        "empty_review_reasons": true,
+        "anchor_reason_conflict": false,
+        "anchor_extraction_gap": false,
+        "doc_type_confusion_case_vs_regulation": false,
+        "mixed_case_regulation_shape": false,
+        "placeholder_title_retained": true
+      }
+    },
+    {
+      "document_id": "doc_45ae141f013024a87dbaa035",
+      "pdf_id": "09660f78c26cd56c08c7253ed21ba01fb246092f482ccd8acd8e6f9b6fd2d917",
+      "doc_type": "case",
+      "title": "Olexa v Odon [2025] DIFC S CT 295",
+      "law_number": "2",
+      "case_id": "S CT 295/2025",
+      "review": {
+        "manual_review_reasons": [
+          "missing_case_anchor"
+        ],
+        "manual_review_required": true
+      },
+      "processing_candidates": {
+        "claim_number": "S CT 295/2025",
+        "appeal_number": null,
+        "document_role": "reasons",
+        "same_case_anchor_candidate": "S CT 295/2025"
+      },
+      "type_specific_document": {
+        "court_name": "Dubai International Financial Centre Courts",
+        "case_number": "S CT 295/2025",
+        "court_level": "Supreme Court",
+        "judge_names": [
+          "H.E. Justice Sapna Jhangiani"
+        ],
+        "decision_date": "2025-01-01",
+        "judgment_date": null,
+        "claimant_names": [
+          "Olexa"
+        ],
+        "appellant_names": [],
+        "defendant_names": [
+          "Odon"
+        ],
+        "presiding_judge": "H.E. Justice Sapna Jhangiani",
+        "neutral_citation": null,
+        "procedural_stage": "reasons",
+        "respondent_names": [
+          "Odon"
+        ]
+      },
+      "canonical_document": {
+        "doc_type": "case",
+        "language": "unknown",
+        "ocr_used": false,
+        "title_raw": "Olexa v Odon [2025] DIFC S CT 295",
+        "issued_date": "2025-01-01",
+        "short_title": "Olexa v Odon",
+        "jurisdiction": "DIFC",
+        "citation_title": "[2025] DIFC S CT 295",
+        "title_normalized": "Olexa v Odon [2025] DIFC S CT 295",
+        "effective_end_date": null,
+        "effective_start_date": null,
+        "extraction_confidence": 0.95
+      },
+      "compact_summary": "Olexa v Odon [2025] DIFC S CT 295 DECEMBER 10, 2025 SCT - JUDGMENTS AND ORDERS Claim No: S CT 295/2025 THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS IN THE SMALL CLAIM S TRIBU NAL BETWEEN OLEXA Claimant and ODON Defendant ORDER WITH REASONS OF H.E. JUSTICE S APNA J HANG IANI UP",
+      "bucket_flags": {
+        "empty_review_reasons": false,
+        "anchor_reason_conflict": true,
+        "anchor_extraction_gap": false,
+        "doc_type_confusion_case_vs_regulation": false,
+        "mixed_case_regulation_shape": false,
+        "placeholder_title_retained": false
+      }
+    },
+    {
+      "document_id": "doc_8a65cdfd86d4f25ad63b2217",
+      "pdf_id": "1a255edc261961ec64870466a27ac4e25b5ebc2abe298e1b69f8dd2fc27288f6",
+      "doc_type": "case",
+      "title": "Techteryx Ltd v (1) Aria Commodities DM CC (2) M ashreq Bank PSC (3) Emirates Nbd Bank PJSC (4) Abu Dhabi Islamic Bank PJSC [2025] DIFC DEC 001 OCTOBER 17, 2025 DIGITAL ECONOMY COURT - JUDGMENTS",
+      "law_number": null,
+      "case_id": "DEC 001/2025",
+      "review": {
+        "manual_review_reasons": [],
+        "manual_review_required": true
+      },
+      "processing_candidates": {
+        "claim_number": "DEC 001/2025",
+        "appeal_number": null,
+        "document_role": "judgment",
+        "same_case_anchor_candidate": "dec_001_2025"
+      },
+      "type_specific_document": {
+        "court_name": null,
+        "case_number": "DEC 001/2025",
+        "court_level": null,
+        "judge_names": [
+          "H.E. Justice Michael Black KC"
+        ],
+        "decision_date": "2025-01-01",
+        "judgment_date": "2025-01-01",
+        "claimant_names": [
+          "Techteryx Ltd"
+        ],
+        "appellant_names": [],
+        "defendant_names": [],
+        "presiding_judge": "H.E. Justice Michael Black KC",
+        "neutral_citation": "DEC 001/2025",
+        "procedural_stage": "judgment",
+        "respondent_names": [
+          "Aria Commodities DM CC",
+          "Mashreq Bank PSC",
+          "Emirates Nbd Bank PJSC",
+          "Abu Dhabi Islamic Bank PJSC"
+        ]
+      },
+      "canonical_document": {
+        "doc_type": "case",
+        "language": "unknown",
+        "ocr_used": false,
+        "title_raw": "Techteryx Ltd v (1) Aria Commodities DM CC (2) M ashreq Bank PSC (3) Emirates Nbd Bank PJSC (4) Abu Dhabi Islamic Bank PJSC [2025] DIFC DEC 001 OCTOBER 17, 2025 DIGITAL ECONOMY COURT - JUDGMENTS",
+        "issued_date": "2025-01-01",
+        "short_title": "Techteryx Ltd v Aria Commodities DM CC et al.",
+        "jurisdiction": "Dubai International Financial Centre Courts",
+        "citation_title": "[2025] DIFC DEC 001",
+        "title_normalized": "Techteryx Ltd v Aria Commodities DM CC et al. [2025] DIFC DEC 001",
+        "effective_end_date": null,
+        "effective_start_date": null,
+        "extraction_confidence": 0.95
+      },
+      "compact_summary": "Techteryx Ltd v (1) Aria Commodities DM CC (2) M ashreq Bank PSC (3) Emirates Nbd Bank PJSC (4) Abu Dhabi Islamic Bank PJSC [2025] DIFC DEC 001 OCTOBER 17, 2025 DIGITAL ECONOMY COURT - JUDGMENTS Claim No. DEC 001/2025 IN THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS IN THE COUR",
+      "bucket_flags": {
+        "empty_review_reasons": true,
+        "anchor_reason_conflict": false,
+        "anchor_extraction_gap": false,
+        "doc_type_confusion_case_vs_regulation": false,
+        "mixed_case_regulation_shape": false,
+        "placeholder_title_retained": false
+      }
+    },
+    {
+      "document_id": "doc_87829d12cdda0199021a023a",
+      "pdf_id": "1b446e196b4d1752241c8ff689a31ea705e98ad0c16b9d343c303664f72b64a1",
+      "doc_type": "case",
+      "title": "Document 1b446e196b4d",
+      "law_number": null,
+      "case_id": "CFI 057/2025",
+      "review": {
+        "manual_review_reasons": [],
+        "manual_review_required": true
+      },
+      "processing_candidates": {
+        "claim_number": "CFI 057/2025",
+        "appeal_number": null,
+        "document_role": "reasons",
+        "same_case_anchor_candidate": "cfi_057_2025"
+      },
+      "type_specific_document": {
+        "court_name": null,
+        "case_number": "CFI 057/2025",
+        "court_level": null,
+        "judge_names": [
+          "H.E. Justice Roger Stewart KC"
+        ],
+        "decision_date": "2026-02-02",
+        "judgment_date": null,
+        "claimant_names": [
+          "Clyde & Co LLP"
+        ],
+        "appellant_names": [],
+        "defendant_names": [
+          "Union Properties P.J.S.C.",
+          "Upp Capital Investment LLC"
+        ],
+        "presiding_judge": null,
+        "neutral_citation": "CFI 057/2025",
+        "procedural_stage": "reasons",
+        "respondent_names": [
+          "Union Properties P.J.S.C.",
+          "Upp Capital Investment LLC"
+        ]
+      },
+      "canonical_document": {
+        "doc_type": "case",
+        "language": "unknown",
+        "ocr_used": false,
+        "title_raw": "Document 1b446e196b4d",
+        "issued_date": "2025-01-01",
+        "short_title": "Document 1b446e196b4d",
+        "jurisdiction": "unknown",
+        "citation_title": "Document 1b446e196b4d",
+        "title_normalized": "document 1b446e196b4d",
+        "effective_end_date": null,
+        "effective_start_date": null,
+        "extraction_confidence": 0.95
+      },
+      "compact_summary": "CFI 057/2025 Clyde & Co LLP v (1) U nion Properties P.J.S .C. (2) U PP Capital Investment LLC FEBRUARY 02, 2026 COURT OF FIRST INSTANCE - ORDERS Claim No. CFI 057/2025 IN THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS IN THE COURT OF FIRS T INS TANCE BETWEEN CLYDE & CO LLP Claim",
+      "bucket_flags": {
+        "empty_review_reasons": true,
+        "anchor_reason_conflict": false,
+        "anchor_extraction_gap": false,
+        "doc_type_confusion_case_vs_regulation": false,
+        "mixed_case_regulation_shape": false,
+        "placeholder_title_retained": true
+      }
+    },
+    {
+      "document_id": "doc_0fae7096ff0949028093f5e0",
+      "pdf_id": "3a574fc4f0baa5ec7ff0dcc822d7c55e4f9c493c24addc217c8df3d848c16fa5",
+      "doc_type": "case",
+      "title": "Obasi v Oreana [2025] DIFC S CT 169",
+      "law_number": "2",
+      "case_id": "S CT 169/2025",
+      "review": {
+        "manual_review_reasons": [
+          "missing_case_anchor"
+        ],
+        "manual_review_required": true
+      },
+      "processing_candidates": {
+        "claim_number": "S CT 169/2025",
+        "appeal_number": null,
+        "document_role": "reasons",
+        "same_case_anchor_candidate": "S CT 169/2025"
+      },
+      "type_specific_document": {
+        "court_name": "DIFC Courts",
+        "case_number": "S CT 169/2025",
+        "court_level": "Small Claims Tribunal",
+        "judge_names": [
+          "H.E. Justice Roger Stewart",
+          "Judge Hayley Norton"
+        ],
+        "decision_date": "2025-01-01",
+        "judgment_date": "2025-10-24",
+        "claimant_names": [
+          "Obasi"
+        ],
+        "appellant_names": [],
+        "defendant_names": [
+          "Oreana"
+        ],
+        "presiding_judge": "H.E. Justice Roger Stewart",
+        "neutral_citation": null,
+        "procedural_stage": "reasons",
+        "respondent_names": [
+          "Oreana"
+        ]
+      },
+      "canonical_document": {
+        "doc_type": "case",
+        "language": "unknown",
+        "ocr_used": false,
+        "title_raw": "Obasi v Oreana [2025] DIFC S CT 169",
+        "issued_date": "2025-01-01",
+        "short_title": "Obasi v Oreana",
+        "jurisdiction": "DIFC",
+        "citation_title": "[2025] DIFC S CT 169",
+        "title_normalized": "obasi v oreana [2025] difc s ct 169",
+        "effective_end_date": null,
+        "effective_start_date": null,
+        "extraction_confidence": 0.95
+      },
+      "compact_summary": "Obasi v Oreana [2025] DIFC S CT 169 DECEMBER 24, 2025 SCT - JUDGMENTS AND ORDERS Claim No: S CT 169/2025 THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS IN THE COURT OF FIRS T INS TANCE BETWEEN OBAS I Claimant and OREANA Defendant ORDER WITH REASONS OF H.E. JUSTICE ROG ER S TEW A",
+      "bucket_flags": {
+        "empty_review_reasons": false,
+        "anchor_reason_conflict": true,
+        "anchor_extraction_gap": false,
+        "doc_type_confusion_case_vs_regulation": false,
+        "mixed_case_regulation_shape": false,
+        "placeholder_title_retained": false
+      }
+    },
+    {
+      "document_id": "doc_c4c399ed255ad2e2fa28db63",
+      "pdf_id": "437568a801115019fe8278385c0484bdf07ab86f9a499ecaba2b7969b37c764b",
+      "doc_type": "case",
+      "title": "Document 437568a80111",
+      "law_number": null,
+      "case_id": "CA 005/2025",
+      "review": {
+        "manual_review_reasons": [],
+        "manual_review_required": true
+      },
+      "processing_candidates": {
+        "claim_number": "CA 005/2025",
+        "appeal_number": "CA 005/2025",
+        "document_role": "reasons",
+        "same_case_anchor_candidate": "ca_005_2025"
+      },
+      "type_specific_document": {
+        "court_name": null,
+        "case_number": "CA 005/2025",
+        "court_level": null,
+        "judge_names": [
+          "H.E. Chief Justice Wayne Martin",
+          "H.E. Justice S IR Peter G Ross",
+          "H.E. Justice Rene Le Mie"
+        ],
+        "decision_date": "2026-01-21",
+        "judgment_date": null,
+        "claimant_names": [
+          "LXT Real Estate Broker L.L.C"
+        ],
+        "appellant_names": [],
+        "defendant_names": [],
+        "presiding_judge": null,
+        "neutral_citation": "CA 005/2025",
+        "procedural_stage": "reasons",
+        "respondent_names": [
+          "S IR Real Estate LLC"
+        ]
+      },
+      "canonical_document": {
+        "doc_type": "case",
+        "language": "unknown",
+        "ocr_used": false,
+        "title_raw": "Document 437568a80111",
+        "issued_date": "2025-01-01",
+        "short_title": "Document 437568a80111",
+        "jurisdiction": "unknown",
+        "citation_title": "Document 437568a80111",
+        "title_normalized": "document 437568a80111",
+        "effective_end_date": null,
+        "effective_start_date": null,
+        "extraction_confidence": 0.95
+      },
+      "compact_summary": "CA 005/2025 LXT Real Estate Broker L.L.C v S IR Real Estate LLC JANUARY 21, 2026 COURT OF APPEAL - ORDERS Claim No: CA 005/2025 THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS IN THE COURT OF APPEAL BEFORE H.E. CHIEF JUSTICE WAYNE MARTIN, H.E. JUSTICE S IR PETER G ROS S AND H.E. ",
+      "bucket_flags": {
+        "empty_review_reasons": true,
+        "anchor_reason_conflict": false,
+        "anchor_extraction_gap": false,
+        "doc_type_confusion_case_vs_regulation": false,
+        "mixed_case_regulation_shape": false,
+        "placeholder_title_retained": true
+      }
+    },
+    {
+      "document_id": "doc_ca612594760e816d1687a257",
+      "pdf_id": "443e04bc1a78940b3fcd5438d24b6c5f182a276d354a3108e738b193675de032",
+      "doc_type": "case",
+      "title": "Document 443e04bc1a78",
+      "law_number": null,
+      "case_id": "CFI 010/2024",
+      "review": {
+        "manual_review_reasons": [],
+        "manual_review_required": true
+      },
+      "processing_candidates": {
+        "claim_number": "CFI 010/2024",
+        "appeal_number": null,
+        "document_role": "reasons",
+        "same_case_anchor_candidate": "cfi_010_2024"
+      },
+      "type_specific_document": {
+        "court_name": null,
+        "case_number": "CFI 010/2024",
+        "court_level": null,
+        "judge_names": [],
+        "decision_date": "2024-01-01",
+        "judgment_date": null,
+        "claimant_names": [],
+        "appellant_names": [],
+        "defendant_names": [],
+        "presiding_judge": null,
+        "neutral_citation": "CFI 010/2024",
+        "procedural_stage": "reasons",
+        "respondent_names": []
+      },
+      "canonical_document": {
+        "doc_type": "case",
+        "language": "unknown",
+        "ocr_used": false,
+        "title_raw": "Document 443e04bc1a78",
+        "issued_date": "2024-01-01",
+        "short_title": "Document 443e04bc1a78",
+        "jurisdiction": "unknown",
+        "citation_title": "Document 443e04bc1a78",
+        "title_normalized": "document 443e04bc1a78",
+        "effective_end_date": null,
+        "effective_start_date": null,
+        "extraction_confidence": 0.95
+      },
+      "compact_summary": "CFI 010/2024 Fursa Consulting v Bay Gate Investment LLC JANUARY 23, 2026 COURT OF FIRST INSTANCE - ORDERS Claim No. CFI 010/2024 THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS IN THE COURT OF FIRS T INS TANCE BETWEEN FU RS A CONS U LTING Claimant and BAY GATE INVES TM ENT LLC De",
+      "bucket_flags": {
+        "empty_review_reasons": true,
+        "anchor_reason_conflict": false,
+        "anchor_extraction_gap": false,
+        "doc_type_confusion_case_vs_regulation": false,
+        "mixed_case_regulation_shape": false,
+        "placeholder_title_retained": true
+      }
+    },
+    {
+      "document_id": "doc_f043cecc713e1c7d6ef2df5d",
+      "pdf_id": "4e387152960c1029b3711cacb05b287b13c977bc61f2558059a62b7b427a62eb",
+      "doc_type": "law",
+      "title": "TRUST LAW DIFC LAW NO. 4 OF 2018 Consolidated Version No. 3 (March 2024)",
+      "law_number": "4",
+      "case_id": null,
+      "review": {
+        "manual_review_reasons": [],
+        "manual_review_required": true
+      },
+      "processing_candidates": {
+        "enabled_by_law_year": null,
+        "enabled_by_law_number": null,
+        "family_anchor_candidate": "trust",
+        "consolidated_version_date": "2024-03-01",
+        "consolidated_version_number": "3"
+      },
+      "type_specific_document": {
+        "law_year": 2018,
+        "law_number": "4",
+        "instrument_kind": "law",
+        "commencement_date": "2018-01-01",
+        "promulgation_date": "2018-01-01",
+        "last_consolidated_date": "2024-03-01",
+        "administering_authority": null
+      },
+      "canonical_document": {
+        "doc_type": "law",
+        "language": "unknown",
+        "ocr_used": false,
+        "title_raw": "TRUST LAW DIFC LAW NO. 4 OF 2018 Consolidated Version No. 3 (March 2024)",
+        "issued_date": "2018-01-01",
+        "short_title": "trust law difc law no. 4 of 2018",
+        "jurisdiction": "difc",
+        "citation_title": "trust law difc law no. 4 of 2018",
+        "title_normalized": "trust law difc law no. 4 of 2018",
+        "effective_end_date": "2024-03-01",
+        "effective_start_date": "2018-01-01",
+        "extraction_confidence": 0.95
+      },
+      "compact_summary": "TRUST LAW DIFC LAW NO. 4 OF 2018 Consolidated Version No. 3 (March 2024) As Amended by DIFC Laws Amendment Law DIFC Law No. 3 of 2024 DIFC Laws Amendment Law DIFC Law No. 1 of 2024 DIFC Laws Amendment Law DIFC Law No. 2 of 2022 DIFC Laws Amendment Law DIFC Law No. 8 of 2018 TRUST",
+      "bucket_flags": {
+        "empty_review_reasons": true,
+        "anchor_reason_conflict": false,
+        "anchor_extraction_gap": false,
+        "doc_type_confusion_case_vs_regulation": false,
+        "mixed_case_regulation_shape": false,
+        "placeholder_title_retained": false
+      }
+    },
+    {
+      "document_id": "doc_62806b334bcdedb15705a9b3",
+      "pdf_id": "536bbce854b9406cc22697e04fcdabd645e030c0e55b918252643b00e0b2b25f",
+      "doc_type": "law",
+      "title": "PERSONAL PROPERTY LAW DIFC LAW NO. 9 OF 2005 Consolidated Version (March 2024)",
+      "law_number": "9",
+      "case_id": null,
+      "review": {
+        "manual_review_reasons": [],
+        "manual_review_required": true
+      },
+      "processing_candidates": {
+        "enabled_by_law_year": null,
+        "enabled_by_law_number": null,
+        "family_anchor_candidate": "personal_property",
+        "consolidated_version_date": "2024-03-01",
+        "consolidated_version_number": null
+      },
+      "type_specific_document": {
+        "law_year": 2005,
+        "law_number": "9",
+        "instrument_kind": "law",
+        "commencement_date": "2005-01-01",
+        "promulgation_date": "2005-01-01",
+        "last_consolidated_date": "2024-03-01",
+        "administering_authority": null
+      },
+      "canonical_document": {
+        "doc_type": "law",
+        "language": "unknown",
+        "ocr_used": false,
+        "title_raw": "PERSONAL PROPERTY LAW DIFC LAW NO. 9 OF 2005 Consolidated Version (March 2024)",
+        "issued_date": "2005-01-01",
+        "short_title": "Personal Property Law DIFC Law No. 9 of 2005",
+        "jurisdiction": "DIFC",
+        "citation_title": "PERSONAL PROPERTY LAW DIFC LAW NO. 9 OF 2005",
+        "title_normalized": "personal property law difc law no. 9 of 2005",
+        "effective_end_date": "2024-01-01",
+        "effective_start_date": "2005-01-01",
+        "extraction_confidence": 0.95
+      },
+      "compact_summary": "PERSONAL PROPERTY LAW DIFC LAW NO. 9 OF 2005 Consolidated Version (March 2024) As amended by DIFC Laws Amendment Law DIFC Law No. 3 of 2024 DIFC Laws Amendment Law DIFC Law No. 2 of 2022 i PERSONAL PROPERTY LAW CONFIDENTIAL CONTENTS PART 1: GENERAL ...............................",
+      "bucket_flags": {
+        "empty_review_reasons": true,
+        "anchor_reason_conflict": false,
+        "anchor_extraction_gap": false,
+        "doc_type_confusion_case_vs_regulation": false,
+        "mixed_case_regulation_shape": false,
+        "placeholder_title_retained": false
+      }
+    },
+    {
+      "document_id": "doc_2b9f5a157b8236874a1407bc",
+      "pdf_id": "58eae81bf668e7f6c58619f419a49b5e35e2e5c9c7475475ace28ec562580545",
+      "doc_type": "case",
+      "title": "Ohtli v Onora",
+      "law_number": null,
+      "case_id": "ARB 034/2025",
+      "review": {
+        "manual_review_reasons": [
+          "insufficient details for full normalization"
+        ],
+        "manual_review_required": true
+      },
+      "processing_candidates": {
+        "enabled_by_law_year": null,
+        "enabled_by_law_number": null,
+        "family_anchor_candidate": null,
+        "consolidated_version_date": null,
+        "consolidated_version_number": null
+      },
+      "type_specific_document": {
+        "status": "resolved",
+        "case_type": "arbitration",
+        "case_year": "2025",
+        "case_number": "ARB 034/2025",
+        "regulation_type": "regulation",
+        "regulation_year": 2025,
+        "issuing_authority": "Dubai International Financial Centre Courts",
+        "regulation_number": null,
+        "is_current_version": false,
+        "enabled_by_law_title": null
+      },
+      "canonical_document": {
+        "doc_type": "case",
+        "language": "unknown",
+        "ocr_used": false,
+        "title_raw": "Ohtli v Onora",
+        "issued_date": "2025-12-19",
+        "short_title": "Ohtli v Onora",
+        "jurisdiction": "Dubai International Financial Centre Courts",
+        "citation_title": "ARB 034/2025",
+        "title_normalized": "Ohtli v Onora",
+        "effective_end_date": null,
+        "effective_start_date": "2025-12-19",
+        "extraction_confidence": 0.95
+      },
+      "compact_summary": "ARB 034/2025 Ohtli v Onora DECEMBER 19, 2025 ARBITRATION - ORDERS Claim No. ARB 034/2025 IN THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS IN THE COURT OF FIRS T INS TANCE BETWEEN OHTLI Claimant and ONORA Defendant ORDER WITH REASONS OF H.E. JUSTICE S HAM LAN AL S AW ALEHI UPON ",
+      "bucket_flags": {
+        "empty_review_reasons": false,
+        "anchor_reason_conflict": false,
+        "anchor_extraction_gap": true,
+        "doc_type_confusion_case_vs_regulation": false,
+        "mixed_case_regulation_shape": true,
+        "placeholder_title_retained": false
+      }
+    },
+    {
+      "document_id": "doc_b50860b2eb5f84d1c272984f",
+      "pdf_id": "62930da32fa3172edf2f2bbf3da268455bd99a7b5fab34d72358730d8cd5da30",
+      "doc_type": "case",
+      "title": "Document 62930da32fa3",
+      "law_number": null,
+      "case_id": "TCD 001/2024",
+      "review": {
+        "manual_review_reasons": [
+          "missing_case_anchor"
+        ],
+        "manual_review_required": true
+      },
+      "processing_candidates": {
+        "claim_number": "TCD 001/2024",
+        "appeal_number": null,
+        "document_role": "reasons",
+        "same_case_anchor_candidate": null
+      },
+      "type_specific_document": {
+        "court_name": "Dubai International Financial Centre Courts",
+        "case_number": "TCD 001/2024",
+        "court_level": "first instance",
+        "judge_names": [
+          "H.E. Justice Roger Stewart"
+        ],
+        "decision_date": "2025-12-03",
+        "judgment_date": "2025-07-31",
+        "claimant_names": [
+          "Architeriors Interior Design (L.L.C)"
+        ],
+        "appellant_names": [],
+        "defendant_names": [
+          "Emirates National Investment Co (L.L.C)"
+        ],
+        "presiding_judge": "H.E. Justice Roger Stewart",
+        "neutral_citation": null,
+        "procedural_stage": "reasons",
+        "respondent_names": [
+          "Emirates National Investment Co (L.L.C)"
+        ]
+      },
+      "canonical_document": {
+        "doc_type": "case",
+        "language": "unknown",
+        "ocr_used": false,
+        "title_raw": "Document 62930da32fa3",
+        "issued_date": "2024-01-01",
+        "short_title": "Document 62930da32fa3",
+        "jurisdiction": "unknown",
+        "citation_title": "Document 62930da32fa3",
+        "title_normalized": "document 62930da32fa3",
+        "effective_end_date": null,
+        "effective_start_date": null,
+        "extraction_confidence": 0.95
+      },
+      "compact_summary": "TCD 001/2024 Architeriors Interior Design (L.L.C) v Emirates National Investment Co (L.L.C) DECEMBER 03, 2025 TECHNOLOGY AND CONSTRUCTION DIVISION - ORDERS Claim No: TCD 001/2024 IN THE COURTS OF DUBAI INTERNATIONAL FINANCIAL CENTRE IN THE COURT OF FIRS T INS TANCE BETWEEN ARCHIT",
+      "bucket_flags": {
+        "empty_review_reasons": false,
+        "anchor_reason_conflict": false,
+        "anchor_extraction_gap": true,
+        "doc_type_confusion_case_vs_regulation": false,
+        "mixed_case_regulation_shape": false,
+        "placeholder_title_retained": true
+      }
+    },
+    {
+      "document_id": "doc_104c8f4e2a35d924744c44a5",
+      "pdf_id": "6306079a16b1dec85690f75c715cdbd78b0685a3e19ee30250d481bc32f2e29a",
+      "doc_type": "case",
+      "title": "Okpara v Oralee [2025] DIFC S CT 514 JANUARY 07, 2026 SCT - JUDGMENTS AND ORDERS",
+      "law_number": null,
+      "case_id": "S CT 514/2025",
+      "review": {
+        "manual_review_reasons": [
+          "missing_case_anchor"
+        ],
+        "manual_review_required": true
+      },
+      "processing_candidates": {
+        "claim_number": "S CT 514/2025",
+        "appeal_number": null,
+        "document_role": "reasons",
+        "same_case_anchor_candidate": null
+      },
+      "type_specific_document": {
+        "court_name": "Dubai International Financial Centre Courts",
+        "case_number": "S CT 514/2025",
+        "court_level": "small claim tribunal",
+        "judge_names": [
+          "H.E. Justice Sapna Jhangiani"
+        ],
+        "decision_date": "2025-01-07",
+        "judgment_date": "2025-11-26",
+        "claimant_names": [
+          "Okpara"
+        ],
+        "appellant_names": [],
+        "defendant_names": [
+          "Oralee"
+        ],
+        "presiding_judge": "H.E. Justice Sapna Jhangiani",
+        "neutral_citation": null,
+        "procedural_stage": "reasons",
+        "respondent_names": [
+          "Oralee"
+        ]
+      },
+      "canonical_document": {
+        "doc_type": "case",
+        "language": "unknown",
+        "ocr_used": false,
+        "title_raw": "Okpara v Oralee [2025] DIFC S CT 514 JANUARY 07, 2026 SCT - JUDGMENTS AND ORDERS",
+        "issued_date": "2026-01-07",
+        "short_title": "Okpara v Oralee",
+        "jurisdiction": "DIFC",
+        "citation_title": "[2025] DIFC S CT 514",
+        "title_normalized": "okpara v oralee 2025-01-07",
+        "effective_end_date": null,
+        "effective_start_date": null,
+        "extraction_confidence": 0.95
+      },
+      "compact_summary": "Okpara v Oralee [2025] DIFC S CT 514 JANUARY 07, 2026 SCT - JUDGMENTS AND ORDERS Claim No: S CT 514/2025 THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS IN THE SMALL CLAIM S TRIBU NAL BETWEEN OKPARA Claimant and ORALEE Defendant ORDER WITH REASONS OF H.E. JUSTICE S APNA J HANG IA",
+      "bucket_flags": {
+        "empty_review_reasons": false,
+        "anchor_reason_conflict": false,
+        "anchor_extraction_gap": true,
+        "doc_type_confusion_case_vs_regulation": false,
+        "mixed_case_regulation_shape": false,
+        "placeholder_title_retained": false
+      }
+    },
+    {
+      "document_id": "doc_a2d6794342380919c3e4dc81",
+      "pdf_id": "839de9798f377492eee68f82b202d7cd3544be83d799f6226a02f3678c9bb914",
+      "doc_type": "regulation",
+      "title": "Document 839de9798f37",
+      "law_number": null,
+      "case_id": "DEC 001/2025",
+      "review": {
+        "manual_review_reasons": [
+          "missing_legislative_number"
+        ],
+        "manual_review_required": true
+      },
+      "processing_candidates": {
+        "enabled_by_law_year": null,
+        "enabled_by_law_number": null,
+        "family_anchor_candidate": null,
+        "consolidated_version_date": null,
+        "consolidated_version_number": null
+      },
+      "type_specific_document": {
+        "status": "in_force",
+        "regulation_type": "regulation",
+        "regulation_year": 2025,
+        "issuing_authority": null,
+        "regulation_number": null,
+        "is_current_version": true,
+        "enabled_by_law_title": null
+      },
+      "canonical_document": {
+        "doc_type": "regulation",
+        "language": "unknown",
+        "ocr_used": false,
+        "title_raw": "Document 839de9798f37",
+        "issued_date": "2025-01-01",
+        "short_title": "Document 839de9798f37",
+        "jurisdiction": "unknown",
+        "citation_title": "Document 839de9798f37",
+        "title_normalized": "document 839de9798f37",
+        "effective_end_date": null,
+        "effective_start_date": "2025-01-01",
+        "extraction_confidence": 0.95
+      },
+      "compact_summary": "DEC 001/2025 Techteryx Ltd v (1) Aria Commodities DM CC (2) M ashreq Bank PS C (3) Emirates Nbd Bank PJ S C (4) Abu Dhabi Islamic Bank PJ SCMAY 21, 2025 DIGITAL ECONOMY COURT - ORDERS Claim No. DEC 001/202 IN THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS IN THE COURT OF FIRS T ",
+      "bucket_flags": {
+        "empty_review_reasons": false,
+        "anchor_reason_conflict": false,
+        "anchor_extraction_gap": false,
+        "doc_type_confusion_case_vs_regulation": true,
+        "mixed_case_regulation_shape": false,
+        "placeholder_title_retained": true
+      }
+    },
+    {
+      "document_id": "doc_20e790a6c3e6369718932814",
+      "pdf_id": "897ab23ed5a70034d3d708d871ad1da8bc7b6608d94b1ca46b5d578d985d3c13",
+      "doc_type": "regulation",
+      "title": "Order with Reasons of H.E. Justice Shamlan Al Sawalehi",
+      "law_number": null,
+      "case_id": "CFI 067/2025",
+      "review": {
+        "manual_review_reasons": [
+          "missing_legislative_number"
+        ],
+        "manual_review_required": true
+      },
+      "processing_candidates": {
+        "enabled_by_law_year": null,
+        "enabled_by_law_number": null,
+        "family_anchor_candidate": null,
+        "consolidated_version_date": null,
+        "consolidated_version_number": null
+      },
+      "type_specific_document": {
+        "status": "in_force",
+        "regulation_type": "court order",
+        "regulation_year": 2026,
+        "issuing_authority": "H.E. Justice Shamlan Al Sawalehi",
+        "regulation_number": null,
+        "is_current_version": true,
+        "enabled_by_law_title": null
+      },
+      "canonical_document": {
+        "doc_type": "regulation",
+        "language": "unknown",
+        "ocr_used": false,
+        "title_raw": "Order with Reasons of H.E. Justice Shamlan Al Sawalehi",
+        "issued_date": "2026-02-06",
+        "short_title": "Order Shamlan Al Sawalehi",
+        "jurisdiction": "Dubai International Financial Centre Courts",
+        "citation_title": "Order Shamlan Al Sawalehi",
+        "title_normalized": "order of shamlan al sawalehi",
+        "effective_end_date": null,
+        "effective_start_date": "2026-02-06",
+        "extraction_confidence": 0.95
+      },
+      "compact_summary": "CFI 067/2025 Coinmena B.S.C. (C) v Foloosi Technologies Ltd FEBRUARY 06, 2026 COURT OF FIRST INSTANCE - ORDERS Claim No: CFI 067/2025 IN THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS IN THE COURT OF FIRST INSTANCE BETWEEN COINM ENA B.S.C. (C) Claimant and FOLOOSI TECHNOLOGIES L",
+      "bucket_flags": {
+        "empty_review_reasons": false,
+        "anchor_reason_conflict": false,
+        "anchor_extraction_gap": false,
+        "doc_type_confusion_case_vs_regulation": true,
+        "mixed_case_regulation_shape": false,
+        "placeholder_title_retained": false
+      }
+    },
+    {
+      "document_id": "doc_7dddb442f8af56a35622e974",
+      "pdf_id": "c98c1475692bc22f4abab6a7a7d7969467c94e46a7e68919aaf127179ebf3f54",
+      "doc_type": "case",
+      "title": "Document c98c1475692b",
+      "law_number": null,
+      "case_id": null,
+      "review": {
+        "manual_review_reasons": [],
+        "manual_review_required": true
+      },
+      "processing_candidates": {
+        "claim_number": "TCD 001/2024",
+        "appeal_number": null,
+        "document_role": "reasons",
+        "same_case_anchor_candidate": null
+      },
+      "type_specific_document": {
+        "court_name": null,
+        "case_number": null,
+        "court_level": null,
+        "judge_names": [
+          "H.E. Chief Justice Wayne Martin",
+          "H.E. Justice Roger Stewart"
+        ],
+        "decision_date": "2025-12-30",
+        "judgment_date": null,
+        "claimant_names": [
+          "Architeriors Interior Design (L.L.C)"
+        ],
+        "appellant_names": [],
+        "defendant_names": [
+          "Emirates National Investment Co (L.L.C)"
+        ],
+        "presiding_judge": null,
+        "neutral_citation": null,
+        "procedural_stage": "reasons",
+        "respondent_names": [
+          "Emirates National Investment Co (L.L.C)"
+        ]
+      },
+      "canonical_document": {
+        "doc_type": "case",
+        "language": "unknown",
+        "ocr_used": false,
+        "title_raw": "Document c98c1475692b",
+        "issued_date": "2024-01-01",
+        "short_title": "Document c98c1475692b",
+        "jurisdiction": "unknown",
+        "citation_title": "Document c98c1475692b",
+        "title_normalized": "document c98c1475692b",
+        "effective_end_date": null,
+        "effective_start_date": null,
+        "extraction_confidence": 0.95
+      },
+      "compact_summary": "TCD 001/2024 Architeriors Interior Design (L.L.C) V Emirates National Investment Co (L.L.C) DECEMBER 30, 2025 TECHNOLOGY AND CONSTRUCTION DIVISION - ORDERS Claim No: TCD 001/2024 IN THE COURTS OF DUBAI INTERNATIONAL FINANCIAL CENTRE IN THE COURT OF APPEAL BETWEEN ARCHITERIORS INT",
+      "bucket_flags": {
+        "empty_review_reasons": true,
+        "anchor_reason_conflict": false,
+        "anchor_extraction_gap": true,
+        "doc_type_confusion_case_vs_regulation": false,
+        "mixed_case_regulation_shape": false,
+        "placeholder_title_retained": true
+      }
+    }
+  ]
+}

@@ -82,6 +82,23 @@ _OCR_SPLIT_WORD_ALLOWLIST: frozenset[str] = frozenset(
 _OCR_JOIN_BLOCKLIST: frozenset[str] = frozenset({"A", "I", "IN", "NO", "OF", "ON", "OR", "THE", "TO", "V", "X"})
 _MULTI_SINGLE_WITH_SUFFIX_PATTERN = re.compile(r"\b((?:[A-Z]\s+){2,})([A-Z]{2,6})\b")
 _SINGLE_PLUS_SHORT_PATTERN = re.compile(r"\b([A-Z])\s+([A-Z]{2,6})\b")
+_LEGISLATIVE_DOC_TYPES: frozenset[str] = frozenset({"law", "regulation", "enactment_notice"})
+_CASE_ID_FALLBACK_PATTERN = re.compile(
+    r"\b((?:CA|CFI|DEC|ARB|ENF)\s+\d{1,4}/(?:19|20)\d{2}(?:/\d+)?|"
+    r"(?:CA|CFI|DEC|ARB|ENF)-\d{1,4}-(?:19|20)\d{2}(?:/\d+)?)\b",
+    flags=re.IGNORECASE,
+)
+_STRONG_CASE_ID_PATTERN = re.compile(
+    r"^(?:"
+    r"(?:CA|CFI|DEC|ARB|ENF)\s+\d{1,4}/(?:19|20)\d{2}(?:/\d+)?|"
+    r"(?:CA|CFI|DEC|ARB|ENF)-\d{1,4}-(?:19|20)\d{2}(?:/\d+)?"
+    r")$",
+    flags=re.IGNORECASE,
+)
+_LAW_NUMBER_STOPWORDS: frozenset[str] = frozenset({"law", "act", "code", "no", "of", "the", "and"})
+_LEGISLATIVE_ANCHOR_STOPWORDS: frozenset[str] = frozenset(
+    {"law", "laws", "act", "acts", "code", "codes", "difc", "of", "the", "and", "on", "in"}
+)
 
 
 def _join_if_allowlisted(left: str, right: str) -> str:
@@ -446,28 +463,62 @@ def _extract_year(text: str) -> int | None:
     return int(match.group(1))
 
 
+def _normalize_case_identifier(candidate: str) -> str:
+    normalized = re.sub(r"\s+", " ", candidate.strip().upper())
+    normalized = re.sub(r"\s*/\s*", "/", normalized)
+    normalized = re.sub(r"\s*-\s*", "-", normalized)
+    return normalized
+
+
+def _looks_like_strong_case_identifier(candidate: str) -> bool:
+    return bool(_STRONG_CASE_ID_PATTERN.fullmatch(_normalize_case_identifier(candidate)))
+
+
 def _extract_law_number(text: str) -> str | None:
     text = text.replace("_", " ")
-    match = re.search(
-        r"(?i)(?:law|act|code)\s*(?:no\.?|№)?\s*([A-Za-z0-9./-]{1,24})|(?:no\.?|№)\s*([A-Za-z0-9./-]{1,24})",
-        text,
+    patterns = (
+        re.compile(
+            r"(?i)\b(?:law|act|code)\b(?:[^\n]{0,48}?)\b(?:no\.?|№)\s*([A-Za-z0-9./-]{1,24})"
+        ),
+        re.compile(
+            r"(?i)\b(?:law|act|code)\b\s+([A-Za-z0-9./-]{1,24})\s+of\s+(?:19|20)\d{2}\b"
+        ),
     )
-    if not match:
-        return None
-    candidate = match.group(1) or match.group(2)
-    if not candidate:
-        return None
-    return candidate.strip()
+    for pattern in patterns:
+        for match in pattern.finditer(text):
+            candidate = str(match.group(1) or "").strip(" \t\r\n.,:;()[]{}")
+            if not candidate:
+                continue
+            if candidate.lower() in _LAW_NUMBER_STOPWORDS:
+                continue
+            if not re.search(r"\d", candidate):
+                continue
+            if len(candidate) == 1 and not candidate.isdigit():
+                continue
+            return candidate
+    return None
 
 
 def _extract_case_id(text: str) -> str | None:
-    match = re.search(r"(?i)(?:case|дело)\s*(?:no\.?|№)?\s*([A-Za-z0-9][A-Za-z0-9./-]{1,31})", text)
-    if not match:
-        return None
-    candidate = match.group(1).strip()
-    if candidate.lower().endswith(".pdf"):
-        return None
-    return candidate
+    text = text.replace("_", " ")
+    patterns = (
+        re.compile(
+            r"(?i)\b(?:claim|case|appeal)\s+no\.?\s*:?\s*"
+            r"((?:[A-Za-z]{2,6}\s+\d{1,4}/(?:19|20)\d{2}(?:/\d+)?)|"
+            r"(?:[A-Za-z]{2,6}-\d{1,4}-(?:19|20)\d{2}(?:/\d+)?))"
+        ),
+        _CASE_ID_FALLBACK_PATTERN,
+    )
+    for pattern in patterns:
+        match = pattern.search(text)
+        if not match:
+            continue
+        candidate = _normalize_case_identifier(match.group(1))
+        if candidate.lower().endswith(".pdf"):
+            continue
+        if _looks_like_strong_case_identifier(candidate):
+            return candidate
+    return None
 
 
 def _compact_summary(text: str, fallback_title: str) -> str:
@@ -601,6 +652,30 @@ def _is_current_from_end_date(effective_end_date: str | None) -> bool:
     return parsed >= date.today()
 
 
+def _uses_legislative_temporal_semantics(doc_type: str) -> bool:
+    return doc_type in _LEGISLATIVE_DOC_TYPES
+
+
+def _extract_legislative_family_anchor(text: str) -> str | None:
+    source = re.sub(r"\s+", " ", text.replace("_", " ")).strip()
+    if not source:
+        return None
+    match = re.search(r"(?i)\b(?:law|act|code)\s+no\.?\s*[A-Za-z0-9./-]{1,24}\b", source)
+    if not match:
+        return None
+    prefix = source[: match.start()].strip(" -:;,.")
+    if not prefix:
+        return None
+    tokens = [
+        token.lower()
+        for token in re.findall(r"[A-Za-z]{2,}", prefix)
+        if token.lower() not in _LEGISLATIVE_ANCHOR_STOPWORDS
+    ]
+    if not tokens:
+        return None
+    return "_".join(tokens[-8:])
+
+
 def _resolve_duplicate_group_id(
     *,
     dedupe_enabled: bool,
@@ -628,13 +703,17 @@ def _resolve_version_group_id(
     law_number: str | None,
     case_id: str | None,
     pdf_id: str,
+    summary_text: str = "",
 ) -> str:
-    if doc_type in {"law", "regulation", "enactment_notice"} and law_number:
+    if doc_type in _LEGISLATIVE_DOC_TYPES and law_number:
+        family_anchor = _extract_legislative_family_anchor(summary_text)
         normalized = re.sub(r"[^A-Za-z0-9._-]+", "_", law_number.strip().lower()).strip("_")
         if normalized:
+            if family_anchor:
+                return f"{doc_type}:{family_anchor}:{normalized}"
             return f"{doc_type}:{normalized}"
-    if doc_type == "case" and case_id:
-        normalized = re.sub(r"[^A-Za-z0-9._-]+", "_", case_id.strip().lower()).strip("_")
+    if doc_type == "case" and case_id and _looks_like_strong_case_identifier(case_id):
+        normalized = re.sub(r"[^A-Za-z0-9._-]+", "_", _normalize_case_identifier(case_id).lower()).strip("_")
         if normalized:
             return f"{doc_type}:{normalized}"
     return pdf_id
@@ -659,6 +738,8 @@ def _apply_family_versioning(documents: List[Dict[str, Any]], document_bases: Li
     base_by_id = {str(row.get("document_id")): row for row in document_bases}
     families: Dict[str, List[Dict[str, Any]]] = {}
     for row in documents:
+        if not _uses_legislative_temporal_semantics(str(row.get("doc_type", ""))):
+            continue
         family_id = str(row.get("version_group_id") or "")
         if not family_id:
             continue
@@ -776,6 +857,7 @@ def ingest_zip_stub(blob_url: str, project_id: str, parse_policy: str, dedupe_en
             refs_source = f"{member} {preview_text}".strip() if preview_text else member
             refs = _extract_refs(refs_source)
             doc_type, classification_confidence = _infer_doc_type(member, preview_text)
+            uses_legislative_temporal = _uses_legislative_temporal_semantics(doc_type)
             if low_quality_text and not has_structured_legal_text:
                 classification_confidence = min(classification_confidence, 0.25)
             year = _extract_year(f"{member} {preview_text}")
@@ -783,10 +865,20 @@ def ingest_zip_stub(blob_url: str, project_id: str, parse_policy: str, dedupe_en
             case_id = _extract_case_id(f"{member} {preview_text}")
             temporal_source = f"{member} {preview_text}"
             issued_date = _first_date(refs["dates"])
-            effective_start_date = _extract_effective_start_date(temporal_source, refs["dates"])
-            effective_end_date = _extract_effective_end_date(temporal_source, refs["dates"])
-            is_current_version = _is_current_from_end_date(effective_end_date)
-            historical_relation_type = "repealed" if effective_end_date and not is_current_version else "original"
+            effective_start_date = (
+                _extract_effective_start_date(temporal_source, refs["dates"])
+                if uses_legislative_temporal
+                else None
+            )
+            effective_end_date = (
+                _extract_effective_end_date(temporal_source, refs["dates"])
+                if uses_legislative_temporal
+                else None
+            )
+            is_current_version = _is_current_from_end_date(effective_end_date) if uses_legislative_temporal else True
+            historical_relation_type = (
+                "repealed" if uses_legislative_temporal and effective_end_date and not is_current_version else "original"
+            )
             ontology = _build_ontology(doc_type, title, refs, year, law_number, case_id)
             summary_source = preview_text
             tags = _uniq(
@@ -824,6 +916,7 @@ def ingest_zip_stub(blob_url: str, project_id: str, parse_policy: str, dedupe_en
                 law_number=law_number,
                 case_id=case_id,
                 pdf_id=pdf_id,
+                summary_text=preview_text,
             )
 
             document_manifest = {
@@ -1042,9 +1135,17 @@ def ingest_zip_stub(blob_url: str, project_id: str, parse_policy: str, dedupe_en
                 page_ref_source = safe_page_text if safe_page_text else member
                 page_refs = _extract_refs(page_ref_source)
                 page_temporal_source = f"{member} {safe_page_text}"
-                page_effective_start_date = _extract_effective_start_date(page_temporal_source, page_refs["dates"]) or effective_start_date
-                page_effective_end_date = _extract_effective_end_date(page_temporal_source, page_refs["dates"]) or effective_end_date
-                page_is_current_version = _is_current_from_end_date(page_effective_end_date)
+                page_effective_start_date = (
+                    _extract_effective_start_date(page_temporal_source, page_refs["dates"]) or effective_start_date
+                    if uses_legislative_temporal
+                    else None
+                )
+                page_effective_end_date = (
+                    _extract_effective_end_date(page_temporal_source, page_refs["dates"]) or effective_end_date
+                    if uses_legislative_temporal
+                    else None
+                )
+                page_is_current_version = _is_current_from_end_date(page_effective_end_date) if uses_legislative_temporal else True
                 pages.append(
                     {
                         "page_id": page_id,
@@ -1083,10 +1184,22 @@ def ingest_zip_stub(blob_url: str, project_id: str, parse_policy: str, dedupe_en
                 for chunk in paragraph_chunks:
                     chunk_refs = _extract_refs(chunk)
                     chunk_temporal_source = f"{member} {chunk}"
-                    chunk_effective_start_date = _extract_effective_start_date(chunk_temporal_source, chunk_refs["dates"]) or page_effective_start_date
-                    chunk_effective_end_date = _extract_effective_end_date(chunk_temporal_source, chunk_refs["dates"]) or page_effective_end_date
-                    chunk_is_current_version = _is_current_from_end_date(chunk_effective_end_date)
-                    chunk_historical_relation_type = "repealed" if chunk_effective_end_date and not chunk_is_current_version else historical_relation_type
+                    chunk_effective_start_date = (
+                        _extract_effective_start_date(chunk_temporal_source, chunk_refs["dates"]) or page_effective_start_date
+                        if uses_legislative_temporal
+                        else None
+                    )
+                    chunk_effective_end_date = (
+                        _extract_effective_end_date(chunk_temporal_source, chunk_refs["dates"]) or page_effective_end_date
+                        if uses_legislative_temporal
+                        else None
+                    )
+                    chunk_is_current_version = _is_current_from_end_date(chunk_effective_end_date) if uses_legislative_temporal else True
+                    chunk_historical_relation_type = (
+                        "repealed"
+                        if uses_legislative_temporal and chunk_effective_end_date and not chunk_is_current_version
+                        else historical_relation_type
+                    )
                     paragraph_class = "case_excerpt" if doc_type == "case" else "article_clause" if chunk_refs["article_refs"] else "body"
                     paragraph_id = _stable_id(
                         "para",

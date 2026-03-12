@@ -1,0 +1,161 @@
+{
+  "bundle_name": "2026-03-12-version-lineage-rca.zip",
+  "generated_at_utc": "2026-03-12T05:59:31.238209+00:00",
+  "files": [
+    {
+      "path": "reports/corpus_investigation/2026-03-12-version-lineage-rca/README.md",
+      "size_bytes": 4546,
+      "sha256": "e79c3712e4b84af54be450bbb843375408d4872deefa44be12e56a2c46cff60c"
+    },
+    {
+      "path": "reports/corpus_investigation/2026-03-12-version-lineage-rca/problem_report.md",
+      "size_bytes": 5603,
+      "sha256": "047f419a876b336bd18379253406a5b48d07df6fdf2e0d3c864412741fa6325d"
+    },
+    {
+      "path": "reports/corpus_investigation/2026-03-12-version-lineage-rca/prompt_specs.md",
+      "size_bytes": 19616,
+      "sha256": "9755fd8f99ecd5a9757ae5fe418cd090245b7ec7154b63cf684fb05d744b53fd"
+    },
+    {
+      "path": "reports/corpus_investigation/2026-03-12-version-lineage-rca/evidence_summary.json",
+      "size_bytes": 2358,
+      "sha256": "1e64a4ef122c2603b22cb3746780c45a45c260104243d9ba07b8b2e0f44e32cd"
+    },
+    {
+      "path": "reports/corpus_investigation/2026-03-12-version-lineage-rca/problematic_version_groups.json",
+      "size_bytes": 15696,
+      "sha256": "e2a3e0f3f009c1e9d7474af2fc330e07e9096c0089babf79b7ca1e2160f1a75d"
+    },
+    {
+      "path": "reports/corpus_investigation/2026-03-12-version-lineage-rca/high_risk_docs.json",
+      "size_bytes": 20822,
+      "sha256": "ba420f4d8cf00290abc88f00a75a6af5916adc619629ea749df979a5d3422c8d"
+    },
+    {
+      "path": "reports/corpus_investigation/2026-03-12-version-lineage-rca/regex_reproduction.json",
+      "size_bytes": 601,
+      "sha256": "a912d997f967d42af205e89d0cc99d4342894152b4ad4f321f7efa62816a4102"
+    },
+    {
+      "path": "reports/corpus_investigation/2026-03-12-version-lineage-rca/temporal_false_positive_samples.json",
+      "size_bytes": 1969,
+      "sha256": "35055cd880dfdeae34cb629aa277b2a54b67f63939df30f33ab57ca31734ef87"
+    },
+    {
+      "path": "reports/corpus_investigation/2026-03-12-version-lineage-rca/document_samples.json",
+      "size_bytes": 8684,
+      "sha256": "4e34445a0aeb193efe7304811c07fc182b72226702e5a1e8c9b2a40b13211f09"
+    },
+    {
+      "path": "reports/corpus_investigation/2026-03-12-version-lineage-rca/storage_contract_gap.json",
+      "size_bytes": 620,
+      "sha256": "779802e79708335f355aaeca93259da868b4f3d419a0e777bfe2b348162ec6bf"
+    },
+    {
+      "path": "reports/corpus_investigation/2026-03-12-version-lineage-rca/deterministic_fixes_eval.json",
+      "size_bytes": 9087,
+      "sha256": "d808a81efbdcc6c620376a75c1ee2cd6b2093ffc80cf495d1367dade9ea029cc"
+    },
+    {
+      "path": "reports/corpus_investigation/2026-03-12-version-lineage-rca/deterministic_fixes_eval.md",
+      "size_bytes": 1737,
+      "sha256": "918a5b7db0aacafa93595252aefb5263b56a165f82e434802f92c40fb9466f0b"
+    },
+    {
+      "path": "reports/corpus_investigation/2026-03-12-version-lineage-rca/metadata_normalizer_eval.json",
+      "size_bytes": 27580,
+      "sha256": "d03fceb265a30cbe0defe8d58501c9e0d9057b237b06c5a67c485f627c407e60"
+    },
+    {
+      "path": "reports/corpus_investigation/2026-03-12-version-lineage-rca/metadata_normalizer_eval.md",
+      "size_bytes": 498,
+      "sha256": "99ba01f585f353ee4341bcf2e2c8d92702cbfd36c9d06a4d6c26f806af0048a0"
+    },
+    {
+      "path": "reports/corpus_investigation/2026-03-12-version-lineage-rca/azure_fast_classifier_eval.json",
+      "size_bytes": 39566,
+      "sha256": "c368d78d1b0b65b14e96d12862fe1c64a5adf1d62596c872f477402ed2ef5646"
+    },
+    {
+      "path": "reports/corpus_investigation/2026-03-12-version-lineage-rca/azure_fast_classifier_eval.md",
+      "size_bytes": 741,
+      "sha256": "bb8e5f16612b2b928c07cad1424831ffbe6a61da3d3ffecd1e592173ddcdbf76"
+    },
+    {
+      "path": "reports/corpus_investigation/2026-03-12-version-lineage-rca/azure_fast_classifier_hardened_eval.json",
+      "size_bytes": 37355,
+      "sha256": "994e12e47eb13c7106ae31670e196f3e3a762b9ffbdd1c94829a1eec4e703403"
+    },
+    {
+      "path": "reports/corpus_investigation/2026-03-12-version-lineage-rca/azure_fast_classifier_hardened_eval.md",
+      "size_bytes": 775,
+      "sha256": "2dbafdbc56d86ed0b5b8e9ebadf5ab37343c315eb6986c10a0a42cc00d904638"
+    },
+    {
+      "path": "reports/corpus_investigation/2026-03-12-version-lineage-rca/azure_typed_prompts_eval.json",
+      "size_bytes": 36351,
+      "sha256": "3a0b328abb0dd63e5ff4eb260c884ff34ca2194bf1a8ee8cef3f1009dd0ad076"
+    },
+    {
+      "path": "reports/corpus_investigation/2026-03-12-version-lineage-rca/azure_typed_prompts_eval.md",
+      "size_bytes": 670,
+      "sha256": "c2dcadfdcb167205fbff3a3007b576f0ffdb613f2ba357d1415bdb17108bdffa"
+    },
+    {
+      "path": "reports/corpus_investigation/2026-03-12-version-lineage-rca/manual_review_rca.json",
+      "size_bytes": 56698,
+      "sha256": "7640721fe86c5f05758c2fd3d7f34d6c28a16681c9d442ce6997dd371a633664"
+    },
+    {
+      "path": "reports/corpus_investigation/2026-03-12-version-lineage-rca/manual_review_rca.md",
+      "size_bytes": 10989,
+      "sha256": "572c30ac2450d97a0f3567272dcfe661863d50098fac3cc03944c0c864451211"
+    },
+    {
+      "path": "reports/corpus_investigation/2026-03-12-version-lineage-rca/typed_prompt_redesign.md",
+      "size_bytes": 9041,
+      "sha256": "d5d5f5d04ebf6149e8c185284b93116d37e1634e98234ad5b85acdb1da013285"
+    },
+    {
+      "path": "docs/exec-plans/active/2026-03-12-corpus-version-lineage-hardening.md",
+      "size_bytes": 6915,
+      "sha256": "b334dd39533323490281280c13a1df0546e2d1720e5aa36cd3c0afa45f2350e4"
+    },
+    {
+      "path": "reports/competition_runs/prepare_report.json",
+      "size_bytes": 2676987,
+      "sha256": "2d0f8acdf73045c956a6c30be188f6ce621885eb5863e11e98a8a2a89152fd0e"
+    },
+    {
+      "path": "reports/competition_runs/prepare_report.rerun.json",
+      "size_bytes": 2676987,
+      "sha256": "68b0f497f40b448dac22160de04a0953693a174d135e0a37f6da4303bf877500"
+    },
+    {
+      "path": "reports/competition_runs/prepare_report.after_deterministic_fixes.json",
+      "size_bytes": 2676987,
+      "sha256": "8c6a823dbc523ace5b2f3f00636a01f89c72e196c59c38753efc752c9f60f1f5"
+    },
+    {
+      "path": "reports/competition_runs/prepare_report.with_metadata_normalizer.json",
+      "size_bytes": 2703576,
+      "sha256": "fab2b4193388c7d640fbc50cc13cc7e0ec5dc79719999b257e0749a83761c8f9"
+    },
+    {
+      "path": "reports/competition_runs/prepare_report.azure_fast_classifier_pg.json",
+      "size_bytes": 2702543,
+      "sha256": "0308959eb278d4af879d3a67cd587048e4a56eb79282c7726db88a9912fec061"
+    },
+    {
+      "path": "reports/competition_runs/prepare_report.azure_fast_classifier_hardened_pg_final.json",
+      "size_bytes": 2703166,
+      "sha256": "552bddfbf3c778e1f49b3009acb7d699b116a9de44034d1c79b6540312fb40b4"
+    },
+    {
+      "path": "reports/competition_runs/prepare_report.azure_typed_prompts_pg_final_rerun.json",
+      "size_bytes": 2705405,
+      "sha256": "7f613a78406f287f3b6972975b32e7a92f1161fb645e7c00adbd2230e9123113"
+    }
+  ]
+}
