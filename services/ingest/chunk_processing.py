@@ -8,20 +8,21 @@ from typing import Dict, List, Optional
 
 
 _WS = re.compile(r"\s+")
+_HEADING_REF_TOKEN = r"(?:\d{1,3}|[IVXLCM]{1,8}|[A-Z])"
 _PART_PATTERN = re.compile(
-    r"\b(PART\s+[A-Z0-9]+(?::\s*[A-Z][A-Za-z0-9 ,&()'/-]{2,120})?)",
+    rf"\b(PART\s+{_HEADING_REF_TOKEN}(?::\s*[A-Z][A-Za-z0-9 ,&()'/-]{{2,120}}?)?)(?=\s+(?:\d{{1,3}}\.\s+[A-Z]|ARTICLE\s+\d{{1,3}}|CHAPTER\s+{_HEADING_REF_TOKEN}|SECTION\s+{_HEADING_REF_TOKEN}|SCHEDULE\s+{_HEADING_REF_TOKEN}|$))",
     re.IGNORECASE,
 )
 _CHAPTER_PATTERN = re.compile(
-    r"\b(CHAPTER\s+[A-Z0-9]+(?::\s*[A-Z][A-Za-z0-9 ,&()'/-]{2,120})?)",
+    rf"\b(CHAPTER\s+{_HEADING_REF_TOKEN}(?::\s*[A-Z][A-Za-z0-9 ,&()'/-]{{2,120}}?)?)(?=\s+(?:\d{{1,3}}\.\s+[A-Z]|ARTICLE\s+\d{{1,3}}|SECTION\s+{_HEADING_REF_TOKEN}|SCHEDULE\s+{_HEADING_REF_TOKEN}|$))",
     re.IGNORECASE,
 )
 _SECTION_PATTERN = re.compile(
-    r"\b(SECTION\s+[A-Z0-9]+(?::\s*[A-Z][A-Za-z0-9 ,&()'/-]{2,120})?)",
+    rf"\b(SECTION\s+{_HEADING_REF_TOKEN}(?::\s*[A-Z][A-Za-z0-9 ,&()'/-]{{2,120}}?)?)(?=\s+(?:\d{{1,3}}\.\s+[A-Z]|ARTICLE\s+\d{{1,3}}|SCHEDULE\s+{_HEADING_REF_TOKEN}|$))",
     re.IGNORECASE,
 )
 _SCHEDULE_PATTERN = re.compile(
-    r"\b(SCHEDULE\s+[A-Z0-9]+(?::\s*[A-Z][A-Za-z0-9 ,&()'/-]{2,120})?)",
+    rf"\b(SCHEDULE\s+{_HEADING_REF_TOKEN}(?::\s*[A-Z][A-Za-z0-9 ,&()'/-]{{2,120}}?)?)(?=\s+(?:\d{{1,3}}\.\s+[A-Z]|ARTICLE\s+\d{{1,3}}|$))",
     re.IGNORECASE,
 )
 _LAW_ARTICLE_START_PATTERN = re.compile(r"(?<!\()(?<!\.)\b(\d{1,3})\.\s+[A-Z]")

@@ -52,6 +52,39 @@ def _candidate() -> dict:
     }
 
 
+def _case_candidate() -> dict:
+    return {
+        "exact_identifier_hit": True,
+        "paragraph": {
+            "paragraph_id": "case-para-1",
+            "document_id": "case-doc-1",
+            "text": "The Applicant shall pay USD 155,879.50 within 14 days, failing which interest shall accrue at 9% per annum.",
+        },
+        "chunk_projection": {
+            "court_name": "Court Of Appeal",
+            "money_values": ["USD 155,879.50"],
+            "semantic_query_terms": ["costs", "14 days", "9% interest"],
+            "semantic_assertions": [
+                {
+                    "assertion_id": "case-assert-1",
+                    "subject_text": "Applicant",
+                    "relation_type": "ordered_to_pay",
+                    "object_text": "USD 155,879.50 within 14 days",
+                    "modality": "obligation",
+                    "citation_refs": ["CA 004/2025"],
+                    "dense_paraphrase": "Applicant must pay USD 155,879.50 within 14 days; interest accrues at 9% per annum if unpaid.",
+                    "evidence": {
+                        "source_page_ids": ["ca004_3"],
+                        "page_numbers_0": [3],
+                        "page_numbers_1": [4],
+                    },
+                    "direct_answer": {"eligible": False, "answer_type": "none"},
+                }
+            ],
+        },
+    }
+
+
 def test_proposition_match_features_detects_overlap() -> None:
     features = proposition_match_features(
         question_text="Can an employee waive rights under this law by written agreement?",
@@ -90,3 +123,39 @@ def test_direct_answer_abstains_when_competing_propositions_are_too_close() -> N
         candidates=[first, second],
     )
     assert result is None
+
+
+def test_direct_answer_extracts_number_from_case_candidate_text() -> None:
+    result = try_direct_answer(
+        question_text="In CA 004/2025, if the costs are not paid within fourteen days, at what annual rate does interest accrue?",
+        answer_type="number",
+        route_name="single_case_extraction",
+        candidates=[_case_candidate()],
+    )
+    assert result is not None
+    assert result["answer"] == 9
+    assert result["trace"]["path"] == "deterministic_percent_pattern"
+
+
+def test_direct_answer_extracts_cost_amount_from_case_candidate_text() -> None:
+    result = try_direct_answer(
+        question_text="In Coinmena, what total sum must the Applicant pay as the Costs Award?",
+        answer_type="number",
+        route_name="single_case_extraction",
+        candidates=[_case_candidate()],
+    )
+    assert result is not None
+    assert result["answer"] == 155879.5
+    assert result["trace"]["path"] == "deterministic_money_pattern"
+
+
+def test_direct_answer_extracts_court_name_from_case_projection() -> None:
+    result = try_direct_answer(
+        question_text="Which court issued the order in CA 004/2025?",
+        answer_type="name",
+        route_name="single_case_extraction",
+        candidates=[_case_candidate()],
+    )
+    assert result is not None
+    assert result["answer"] == "Court Of Appeal"
+    assert result["trace"]["path"] == "deterministic_court_name"

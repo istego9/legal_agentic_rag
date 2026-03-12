@@ -10,6 +10,13 @@ _TOKEN_PATTERN = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.()/:-]{1,}")
 _CAN_MAY_PATTERN = re.compile(r"\b(can|may|permitted|allowed|entitled)\b", re.IGNORECASE)
 _VOID_PATTERN = re.compile(r"\b(void|invalid|unenforceable)\b", re.IGNORECASE)
 _OBLIGATION_PATTERN = re.compile(r"\b(must|required|shall)\b", re.IGNORECASE)
+_DAYS_PATTERN = re.compile(r"\bwithin\s+(\d{1,3})\s+days?\b", re.IGNORECASE)
+_PERCENT_PATTERN = re.compile(r"\b(\d{1,3}(?:\.\d+)?)\s*%")
+_MONEY_PATTERN = re.compile(r"\b(?:USD|US\\$|AED)\s*([0-9][0-9,]*(?:\.\d+)?)\b", re.IGNORECASE)
+_INTEREST_PERCENT_PATTERN = re.compile(
+    r"(?:interest[^.]{0,120}?(\d{1,3}(?:\.\d+)?)\s*%|(\d{1,3}(?:\.\d+)?)\s*%[^.]{0,120}?interest)",
+    re.IGNORECASE,
+)
 
 
 def _compact(value: Any) -> str:
@@ -43,6 +50,88 @@ def _has_assertion_provenance(assertion: Dict[str, Any]) -> bool:
     evidence = _assertion_evidence(assertion)
     source_page_ids = evidence.get("source_page_ids")
     return isinstance(source_page_ids, list) and any(str(item).strip() for item in source_page_ids)
+
+
+def _candidate_text(candidate: Dict[str, Any]) -> str:
+    paragraph = candidate.get("paragraph") if isinstance(candidate.get("paragraph"), dict) else {}
+    projection = candidate.get("chunk_projection") if isinstance(candidate.get("chunk_projection"), dict) else {}
+    return _compact(
+        " ".join(
+            [
+                str(paragraph.get("text", "") or ""),
+                str(projection.get("text_clean", "") or ""),
+                str(projection.get("retrieval_text", "") or ""),
+            ]
+        )
+    )
+
+
+def _extract_number_from_candidates(question_text: str, candidate_pool: List[Dict[str, Any]]) -> tuple[float | None, str]:
+    lowered = question_text.lower()
+    values: List[float] = []
+    if "interest" in lowered or "rate" in lowered:
+        for candidate in candidate_pool:
+            text = _candidate_text(candidate)
+            matched = False
+            for match in _INTEREST_PERCENT_PATTERN.finditer(text):
+                value = match.group(1) or match.group(2)
+                if value is None:
+                    continue
+                values.append(float(value))
+                matched = True
+            if matched:
+                continue
+            if "interest" in text.lower():
+                for match in _PERCENT_PATTERN.finditer(text):
+                    values.append(float(match.group(1)))
+        unique = sorted({value for value in values})
+        return (unique[0], "deterministic_percent_pattern") if len(unique) == 1 else (None, "number_abstain_conflict")
+    if "days" in lowered:
+        for candidate in candidate_pool:
+            for match in _DAYS_PATTERN.finditer(_candidate_text(candidate)):
+                values.append(float(match.group(1)))
+        unique = sorted({value for value in values})
+        return (unique[0], "deterministic_days_pattern") if len(unique) == 1 else (None, "number_abstain_conflict")
+    if any(token in lowered for token in ("sum", "amount", "costs award", "total")):
+        for candidate in candidate_pool:
+            text = _candidate_text(candidate)
+            scoped_values: List[float] = []
+            projection = candidate.get("chunk_projection") if isinstance(candidate.get("chunk_projection"), dict) else {}
+            for raw in projection.get("money_values", []) if isinstance(projection.get("money_values"), list) else []:
+                raw_text = _compact(raw)
+                match = _MONEY_PATTERN.search(raw_text)
+                if match:
+                    scoped_values.append(float(match.group(1).replace(",", "")))
+            for sentence in re.split(r"(?<=[.;])\s+", text):
+                sentence_lower = sentence.lower()
+                if "costs award" not in sentence_lower and "shall pay" not in sentence_lower and "pay" not in sentence_lower:
+                    continue
+                for match in _MONEY_PATTERN.finditer(sentence):
+                    scoped_values.append(float(match.group(1).replace(",", "")))
+            if scoped_values:
+                values.extend(scoped_values)
+                continue
+            for match in _MONEY_PATTERN.finditer(text):
+                values.append(float(match.group(1).replace(",", "")))
+        unique = sorted({value for value in values})
+        return (unique[0], "deterministic_money_pattern") if len(unique) == 1 else (None, "number_abstain_conflict")
+    return None, "number_abstain_missing"
+
+
+def _extract_name_from_candidates(question_text: str, candidate_pool: List[Dict[str, Any]]) -> tuple[str | None, str]:
+    lowered = question_text.lower()
+    if "court" not in lowered:
+        return None, "name_abstain_missing"
+    names = []
+    for candidate in candidate_pool:
+        projection = candidate.get("chunk_projection") if isinstance(candidate.get("chunk_projection"), dict) else {}
+        name = _compact(projection.get("court_name"))
+        if name:
+            if " - " in name:
+                name = _compact(name.split(" - ")[-1])
+            names.append(name)
+    unique = sorted({value for value in names})
+    return (unique[0], "deterministic_court_name") if len(unique) == 1 else (None, "name_abstain_conflict")
 
 
 def proposition_match_features(
@@ -121,7 +210,7 @@ def try_direct_answer(
     route_name: str,
     candidates: List[Dict[str, Any]],
 ) -> Dict[str, Any] | None:
-    if answer_type not in {"boolean", "number", "date", "free_text"}:
+    if answer_type not in {"boolean", "number", "date", "name", "free_text"}:
         return None
     if route_name not in {"article_lookup", "single_case_extraction"}:
         return None
@@ -151,11 +240,91 @@ def try_direct_answer(
                 continue
             scored_props.append((float(overlap) / float(max(1, len(set(query_tokens)))), assertion, candidate))
     if not scored_props:
+        if answer_type == "number":
+            number_value, number_path = _extract_number_from_candidates(question_text, candidate_pool)
+            if number_value is not None:
+                return {
+                    "answer": int(number_value) if number_value.is_integer() else number_value,
+                    "confidence": 0.76,
+                    "trace": {
+                        "solver_version": "proposition_direct_answer_v1",
+                        "route_name": route_name,
+                        "answer_type": answer_type,
+                        "path": number_path,
+                        "top_proposition_score": 0.0,
+                        "second_proposition_score": 0.0,
+                        "top_proposition": {},
+                        "matched_candidate_indices": [0] if candidate_pool else [],
+                        "candidate_count": len(candidates),
+                        "direct_answer_used": True,
+                        "source_paragraph_id": str((((candidate_pool[0].get("paragraph") or {}) if candidate_pool and isinstance(candidate_pool[0].get("paragraph"), dict) else {})).get("paragraph_id", "")),
+                    },
+                }
+        if answer_type == "name":
+            name_value, name_path = _extract_name_from_candidates(question_text, candidate_pool)
+            if name_value:
+                return {
+                    "answer": name_value,
+                    "confidence": 0.76,
+                    "trace": {
+                        "solver_version": "proposition_direct_answer_v1",
+                        "route_name": route_name,
+                        "answer_type": answer_type,
+                        "path": name_path,
+                        "top_proposition_score": 0.0,
+                        "second_proposition_score": 0.0,
+                        "top_proposition": {},
+                        "matched_candidate_indices": [0] if candidate_pool else [],
+                        "candidate_count": len(candidates),
+                        "direct_answer_used": True,
+                        "source_paragraph_id": str((((candidate_pool[0].get("paragraph") or {}) if candidate_pool and isinstance(candidate_pool[0].get("paragraph"), dict) else {})).get("paragraph_id", "")),
+                    },
+                }
         return None
     scored_props.sort(key=lambda item: item[0], reverse=True)
     top_score, top_assertion, top_candidate = scored_props[0]
     second_score = scored_props[1][0] if len(scored_props) > 1 else 0.0
     if top_score < 0.45 or (second_score and top_score - second_score < 0.12):
+        if answer_type == "number":
+            number_value, number_path = _extract_number_from_candidates(question_text, candidate_pool)
+            if number_value is not None:
+                return {
+                    "answer": int(number_value) if number_value.is_integer() else number_value,
+                    "confidence": 0.76,
+                    "trace": {
+                        "solver_version": "proposition_direct_answer_v1",
+                        "route_name": route_name,
+                        "answer_type": answer_type,
+                        "path": number_path,
+                        "top_proposition_score": round(top_score, 4),
+                        "second_proposition_score": round(second_score, 4),
+                        "top_proposition": {},
+                        "matched_candidate_indices": [0] if candidate_pool else [],
+                        "candidate_count": len(candidates),
+                        "direct_answer_used": True,
+                        "source_paragraph_id": str((((candidate_pool[0].get("paragraph") or {}) if candidate_pool and isinstance(candidate_pool[0].get("paragraph"), dict) else {})).get("paragraph_id", "")),
+                    },
+                }
+        if answer_type == "name":
+            name_value, name_path = _extract_name_from_candidates(question_text, candidate_pool)
+            if name_value:
+                return {
+                    "answer": name_value,
+                    "confidence": 0.76,
+                    "trace": {
+                        "solver_version": "proposition_direct_answer_v1",
+                        "route_name": route_name,
+                        "answer_type": answer_type,
+                        "path": name_path,
+                        "top_proposition_score": round(top_score, 4),
+                        "second_proposition_score": round(second_score, 4),
+                        "top_proposition": {},
+                        "matched_candidate_indices": [0] if candidate_pool else [],
+                        "candidate_count": len(candidates),
+                        "direct_answer_used": True,
+                        "source_paragraph_id": str((((candidate_pool[0].get("paragraph") or {}) if candidate_pool and isinstance(candidate_pool[0].get("paragraph"), dict) else {})).get("paragraph_id", "")),
+                    },
+                }
         return None
     if not _has_assertion_provenance(top_assertion):
         return None
@@ -193,6 +362,18 @@ def try_direct_answer(
         if dense:
             answer = dense
             path = "dense_paraphrase"
+
+    if answer is None and answer_type == "number":
+        number_value, number_path = _extract_number_from_candidates(question_text, candidate_pool)
+        if number_value is not None:
+            answer = int(number_value) if number_value.is_integer() else number_value
+            path = number_path
+
+    if answer is None and answer_type == "name":
+        name_value, name_path = _extract_name_from_candidates(question_text, candidate_pool)
+        if name_value:
+            answer = name_value
+            path = name_path
 
     if answer is None:
         return None

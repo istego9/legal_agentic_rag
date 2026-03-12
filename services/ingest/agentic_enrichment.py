@@ -282,10 +282,17 @@ def _extract_condition(text: str, llm_payload: Dict[str, Any]) -> str | None:
     llm_condition = re.sub(r"\s+", " ", str(llm_payload.get("condition_text", "")).strip())
     if llm_condition:
         return llm_condition[:180]
-    match = re.search(r"\b(if|when|where)\b\s+(.+?)(?:[.;]|$)", text, re.I)
-    if not match:
+    conditions: List[str] = []
+    for match in re.finditer(r"\b(if|when|where|subject to|provided(?: that)?)\b\s+(.+?)(?:[.;]|$)", text, re.I):
+        clause = f"{match.group(1).lower()} {match.group(2).strip()}"
+        clause = re.sub(r"\s+", " ", clause).strip()
+        if clause:
+            conditions.append(clause[:180])
+        if len(conditions) >= 2:
+            break
+    if not conditions:
         return None
-    return f"{match.group(1).lower()} {match.group(2).strip()}"[:180]
+    return "; ".join(_uniq(conditions))[:180]
 
 
 def _extract_exception(text: str, llm_payload: Dict[str, Any]) -> str | None:
@@ -422,15 +429,16 @@ def _chunk_assertion(
         exception_text = _extract_exception(text, semantic_payload)
     temporal_scope = _extract_temporal_scope(paragraph, semantic_payload)
     beneficiary = _extract_beneficiary(paragraph, subject_text, semantic_payload)
+    proposition_citation_refs = (
+        [str(value) for value in proposition.get("citation_refs", [])]
+        if proposition and isinstance(proposition.get("citation_refs"), list)
+        else []
+    )
     citation_refs = _uniq(
-        (
-            [str(value) for value in proposition.get("citation_refs", [])]
-            if proposition and isinstance(proposition.get("citation_refs"), list)
-            else []
-        )
-        + [str(value) for value in paragraph.get("article_refs", [])]
-        + [str(value) for value in paragraph.get("law_refs", [])]
-        + [str(value) for value in paragraph.get("case_refs", [])]
+        proposition_citation_refs
+        or [str(value) for value in paragraph.get("article_refs", [])]
+        or [str(value) for value in paragraph.get("law_refs", [])]
+        or [str(value) for value in paragraph.get("case_refs", [])]
     )
     evidence = {
         "source_page_ids": [str(page.get("source_page_id"))] if str(page.get("source_page_id", "")).strip() else [],

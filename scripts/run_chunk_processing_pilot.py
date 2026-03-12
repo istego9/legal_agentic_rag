@@ -13,6 +13,7 @@ from pathlib import Path
 import shutil
 import zipfile
 from typing import Any, Dict, List
+import re
 
 ROOT = Path(__file__).resolve().parents[1]
 API_SRC = ROOT / "apps" / "api" / "src"
@@ -37,6 +38,7 @@ SOURCE_ZIP_PATH = ROOT / "datasets" / "official_fetch_2026-03-11" / "documents.z
 DEFAULT_OUTPUT_DIR = artifact_path("competition_runs", "pilots", "chunk_processing_pilot_v1")
 DEFAULT_PROJECT_ID = "competition_chunk_processing_pilot_v1"
 DEFAULT_AUDIT_EXPORT_DIR = artifact_path("corpus_investigation", "2026-03-12-version-lineage-rca", "chunk_processing_external_audit_export")
+ARTICLE_HEADING_PATTERN = re.compile(r"(?<!\()(?<!\.)\b(\d{1,3})\.\s+[A-Z]")
 
 
 def _utcnow() -> datetime:
@@ -158,6 +160,10 @@ def _apply_enrichment_result(project_id: str, enrichment: Dict[str, Any]) -> Non
 def _target_chunk_ids(snapshot: Dict[str, List[Dict[str, Any]]]) -> List[str]:
     projections = list(snapshot["chunk_search_documents"])
     out: List[str] = []
+    pilot_case_pdf_ids = {
+        "897ab23ed5a70034d3d708d871ad1da8bc7b6608d94b1ca46b5d578d985d3c13",
+        "78ffe994cdc61ce6a2a6937c79fc52751bb5d2b4eaa4019f088fbccf70569c26",
+    }
 
     def _add(predicate, limit: int) -> None:
         count = 0
@@ -190,16 +196,10 @@ def _target_chunk_ids(snapshot: Dict[str, List[Dict[str, Any]]]) -> List[str]:
         1,
     )
     _add(
-        lambda row: str(row.get("pdf_id", "")) == "897ab23ed5a70034d3d708d871ad1da8bc7b6608d94b1ca46b5d578d985d3c13"
-        and str(row.get("section_kind_case", "")).lower() in {"order", "reasoning", "disposition"}
-        and any(token in str(row.get("text_clean", "")).lower() for token in ("155,879.50", "14 days", "interest", "costs award")),
-        4,
-    )
-    _add(
-        lambda row: str(row.get("pdf_id", "")) == "78ffe994cdc61ce6a2a6937c79fc52751bb5d2b4eaa4019f088fbccf70569c26"
-        and str(row.get("section_kind_case", "")).lower() in {"order", "reasoning", "disposition"}
-        and any(token in str(row.get("text_clean", "")).lower() for token in ("720,000", "14", "interest", "9%")),
-        4,
+        lambda row: str(row.get("pdf_id", "")) in pilot_case_pdf_ids
+        and str(row.get("doc_type", "")) == "case"
+        and str(row.get("section_kind_case", "")).lower() in {"parties", "procedural_history", "reasoning", "order", "disposition"},
+        200,
     )
     seen = set()
     return [item for item in out if item and not (item in seen or seen.add(item))]
@@ -214,9 +214,9 @@ def _cross_article_chunks(snapshot: Dict[str, List[Dict[str, Any]]]) -> List[str
         text = str(row.get("text_clean", ""))
         if not article_number:
             continue
-        for other in range(1, 100):
-            token = f"{other}."
-            if str(other) != article_number and token in text and len(text) > 120 and text.find(token) > 40:
+        for match in ARTICLE_HEADING_PATTERN.finditer(text):
+            candidate = str(match.group(1))
+            if candidate != article_number and match.start() > 40:
                 out.append(str(row.get("chunk_id")))
                 break
     return sorted(set(out))

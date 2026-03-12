@@ -41,6 +41,25 @@ _PROPOSITION_RELATIONS = {
     "awarded_costs",
     "accrues_interest",
 }
+_RELATION_ALIASES = {
+    "invalidates": "is_void",
+    "voids": "is_void",
+    "void": "is_void",
+    "unenforceable": "is_void",
+    "awards_costs": "awarded_costs",
+    "orders_to_pay": "ordered_to_pay",
+}
+_MODALITY_ALIASES = {
+    "required": "obligation",
+    "must": "obligation",
+    "forbidden": "prohibition",
+    "allowed": "permission",
+    "permitted": "permission",
+    "authorised": "permission",
+    "authorized": "permission",
+    "administrative_power": "power",
+    "invalidity": "procedure",
+}
 
 
 @dataclass
@@ -259,17 +278,38 @@ def _normalize_string_list(value: Any, limit: int = 16) -> List[str]:
     return out
 
 
+def _normalize_citation_refs(value: Any) -> List[str]:
+    cleaned = []
+    for token in _normalize_string_list(value, limit=16):
+        if any(char.isdigit() for char in token):
+            cleaned.append(token)
+    return cleaned
+
+
 def _normalize_proposition(item: Dict[str, Any]) -> Dict[str, Any]:
     relation_type = _compact(item.get("relation_type"), 80) or "governs"
+    relation_type = _RELATION_ALIASES.get(relation_type.lower(), relation_type)
     if relation_type not in _PROPOSITION_RELATIONS:
         relation_type = relation_type.lower().replace(" ", "_")
     modality = _compact(item.get("modality"), 40).lower() or "procedure"
+    modality = _MODALITY_ALIASES.get(modality, modality)
     if modality not in {"obligation", "prohibition", "permission", "definition", "power", "procedure", "penalty", "exception"}:
         modality = "procedure"
     polarity = _compact(item.get("polarity"), 24).lower() or "affirmative"
     direct_answer = item.get("direct_answer")
     if not isinstance(direct_answer, dict):
         direct_answer = {}
+    direct_answer_payload = {
+        "eligible": bool(direct_answer.get("eligible")),
+        "answer_type": _compact(direct_answer.get("answer_type"), 24).lower() or "none",
+        "boolean_value": direct_answer.get("boolean_value") if isinstance(direct_answer.get("boolean_value"), bool) else None,
+        "number_value": direct_answer.get("number_value"),
+        "date_value": _compact(direct_answer.get("date_value"), 32) or None,
+        "text_value": _compact(direct_answer.get("text_value"), 240) or None,
+    }
+    if relation_type == "is_void" and direct_answer_payload["answer_type"] == "boolean" and direct_answer_payload["boolean_value"] is None:
+        direct_answer_payload["eligible"] = True
+        direct_answer_payload["boolean_value"] = True
     return {
         "subject_type": _compact(item.get("subject_type"), 60).lower() or "actor",
         "subject_text": _compact(item.get("subject_text"), 180) or "unspecified subject",
@@ -280,16 +320,9 @@ def _normalize_proposition(item: Dict[str, Any]) -> Dict[str, Any]:
         "polarity": polarity if polarity in {"affirmative", "negative"} else "affirmative",
         "conditions": _normalize_string_list(item.get("conditions"), limit=12),
         "exceptions": _normalize_string_list(item.get("exceptions"), limit=12),
-        "citation_refs": _normalize_string_list(item.get("citation_refs"), limit=12),
+        "citation_refs": _normalize_citation_refs(item.get("citation_refs")),
         "dense_paraphrase": _compact(item.get("dense_paraphrase"), 320),
-        "direct_answer": {
-            "eligible": bool(direct_answer.get("eligible")),
-            "answer_type": _compact(direct_answer.get("answer_type"), 24).lower() or "none",
-            "boolean_value": direct_answer.get("boolean_value") if isinstance(direct_answer.get("boolean_value"), bool) else None,
-            "number_value": direct_answer.get("number_value"),
-            "date_value": _compact(direct_answer.get("date_value"), 32) or None,
-            "text_value": _compact(direct_answer.get("text_value"), 240) or None,
-        },
+        "direct_answer": direct_answer_payload,
     }
 
 

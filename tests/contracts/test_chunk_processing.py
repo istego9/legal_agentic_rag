@@ -48,6 +48,23 @@ def test_law_chunker_splits_part_and_articles() -> None:
     assert article_chunks[1].prev_chunk_id is not None
 
 
+def test_law_chunker_does_not_turn_body_phrase_into_fake_part_heading() -> None:
+    text = (
+        "PART 2: HIRING EMPLOYEES 11. No waiver "
+        "Nothing in this Law precludes an Employee from waiving rights by written agreement "
+        "as part in a settlement agreement with the Employer. "
+        "12. No false representations An Employer shall not induce a person by misrepresenting the position."
+    )
+
+    chunks = build_structural_chunks(doc_type="law", page_text=text)
+    heading_texts = [chunk.text for chunk in chunks if chunk.chunk_type == "heading"]
+
+    assert "PART 2: HIRING EMPLOYEES" in heading_texts
+    assert all(text.lower() != "part in" for text in heading_texts)
+    article_chunks = [chunk for chunk in chunks if chunk.article_number]
+    assert [chunk.article_number for chunk in article_chunks[:2]] == ["11", "12"]
+
+
 def test_case_chunker_splits_order_and_reasons() -> None:
     text = (
         "CFI 067/2025 Coinmena B.S.C. (C) v Foloosi Technologies Ltd "

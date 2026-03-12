@@ -1239,7 +1239,7 @@ def ingest_zip_stub(blob_url: str, project_id: str, parse_policy: str, dedupe_en
                         else SECTION_KIND_BY_DOC_TYPE.get(doc_type, "heading")
                     )
                     article_number = chunk_spec.article_number or _detect_article_number(chunk_refs["article_refs"])
-                    heading_path = chunk_spec.heading_path or [doc_type, parse_policy]
+                    heading_path = list(chunk_spec.heading_path or [])
                     retrieval_text = _retrieval_text(
                         source_label,
                         chunk,

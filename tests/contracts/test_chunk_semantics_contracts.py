@@ -81,3 +81,36 @@ def test_normalize_chunk_semantics_payload_case() -> None:
     assert payload["section_kind_case"] == "order"
     assert payload["semantic_query_terms"] == ["costs", "14 days"]
     assert payload["propositions"][0]["direct_answer"]["answer_type"] == "number"
+
+
+def test_normalize_chunk_semantics_aliases_invalidity_and_cleans_citations() -> None:
+    payload = chunk_semantics_module.normalize_chunk_semantics_payload(
+        {
+            "section_kind": "operative_provision",
+            "provision_kind": "procedure",
+            "semantic_dense_summary": "A waiver provision is invalid.",
+            "semantic_query_terms": ["waiver", "void"],
+            "propositions": [
+                {
+                    "subject_type": "legal_object",
+                    "subject_text": "waiver provision",
+                    "relation_type": "invalidates",
+                    "object_type": "legal_object",
+                    "object_text": "minimum-rights waiver clause",
+                    "modality": "invalidity",
+                    "polarity": "affirmative",
+                    "conditions": [],
+                    "exceptions": [],
+                    "citation_refs": ["Article 11(1)", "Law are", "action"],
+                    "dense_paraphrase": "The minimum-rights waiver clause is void.",
+                    "direct_answer": {"eligible": True, "answer_type": "boolean"},
+                }
+            ],
+        },
+        doc_type="law",
+    )
+
+    proposition = payload["propositions"][0]
+    assert proposition["relation_type"] == "is_void"
+    assert proposition["citation_refs"] == ["Article 11(1)"]
+    assert proposition["direct_answer"]["boolean_value"] is True
