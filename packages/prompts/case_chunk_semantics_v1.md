@@ -35,6 +35,17 @@ Each proposition must contain:
 - `date_value`
 - `text_value`
 
+`direct_answer.answer_type` must be one of:
+
+- `boolean`
+- `number`
+- `date`
+- `name`
+- `names`
+- `none`
+
+Never use `free_text` for chunk-level direct-answer hints.
+
 ## Rules
 
 - Use only supplied chunk text and deterministic structural context.
@@ -47,7 +58,7 @@ Each proposition must contain:
 
 ## Hard examples
 
-Example: order with payment obligation
+Example: order chunk with amount + deadline + interest consequence
 
 Text pattern:
 - `The Applicant shall pay USD 155,879.50`
@@ -66,3 +77,16 @@ Do not:
 - hide the amount inside a generic summary
 - omit the deadline when it is explicit
 - omit the interest rate when it is explicit
+- rely on party names or case-specific captions to infer the operative order
+
+Example: heading chunk with court identity
+
+Text pattern:
+- case number or neutral citation
+- court system heading
+- specific court or division heading
+
+Expected extraction shape:
+- preserve the court identity in the semantic summary only if it is explicit
+- do not rewrite the full heading blob as the answer
+- prefer the normalized court name rather than the whole caption line

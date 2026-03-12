@@ -8,8 +8,19 @@ This note defines:
 - what should be extracted by LLM
 - what provenance must be attached deterministically
 - what was observed on a two-document Azure GPT-5-mini pilot
+- which v2 policy constraints now apply to semantic and direct-answer handling
 
 The current full-corpus metadata snapshot is clean at the document layer, but the chunk layer is still a bootstrap scaffold rather than a final semantic retrieval layer.
+
+## Policy Updates From Revised Chunk Strategy v2
+
+The pilot continues under these constraints:
+
+- direct-answer remains typed-only in v1
+- free-text direct-answer is disabled
+- proposition retrieval remains internal-only
+- no full-corpus proposition rollout is allowed until pilot gates are green in consecutive runs
+- regulation, notice, and adversarial fixtures must be added before broader approval
 
 ## Current State
 

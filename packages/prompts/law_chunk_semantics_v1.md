@@ -36,6 +36,17 @@ Each proposition must contain:
 - `date_value`
 - `text_value`
 
+`direct_answer.answer_type` must be one of:
+
+- `boolean`
+- `number`
+- `date`
+- `name`
+- `names`
+- `none`
+
+Never use `free_text` for chunk-level direct-answer hints.
+
 ## Rules
 
 - Use only supplied chunk text and deterministic structural context.
@@ -49,24 +60,25 @@ Each proposition must contain:
 
 ## Hard examples
 
-Example: Employment Law Article 11
+Example: mixed invalidity + permission + conditional permission in one legislative chunk
 
 Text pattern:
-- `... a provision in an agreement to waive any of those requirements ... is void ...`
-- `Nothing in this Law precludes an Employer from providing an Employee with terms and conditions ... more favourable ...`
-- `Nothing in this Law precludes an Employee from waiving any right ... by written agreement ... subject to Article 66(13) ... opportunity to seek independent legal advice ... or ... mediation ...`
+- `... a provision in an agreement to waive minimum statutory requirements ... is void ...`
+- `Nothing in this Law precludes an employer from providing terms more favourable to an employee ...`
+- `Nothing in this Law precludes an employee from waiving rights ... by written agreement ... subject to another Article ... opportunity to seek independent legal advice ... or ... mediation ...`
 
 Expected extraction shape:
 - proposition 1:
   - `relation_type = "is_void"`
-  - object must clearly state that the waiver provision is void
+  - object must clearly state that the waiver provision itself is void
 - proposition 2:
-  - permission for employer to provide more favourable terms
+  - permission for an employer to provide more favourable terms
 - proposition 3:
-  - permission for employee to waive rights
-  - conditions must include the written-agreement / settlement-or-termination / legal-advice-or-mediation constraints
+  - permission for an employee to waive rights
+  - `conditions` must include the written-agreement / settlement-or-termination / legal-advice-or-mediation constraints
 
 Do not:
 - collapse all three norms into one proposition
 - drop `subject to ...` conditions
 - rewrite `Nothing in this Law precludes ...` as prohibition
+- convert invalidity of a clause into a generic procedural statement

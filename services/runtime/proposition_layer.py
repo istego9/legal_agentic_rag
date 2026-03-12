@@ -12,7 +12,10 @@ _VOID_PATTERN = re.compile(r"\b(void|invalid|unenforceable)\b", re.IGNORECASE)
 _OBLIGATION_PATTERN = re.compile(r"\b(must|required|shall)\b", re.IGNORECASE)
 _DAYS_PATTERN = re.compile(r"\bwithin\s+(\d{1,3})\s+days?\b", re.IGNORECASE)
 _PERCENT_PATTERN = re.compile(r"\b(\d{1,3}(?:\.\d+)?)\s*%")
-_MONEY_PATTERN = re.compile(r"\b(?:USD|US\\$|AED)\s*([0-9][0-9,]*(?:\.\d+)?)\b", re.IGNORECASE)
+_MONEY_PATTERN = re.compile(
+    r"(?:\b(?:USD|US\\$|AED|EUR|GBP)\s*([0-9][0-9,]*(?:\.\d+)?)\b|\b([0-9][0-9,]*(?:\.\d+)?)\s*(?:USD|US\\$|AED|EUR|GBP|dirhams?)\b)",
+    re.IGNORECASE,
+)
 _INTEREST_PERCENT_PATTERN = re.compile(
     r"(?:interest[^.]{0,120}?(\d{1,3}(?:\.\d+)?)\s*%|(\d{1,3}(?:\.\d+)?)\s*%[^.]{0,120}?interest)",
     re.IGNORECASE,
@@ -37,6 +40,16 @@ def _semantic_assertions(projection: Dict[str, Any]) -> List[Dict[str, Any]]:
     if not isinstance(value, list):
         return []
     return [item for item in value if isinstance(item, dict)]
+
+
+def _money_match_value(match: re.Match[str]) -> float | None:
+    raw_value = match.group(1) or match.group(2)
+    if raw_value is None:
+        return None
+    try:
+        return float(raw_value.replace(",", ""))
+    except ValueError:
+        return None
 
 
 def _assertion_evidence(assertion: Dict[str, Any]) -> Dict[str, Any]:
@@ -101,18 +114,24 @@ def _extract_number_from_candidates(question_text: str, candidate_pool: List[Dic
                 raw_text = _compact(raw)
                 match = _MONEY_PATTERN.search(raw_text)
                 if match:
-                    scoped_values.append(float(match.group(1).replace(",", "")))
+                    parsed = _money_match_value(match)
+                    if parsed is not None:
+                        scoped_values.append(parsed)
             for sentence in re.split(r"(?<=[.;])\s+", text):
                 sentence_lower = sentence.lower()
                 if "costs award" not in sentence_lower and "shall pay" not in sentence_lower and "pay" not in sentence_lower:
                     continue
                 for match in _MONEY_PATTERN.finditer(sentence):
-                    scoped_values.append(float(match.group(1).replace(",", "")))
+                    parsed = _money_match_value(match)
+                    if parsed is not None:
+                        scoped_values.append(parsed)
             if scoped_values:
                 values.extend(scoped_values)
                 continue
             for match in _MONEY_PATTERN.finditer(text):
-                values.append(float(match.group(1).replace(",", "")))
+                parsed = _money_match_value(match)
+                if parsed is not None:
+                    values.append(parsed)
         unique = sorted({value for value in values})
         return (unique[0], "deterministic_money_pattern") if len(unique) == 1 else (None, "number_abstain_conflict")
     return None, "number_abstain_missing"
@@ -210,7 +229,7 @@ def try_direct_answer(
     route_name: str,
     candidates: List[Dict[str, Any]],
 ) -> Dict[str, Any] | None:
-    if answer_type not in {"boolean", "number", "date", "name", "free_text"}:
+    if answer_type not in {"boolean", "number", "date", "name", "names"}:
         return None
     if route_name not in {"article_lookup", "single_case_extraction"}:
         return None
@@ -328,6 +347,18 @@ def try_direct_answer(
         return None
     if not _has_assertion_provenance(top_assertion):
         return None
+    evidence = _assertion_evidence(top_assertion)
+    source_page_ids = evidence.get("source_page_ids") if isinstance(evidence, dict) else []
+    normalized_source_page_ids = {
+        str(item).strip()
+        for item in source_page_ids
+        if str(item).strip()
+    }
+    if len(normalized_source_page_ids) != 1:
+        return None
+    has_condition_or_exception = bool(top_assertion.get("conditions") or top_assertion.get("exceptions"))
+    if has_condition_or_exception and answer_type in {"boolean", "number", "date", "name", "names"}:
+        return None
 
     direct = top_assertion.get("direct_answer") if isinstance(top_assertion.get("direct_answer"), dict) else {}
     answer = None
@@ -340,8 +371,6 @@ def try_direct_answer(
             answer = direct.get("number_value")
         elif answer_type == "date" and str(direct.get("date_value", "")).strip():
             answer = str(direct.get("date_value")).strip()
-        elif answer_type == "free_text" and str(direct.get("text_value", "")).strip():
-            answer = str(direct.get("text_value")).strip()
         path = "direct_answer_hint"
 
     if answer is None and answer_type == "boolean":
@@ -356,12 +385,6 @@ def try_direct_answer(
                 path = "permission_boolean"
             else:
                 path = "prohibition_boolean"
-
-    if answer is None and answer_type == "free_text":
-        dense = _compact(top_assertion.get("dense_paraphrase"))
-        if dense:
-            answer = dense
-            path = "dense_paraphrase"
 
     if answer is None and answer_type == "number":
         number_value, number_path = _extract_number_from_candidates(question_text, candidate_pool)

@@ -16,6 +16,7 @@ from legal_rag_api.azure_llm import AzureLLMClient, AzureOpenAIConfig
 PROMPT_SET_VERSION = "chunk_semantics_prompt_set_v1"
 LAW_PROMPT_VERSION = "law_chunk_semantics_v1"
 CASE_PROMPT_VERSION = "case_chunk_semantics_v1"
+_DIRECT_ANSWER_TYPES = {"boolean", "number", "date", "name", "names", "none"}
 
 _SEMANTIC_RICH_LAW_PATTERN = re.compile(
     r"\b(?:shall|must|may|unless|except|provided that|void|invalid|precludes|means|liable to|penalty)\b",
@@ -188,6 +189,8 @@ def _law_prompt(paragraph: Dict[str, Any], page: Dict[str, Any], document: Dict[
         "- If one chunk contains multiple norms, return multiple propositions.\n"
         "- Keep semantic_dense_summary to one short sentence.\n"
         "- Keep semantic_query_terms retrieval-oriented and short.\n"
+        "- `direct_answer.answer_type` must be one of: boolean, number, date, name, names, none.\n"
+        "- `direct_answer.answer_type` must never be `free_text`.\n"
         "- If no grounded proposition exists, return empty propositions array.\n\n"
         f"Document title: {_compact(document.get('title') or document.get('citation_title') or document.get('pdf_id'), 200)}\n"
         f"Source page id: {_compact(page.get('source_page_id'), 80)}\n"
@@ -223,6 +226,8 @@ def _case_prompt(paragraph: Dict[str, Any], page: Dict[str, Any], document: Dict
         "- Preserve amounts, deadlines, and interest consequences exactly if explicit.\n"
         "- If one chunk contains multiple grounded propositions, return multiple propositions.\n"
         "- Keep semantic_dense_summary to one short sentence.\n"
+        "- `direct_answer.answer_type` must be one of: boolean, number, date, name, names, none.\n"
+        "- `direct_answer.answer_type` must never be `free_text`.\n"
         "- If no grounded proposition exists, return empty propositions array.\n\n"
         f"Case title: {_compact(document.get('title') or document.get('citation_title') or document.get('pdf_id'), 220)}\n"
         f"Case number: {_compact(projection.get('case_number') or document.get('case_id'), 80)}\n"
@@ -307,6 +312,18 @@ def _normalize_proposition(item: Dict[str, Any]) -> Dict[str, Any]:
         "date_value": _compact(direct_answer.get("date_value"), 32) or None,
         "text_value": _compact(direct_answer.get("text_value"), 240) or None,
     }
+    if direct_answer_payload["answer_type"] not in _DIRECT_ANSWER_TYPES:
+        direct_answer_payload["answer_type"] = "none"
+    if direct_answer_payload["answer_type"] == "none":
+        direct_answer_payload["eligible"] = False
+    if direct_answer_payload["answer_type"] != "boolean":
+        direct_answer_payload["boolean_value"] = None
+    if direct_answer_payload["answer_type"] != "number":
+        direct_answer_payload["number_value"] = None
+    if direct_answer_payload["answer_type"] != "date":
+        direct_answer_payload["date_value"] = None
+    if direct_answer_payload["answer_type"] not in {"name", "names"}:
+        direct_answer_payload["text_value"] = None
     if relation_type == "is_void" and direct_answer_payload["answer_type"] == "boolean" and direct_answer_payload["boolean_value"] is None:
         direct_answer_payload["eligible"] = True
         direct_answer_payload["boolean_value"] = True

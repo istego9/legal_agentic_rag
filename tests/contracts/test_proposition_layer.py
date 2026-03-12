@@ -109,6 +109,21 @@ def test_direct_answer_returns_boolean_hint_for_lookup_question() -> None:
     assert result["trace"]["top_proposition"]["evidence"]["source_page_ids"] == ["employment_10"]
 
 
+def test_direct_answer_abstains_when_top_assertion_has_conditions() -> None:
+    candidate = _candidate()
+    candidate["chunk_projection"]["semantic_assertions"][0]["conditions"] = [
+        "written agreement with employer",
+        "subject to Article 66(13)",
+    ]
+    result = try_direct_answer(
+        question_text="Can an employee waive rights under this law by written agreement?",
+        answer_type="boolean",
+        route_name="article_lookup",
+        candidates=[candidate],
+    )
+    assert result is None
+
+
 def test_direct_answer_abstains_when_competing_propositions_are_too_close() -> None:
     first = _candidate()
     second = _candidate()
@@ -159,3 +174,30 @@ def test_direct_answer_extracts_court_name_from_case_projection() -> None:
     assert result is not None
     assert result["answer"] == "Court Of Appeal"
     assert result["trace"]["path"] == "deterministic_court_name"
+
+
+def test_direct_answer_extracts_suffix_currency_amount() -> None:
+    candidate = _case_candidate()
+    candidate["paragraph"]["text"] = "The Respondent shall pay 10,000 AED within 7 days."
+    candidate["chunk_projection"]["money_values"] = ["10,000 AED"]
+    candidate["chunk_projection"]["semantic_assertions"][0]["object_text"] = "10,000 AED within 7 days"
+    candidate["chunk_projection"]["semantic_assertions"][0]["dense_paraphrase"] = "The respondent must pay 10,000 AED within 7 days."
+    result = try_direct_answer(
+        question_text="What amount must the Respondent pay?",
+        answer_type="number",
+        route_name="single_case_extraction",
+        candidates=[candidate],
+    )
+    assert result is not None
+    assert result["answer"] == 10000
+    assert result["trace"]["path"] == "deterministic_money_pattern"
+
+
+def test_direct_answer_does_not_support_free_text_shortcuts() -> None:
+    result = try_direct_answer(
+        question_text="Explain the operative effect of Article 11.",
+        answer_type="free_text",
+        route_name="article_lookup",
+        candidates=[_candidate()],
+    )
+    assert result is None

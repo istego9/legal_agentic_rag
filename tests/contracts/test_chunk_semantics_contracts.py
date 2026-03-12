@@ -114,3 +114,35 @@ def test_normalize_chunk_semantics_aliases_invalidity_and_cleans_citations() -> 
     assert proposition["relation_type"] == "is_void"
     assert proposition["citation_refs"] == ["Article 11(1)"]
     assert proposition["direct_answer"]["boolean_value"] is True
+
+
+def test_normalize_chunk_semantics_disables_free_text_direct_answer_hint() -> None:
+    payload = chunk_semantics_module.normalize_chunk_semantics_payload(
+        {
+            "section_kind_case": "order",
+            "semantic_dense_summary": "Order summary.",
+            "semantic_query_terms": ["order"],
+            "propositions": [
+                {
+                    "subject_type": "actor",
+                    "subject_text": "respondent",
+                    "relation_type": "ordered_to_pay",
+                    "object_type": "money_amount",
+                    "object_text": "AED 10,000",
+                    "modality": "obligation",
+                    "polarity": "affirmative",
+                    "conditions": [],
+                    "exceptions": [],
+                    "citation_refs": ["Operative paragraph 1"],
+                    "dense_paraphrase": "The respondent must pay AED 10,000.",
+                    "direct_answer": {"eligible": True, "answer_type": "free_text", "text_value": "The respondent must pay AED 10,000."},
+                }
+            ],
+        },
+        doc_type="case",
+    )
+
+    proposition = payload["propositions"][0]
+    assert proposition["direct_answer"]["eligible"] is False
+    assert proposition["direct_answer"]["answer_type"] == "none"
+    assert proposition["direct_answer"]["text_value"] is None
