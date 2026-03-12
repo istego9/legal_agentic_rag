@@ -255,7 +255,7 @@ def test_e2e_flow(tmp_path: Path) -> None:
     )
     assert imported.status_code == 202
     assert imported.json()["status"] == "accepted"
-    assert imported.json()["processing_profile_version"] == "agentic_corpus_enrichment_v1"
+    assert imported.json()["processing_profile_version"] == "agentic_corpus_enrichment_v2"
     assert imported.json()["enrichment_job"]["status"] in {"completed", "partial"}
 
     listed = client.get("/v1/corpus/documents")
@@ -439,6 +439,13 @@ def test_e2e_flow(tmp_path: Path) -> None:
     run_get = client.get(f"/v1/runs/{run_id}")
     assert run_get.status_code == 200
     assert run_get.json()["run_id"] == run_id
+    assert run_get.json()["review_question_count"] >= 1
+
+    runs_list = client.get("/v1/runs", params={"limit": 10, "search": run_id})
+    assert runs_list.status_code == 200
+    list_payload = runs_list.json()
+    assert list_payload["total"] >= 1
+    assert any(item["run_id"] == run_id for item in list_payload["items"])
 
     run_item = client.get(f"/v1/runs/{run_id}/questions/q-1")
     assert run_item.status_code == 200
@@ -1911,6 +1918,16 @@ def test_review_console_endpoints_support_generation_lock_export_and_minicheck_u
         assert review_detail.status_code == 200
         assert review_detail.json()["question_id"] == "q-review"
 
+        ensured_gold_target = client.post(f"/v1/review/runs/{run_id}/gold-target")
+        assert ensured_gold_target.status_code == 200
+        ensured_gold_payload = ensured_gold_target.json()
+        assert ensured_gold_payload["run_id"] == run_id
+        assert ensured_gold_payload["project_id"] == project_id
+        assert ensured_gold_payload["dataset_id"] == dataset_id
+        assert ensured_gold_payload["name"] == f"Review Gold · {dataset_id}"
+        assert ensured_gold_payload["created_now"] is True
+        auto_gold_dataset_id = ensured_gold_payload["gold_dataset_id"]
+
         pdf_preview = client.get(f"/v1/review/questions/q-review/pdf-preview", params={"run_id": run_id})
         assert pdf_preview.status_code == 200
         assert "fallback" in pdf_preview.json()
@@ -2023,15 +2040,16 @@ def test_review_console_endpoints_support_generation_lock_export_and_minicheck_u
         locked = client.post(
             f"/v1/review/questions/q-review/lock-gold",
             params={"run_id": run_id},
-            json={"gold_dataset_id": gold_dataset_id, "reviewer": "qa", "reviewer_confidence": 0.9},
+            json={"reviewer": "qa", "reviewer_confidence": 0.9},
         )
         assert locked.status_code == 200
         assert locked.json()["status"] == "gold_locked"
+        assert locked.json()["accepted_decision"]["gold_dataset_id"] == auto_gold_dataset_id
 
         unlocked = client.post(
             f"/v1/review/questions/q-review/unlock-gold",
             params={"run_id": run_id},
-            json={"gold_dataset_id": gold_dataset_id, "reviewer": "qa"},
+            json={"reviewer": "qa"},
         )
         assert unlocked.status_code == 200
         assert unlocked.json()["status"] == "review_in_progress"

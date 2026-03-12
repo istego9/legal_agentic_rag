@@ -346,6 +346,14 @@ class RunSummary(BaseModel):
     status: str
     question_count: int
     created_at: datetime
+    project_id: Optional[str] = None
+    updated_at: Optional[datetime] = None
+    review_question_count: int = Field(default=0, ge=0)
+
+
+class RunListResponse(BaseModel):
+    items: List[RunSummary] = Field(default_factory=list)
+    total: int = Field(default=0, ge=0)
 
 
 class ExportRequest(BaseModel):
@@ -682,16 +690,28 @@ class ReviewCustomDecisionRequest(BaseModel):
 
 
 class ReviewLockGoldRequest(BaseModel):
-    gold_dataset_id: str
+    gold_dataset_id: Optional[str] = None
     reviewer: Optional[str] = None
     reviewer_confidence: Optional[float] = Field(default=None, ge=0, le=1)
     adjudication_note: Optional[str] = None
 
 
 class ReviewUnlockGoldRequest(BaseModel):
-    gold_dataset_id: str
+    gold_dataset_id: Optional[str] = None
     reviewer: str = Field(min_length=1)
     adjudication_note: Optional[str] = None
+
+
+class ReviewGoldTarget(BaseModel):
+    run_id: str
+    project_id: str
+    dataset_id: Optional[str] = None
+    gold_dataset_id: str
+    name: str
+    version: str
+    status: Literal["draft", "review", "locked", "archived"]
+    question_count: int = Field(ge=0)
+    created_now: bool = False
 
 
 class ReviewExportRequest(BaseModel):

@@ -72,6 +72,29 @@ For GPT-5-family metadata extraction on Azure, prefer the Azure Responses API pa
 - reasoning effort: `minimal`
 - verbosity: `low`
 
+## Chunk Semantics Enrichment (pilot path)
+
+Chunk-level semantic extraction is separate from document metadata normalization and should be enabled explicitly.
+
+- `AGENTIC_ENRICHMENT_LLM_ENABLED` — set `1` to enable chunk semantic extraction; keep `0` by default outside pilot/controlled runs
+- `CHUNK_SEMANTICS_PROVIDER` — optional override (`azure` or `openai`)
+- `CHUNK_SEMANTICS_DEPLOYMENT` — recommended Azure deployment: `wf-gpt5mini-metadata`
+- `CHUNK_SEMANTICS_API_MODE` — recommended: `responses`
+- `CHUNK_SEMANTICS_MODEL` — optional direct OpenAI model id such as `gpt-5-mini`
+- `CHUNK_SEMANTICS_MAX_TOKENS` — recommended output budget: about `1200`
+- `CHUNK_SEMANTICS_TIMEOUT_SECONDS` — recommended: `30`
+- `CHUNK_SEMANTICS_TOKEN_PARAMETER` — use `max_output_tokens` for Responses API
+- `CHUNK_SEMANTICS_REASONING_EFFORT` — recommended: `minimal`
+- `CHUNK_SEMANTICS_VERBOSITY` — recommended: `low`
+
+Recommended pilot settings:
+
+- `AGENTIC_ENRICHMENT_LLM_ENABLED=1`
+- `CHUNK_SEMANTICS_DEPLOYMENT=wf-gpt5mini-metadata`
+- `CHUNK_SEMANTICS_API_MODE=responses`
+- `CHUNK_SEMANTICS_REASONING_EFFORT=minimal`
+- `CHUNK_SEMANTICS_VERBOSITY=low`
+
 ## OpenTelemetry (FastAPI)
 
 - `OTEL_ENABLED` — include FastAPI server span instrumentation (default: `1`)

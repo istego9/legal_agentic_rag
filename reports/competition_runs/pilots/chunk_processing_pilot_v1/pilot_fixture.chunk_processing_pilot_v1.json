@@ -1,0 +1,82 @@
+{
+  "fixture_version": "chunk_processing_pilot_v1",
+  "documents": [
+    {
+      "pdf_id": "33bc02044716acdfedb164b065bdaec098aaadcae863c591f9931c88e7307d16",
+      "label": "Employment Law DIFC Law No. 2 of 2019",
+      "doc_type": "law"
+    },
+    {
+      "pdf_id": "4e387152960c1029b3711cacb05b287b13c977bc61f2558059a62b7b427a62eb",
+      "label": "Trust Law DIFC Law No. 4 of 2018",
+      "doc_type": "law"
+    },
+    {
+      "pdf_id": "fbdd7f9dd299d83b1f398778da2e6765dfaaed62005667264734a1f76ec09071",
+      "label": "Common Reporting Standard Law DIFC Law No. 2 of 2018",
+      "doc_type": "law"
+    },
+    {
+      "pdf_id": "897ab23ed5a70034d3d708d871ad1da8bc7b6608d94b1ca46b5d578d985d3c13",
+      "label": "Coinmena B.S.C. (C) v Foloosi Technologies Ltd",
+      "doc_type": "case"
+    },
+    {
+      "pdf_id": "78ffe994cdc61ce6a2a6937c79fc52751bb5d2b4eaa4019f088fbccf70569c26",
+      "label": "CA 004/2025 Mr Oran and Oaken v Oved",
+      "doc_type": "case"
+    }
+  ],
+  "queries": [
+    {
+      "question_id": "employment_void_clause_boolean",
+      "question": "Under Article 11(1) of the Employment Law 2019, is a provision in an agreement to waive minimum employment requirements void in all circumstances, except where expressly permitted by the Law?",
+      "answer_type": "boolean",
+      "route_hint": "article_lookup",
+      "expected_answer": true,
+      "expected_pdf_id": "33bc02044716acdfedb164b065bdaec098aaadcae863c591f9931c88e7307d16",
+      "expected_article_number": "11"
+    },
+    {
+      "question_id": "employment_conditional_waiver_boolean",
+      "question": "Under Article 11(2)(b) of the Employment Law 2019, can an Employee waive any right under this Law by entering into a written agreement with their Employer to terminate employment, provided they were given an opportunity to receive independent legal advice or took part in mediation?",
+      "answer_type": "boolean",
+      "route_hint": "article_lookup",
+      "expected_answer": true,
+      "expected_pdf_id": "33bc02044716acdfedb164b065bdaec098aaadcae863c591f9931c88e7307d16",
+      "expected_article_number": "11"
+    },
+    {
+      "question_id": "coinmena_costs_amount",
+      "question": "In Coinmena B.S.C. (C) v Foloosi Technologies Ltd, what total sum must the Applicant pay as the Costs Award?",
+      "answer_type": "number",
+      "route_hint": "single_case_extraction",
+      "expected_answer": 155879.5,
+      "expected_pdf_id": "897ab23ed5a70034d3d708d871ad1da8bc7b6608d94b1ca46b5d578d985d3c13"
+    },
+    {
+      "question_id": "coinmena_deadline_days",
+      "question": "In Coinmena B.S.C. (C) v Foloosi Technologies Ltd, within how many days must the Applicant pay the Costs Award?",
+      "answer_type": "number",
+      "route_hint": "single_case_extraction",
+      "expected_answer": 14,
+      "expected_pdf_id": "897ab23ed5a70034d3d708d871ad1da8bc7b6608d94b1ca46b5d578d985d3c13"
+    },
+    {
+      "question_id": "ca004_interest_rate",
+      "question": "In CA 004/2025 Mr Oran and Oaken v Oved, if the costs are not paid within fourteen days, at what annual rate does interest accrue?",
+      "answer_type": "number",
+      "route_hint": "single_case_extraction",
+      "expected_answer": 9,
+      "expected_pdf_id": "78ffe994cdc61ce6a2a6937c79fc52751bb5d2b4eaa4019f088fbccf70569c26"
+    },
+    {
+      "question_id": "ca004_court_name",
+      "question": "Which court issued the order in CA 004/2025 Mr Oran and Oaken v Oved?",
+      "answer_type": "name",
+      "route_hint": "single_case_extraction",
+      "expected_answer": "Court Of Appeal",
+      "expected_pdf_id": "78ffe994cdc61ce6a2a6937c79fc52751bb5d2b4eaa4019f088fbccf70569c26"
+    }
+  ]
+}

@@ -54,12 +54,22 @@ version-grouping and current-version problems discovered during full-corpus
   - evaluation of the typed title-page prompt set and title-page amendment reference extraction
 - `azure_typed_prompts_eval.md`
   - human-readable summary of the typed-prompt run
+- `current_markup_assessment.json`
+  - current PG-backed quality snapshot for document titles, case metadata, and amendment refs
+- `current_markup_assessment.md`
+  - findings-first assessment of current markup quality and recommended next steps
 - `manual_review_rca.json`
   - structured breakdown of why the successful Azure run still left 15 documents in manual review
 - `manual_review_rca.md`
   - detailed RCA for the remaining manual-review queue, with example documents and corrective actions
 - `typed_prompt_redesign.md`
   - typed prompt redesign, official-docs-derived best practices, and the grounded consolidated-law plan
+- `chunk_layer_strategy_and_llm_pilot.md`
+  - boundary note for deterministic vs LLM chunk semantics, including provenance requirements and pilot findings
+- `chunk_llm_pilot.json`
+  - raw Azure GPT-5-mini chunk-semantic pilot outputs used to validate negation and conditional handling
+- `chunk_processing_external_audit_export.zip`
+  - self-contained external-audit bundle for the 5-document chunk-processing pilot, including reports, prompts, implementation files, tests, and source documents
 - `problem_report.md`
   - human-readable RCA
 - `prompt_specs.md`
@@ -80,4 +90,5 @@ version-grouping and current-version problems discovered during full-corpus
 - `prepare_report.azure_fast_classifier_pg.json` is the PostgreSQL-backed Azure run using the fast classifier model and rules-only chunk enrichment.
 - `prepare_report.azure_fast_classifier_hardened_pg_final.json` is the PostgreSQL-backed Azure run after hardening the title-page normalizer review invariants and case-anchor fallback.
 - `prepare_report.azure_typed_prompts_pg_final_rerun.json` is the PostgreSQL-backed Azure run after splitting title-page extraction by document family.
+- `chunk_processing_external_audit_export.zip` is the audit package for the 5-document chunk-processing pilot with provenance coverage and direct-answer evaluation.
 - This directory is the research overlay that explains why the artifacts are not yet sufficient for trustworthy lineage/version use.

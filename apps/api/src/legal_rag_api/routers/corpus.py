@@ -58,6 +58,7 @@ from services.ingest.corpus_metadata_normalizer import (
 from services.ingest.ingest import compact_ingest_diagnostics, run_deterministic_ingest
 
 router = APIRouter(prefix="/v1/corpus", tags=["Corpus"])
+REPO_ROOT = Path(__file__).resolve().parents[5]
 UPLOAD_DIR = Path(os.getenv("LEGAL_RAG_UPLOAD_DIR", "/workspace/reports/uploads"))
 chunk_llm_client = AzureLLMClient()
 
@@ -357,10 +358,31 @@ def _derive_processing_status(document_status: Any, processing: Dict[str, Any]) 
 
 
 def _document_source_file_path(document: Dict[str, Any], processing: Dict[str, Any]) -> str:
-    direct = str(document.get("source_pdf_path", "")).strip()
-    if direct:
-        return direct
-    return str(processing.get("source_pdf_path", "")).strip()
+    candidates = [
+        str(document.get("source_pdf_path", "")).strip(),
+        str(processing.get("source_pdf_path", "")).strip(),
+    ]
+    repo_anchor = REPO_ROOT.name
+    repo_relative_anchors = {"apps", "datasets", "db", "docs", "infra", "packages", "reports", "schemas", "services", "tests"}
+    for candidate in candidates:
+        if not candidate:
+            continue
+        path = Path(candidate)
+        if path.exists():
+            return str(path)
+        if repo_anchor in path.parts:
+            anchor_index = path.parts.index(repo_anchor)
+            remapped = REPO_ROOT.joinpath(*path.parts[anchor_index + 1 :])
+            if remapped.exists():
+                return str(remapped)
+        for anchor in path.parts:
+            if anchor not in repo_relative_anchors:
+                continue
+            anchor_index = path.parts.index(anchor)
+            remapped = REPO_ROOT.joinpath(*path.parts[anchor_index:])
+            if remapped.exists():
+                return str(remapped)
+    return ""
 
 
 def _extract_first_json_object(raw: str) -> Dict[str, Any]:

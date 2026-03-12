@@ -1,0 +1,63 @@
+{
+  "report_version": "chunk_processing_direct_answer_report_v1",
+  "query_count": 6,
+  "direct_answer_used_count": 2,
+  "direct_answer_correct_count": 2,
+  "direct_answer_correct_ratio": 1.0,
+  "items": [
+    {
+      "question_id": "employment_void_clause_boolean",
+      "used_direct_answer": true,
+      "solver_path": "direct_answer_hint",
+      "answer": true,
+      "expected_answer": true,
+      "correct": true,
+      "abstained": false
+    },
+    {
+      "question_id": "employment_conditional_waiver_boolean",
+      "used_direct_answer": true,
+      "solver_path": "direct_answer_hint",
+      "answer": true,
+      "expected_answer": true,
+      "correct": true,
+      "abstained": false
+    },
+    {
+      "question_id": "coinmena_costs_amount",
+      "used_direct_answer": false,
+      "solver_path": "number_abstain_conflict",
+      "answer": null,
+      "expected_answer": 155879.5,
+      "correct": false,
+      "abstained": true
+    },
+    {
+      "question_id": "coinmena_deadline_days",
+      "used_direct_answer": false,
+      "solver_path": "number_abstain_conflict",
+      "answer": null,
+      "expected_answer": 14,
+      "correct": false,
+      "abstained": true
+    },
+    {
+      "question_id": "ca004_interest_rate",
+      "used_direct_answer": false,
+      "solver_path": "number_abstain_conflict",
+      "answer": null,
+      "expected_answer": 9,
+      "correct": false,
+      "abstained": true
+    },
+    {
+      "question_id": "ca004_court_name",
+      "used_direct_answer": false,
+      "solver_path": "name_abstain_missing",
+      "answer": null,
+      "expected_answer": "Court Of Appeal",
+      "correct": false,
+      "abstained": true
+    }
+  ]
+}
