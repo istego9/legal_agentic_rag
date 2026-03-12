@@ -23,6 +23,7 @@ if str(ROOT) not in sys.path:
 
 from legal_rag_api.main import app  # noqa: E402
 from legal_rag_api.contracts import PageRef, QueryResponse, Telemetry  # noqa: E402
+from legal_rag_api.routers import review as review_router  # noqa: E402
 from legal_rag_api.state import store  # noqa: E402
 from services.ingest import ingest as ingest_module  # noqa: E402
 from services.runtime.solvers import normalize_answer  # noqa: E402
@@ -1830,7 +1831,9 @@ def test_export_submission_official_fails_closed_with_strict_contract_preflight(
     assert payload["preflight"]["invalid_prediction_count"] == 1
 
 
-def test_review_console_endpoints_support_generation_lock_export_and_minicheck_unavailable() -> None:
+def test_review_console_endpoints_support_generation_lock_export_and_minicheck_unavailable(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     state = _snapshot_solver_runtime_state()
     try:
         store.feature_flags["canonical_chunk_model_v1"] = True
@@ -1944,6 +1947,9 @@ def test_review_console_endpoints_support_generation_lock_export_and_minicheck_u
         assert generated.status_code == 200
         generated_record = generated.json()["record"]
         assert any(candidate["candidate_kind"] == "strong_model" for candidate in generated_record["candidate_bundle"])
+        strong_candidate = next(
+            candidate for candidate in generated_record["candidate_bundle"] if candidate["candidate_kind"] == "strong_model"
+        )
 
         accepted = client.post(
             f"/v1/review/questions/q-review/accept-candidate",
@@ -1958,8 +1964,8 @@ def test_review_console_endpoints_support_generation_lock_export_and_minicheck_u
             params={"run_id": run_id},
             json={
                 "reviewer": "qa",
-                "candidate_kind": "system",
-                "candidate_answer": "ENF 269/2023",
+                "candidate_kind": "strong_model",
+                "candidate_answer": strong_candidate["answer"],
                 "candidate_answerability": "answerable",
                 "answer_type": "name",
                 "evidence": [
@@ -1973,6 +1979,46 @@ def test_review_console_endpoints_support_generation_lock_export_and_minicheck_u
         )
         assert mini_check.status_code == 503
         assert "Azure OpenAI" in mini_check.json()["detail"]
+
+        async def _fake_complete_chat(*args: object, **kwargs: object) -> tuple[str, dict[str, int]]:
+            return (
+                json.dumps(
+                    {
+                        "verdict": "not_supported",
+                        "extracted_answer": "ENF 269/2023",
+                        "confidence": 0.73,
+                        "rationale": "Selected evidence supports ENF 269/2023 instead.",
+                        "conflict_type": "answer_mismatch",
+                    }
+                ),
+                {"prompt_tokens": 10, "completion_tokens": 12},
+            )
+
+        monkeypatch.setattr(review_router.llm_client, "complete_chat", _fake_complete_chat)
+        monkeypatch.setattr(review_router.llm_client.config, "endpoint", "https://azure.example")
+        monkeypatch.setattr(review_router.llm_client.config, "api_key", "key")
+        monkeypatch.setattr(review_router.llm_client.config, "deployment", "gpt-test")
+
+        mini_check_ready = client.post(
+            f"/v1/review/questions/q-review/mini-check",
+            params={"run_id": run_id},
+            json={
+                "reviewer": "qa",
+                "candidate_kind": "strong_model",
+                "candidate_answer": strong_candidate["answer"],
+                "candidate_answerability": strong_candidate["answerability"],
+                "answer_type": "name",
+                "evidence": strong_candidate["sources"],
+            },
+        )
+        assert mini_check_ready.status_code == 200
+        ready_payload = mini_check_ready.json()
+        assert ready_payload["mini_check_result"]["candidate_kind"] == "strong_model"
+        assert ready_payload["mini_check_result"]["verdict"] == "not_supported"
+        mini_check_candidate = next(
+            candidate for candidate in ready_payload["record"]["candidate_bundle"] if candidate["candidate_kind"] == "mini_check"
+        )
+        assert mini_check_candidate["metadata"]["candidate_kind"] == "strong_model"
 
         locked = client.post(
             f"/v1/review/questions/q-review/lock-gold",
