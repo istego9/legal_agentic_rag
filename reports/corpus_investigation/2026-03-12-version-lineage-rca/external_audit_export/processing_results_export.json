@@ -1,0 +1,46 @@
+{
+  "export_version": "external_audit_processing_results_v2",
+  "source_report": "/Users/artemgendler/dev/legal_agentic_rag/reports/competition_runs/prepare_report.azure_gpt5mini_full_corpus_v3_titles.json",
+  "quality_report": "/Users/artemgendler/dev/legal_agentic_rag/reports/corpus_investigation/2026-03-12-version-lineage-rca/full_gpt5mini_quality_report_v3_titles.md",
+  "ingest_summary": {
+    "documents": 30,
+    "pages": 590,
+    "paragraphs": 1932,
+    "relation_edges": 1939,
+    "duplicate_documents": 0,
+    "parse_errors": 0,
+    "parse_warnings": 0
+  },
+  "doc_type_counts": {
+    "case": 21,
+    "law": 9
+  },
+  "metadata_job": {
+    "status": "completed",
+    "document_count": 30,
+    "processed_document_count": 30,
+    "failed_document_ids": [],
+    "llm_model_version": "wf-gpt5mini-metadata",
+    "cache_hit_count": 33,
+    "llm_calls": 0,
+    "grouped_case_family_count": 3
+  },
+  "quality_metrics": {
+    "placeholder_title_count": 0,
+    "title_null_count": 0,
+    "verbose_title_count": 0,
+    "rules_only_count": 0,
+    "manual_review_count": 0,
+    "case_null_court_count": 0,
+    "law_amendment_gap_count": 0,
+    "law_multi_amendment_ref_count": 8
+  },
+  "residual_issues": {
+    "verbose_title_docs": [],
+    "rules_only_docs": [],
+    "case_null_court_docs": [],
+    "manual_review_docs": [],
+    "law_amendment_gap_docs": []
+  },
+  "final_status": "clean_metadata_snapshot"
+}

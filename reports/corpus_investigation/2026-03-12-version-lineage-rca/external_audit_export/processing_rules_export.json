@@ -1,0 +1,60 @@
+{
+  "export_version": "external_audit_processing_rules_v2",
+  "corpus_input": {
+    "documents_zip": "/Users/artemgendler/dev/legal_agentic_rag/datasets/official_fetch_2026-03-11/documents.zip",
+    "prepare_command": "PYTHONPATH=apps/api/src:. .venv/bin/python scripts/competition_batch.py prepare --documents datasets/official_fetch_2026-03-11/documents.zip --project-id competition_full_gpt5mini_metadata_v3_titles --output reports/competition_runs/prepare_report.azure_gpt5mini_full_corpus_v3_titles.json"
+  },
+  "ingest_rules": {
+    "parser_mode": "parser_only ingest with offline post-ingest metadata normalization",
+    "page_identity_rule": "source_page_id remains stable and page is the competition source unit",
+    "title_fallback_policy": "disabled for metadata recognition; titles are LLM-owned and remain null if not extracted",
+    "duplicate_policy": "exact duplicate grouping only; no duplicate documents in current corpus",
+    "ocr_policy": "not silent default path"
+  },
+  "metadata_rules": {
+    "profile_version": "corpus_metadata_normalizer_v5",
+    "model_deployment": "wf-gpt5mini-metadata",
+    "api_mode": "responses",
+    "reasoning_effort": "minimal",
+    "verbosity": "low",
+    "title_prompt_set_version": "corpus_typed_title_identity_prompt_set_v3",
+    "case_relation_prompt_version": "corpus_case_relation_resolver_v1",
+    "title_rules": [
+      "typed prompts per document family: law, regulation, enactment_notice, case, fallback router",
+      "title fields are extracted from title/caption blocks only",
+      "no carry-over from deterministic placeholder titles",
+      "post-LLM case title clamp removes procedural/body blobs",
+      "amendment references are extracted as ordered arrays"
+    ],
+    "court_rules": {
+      "registry_version": "court_registry_v1",
+      "registry_file": "/Users/artemgendler/dev/legal_agentic_rag/services/ingest/court_registry_v1.json",
+      "policy": "observed corpus labels enriched with official DIFC court sources, then normalized deterministically post-extraction"
+    }
+  },
+  "prompt_files": [
+    "/Users/artemgendler/dev/legal_agentic_rag/packages/prompts/corpus_law_title_identity_v2.md",
+    "/Users/artemgendler/dev/legal_agentic_rag/packages/prompts/corpus_regulation_title_identity_v2.md",
+    "/Users/artemgendler/dev/legal_agentic_rag/packages/prompts/corpus_enactment_notice_title_identity_v2.md",
+    "/Users/artemgendler/dev/legal_agentic_rag/packages/prompts/corpus_case_title_identity_v2.md",
+    "/Users/artemgendler/dev/legal_agentic_rag/packages/prompts/corpus_other_title_router_v2.md"
+  ],
+  "implementation_files": [
+    "/Users/artemgendler/dev/legal_agentic_rag/services/ingest/court_registry.py",
+    "/Users/artemgendler/dev/legal_agentic_rag/services/ingest/corpus_metadata_normalizer.py",
+    "/Users/artemgendler/dev/legal_agentic_rag/services/ingest/ingest.py",
+    "/Users/artemgendler/dev/legal_agentic_rag/apps/api/src/legal_rag_api/azure_llm.py"
+  ],
+  "test_files": [
+    "/Users/artemgendler/dev/legal_agentic_rag/tests/contracts/test_azure_llm_contracts.py",
+    "/Users/artemgendler/dev/legal_agentic_rag/tests/contracts/test_azure_docker_env_contract.py",
+    "/Users/artemgendler/dev/legal_agentic_rag/tests/contracts/test_corpus_metadata_normalizer.py",
+    "/Users/artemgendler/dev/legal_agentic_rag/tests/contracts/test_ingest_stub_titles.py"
+  ],
+  "reference_files": [
+    "/Users/artemgendler/dev/legal_agentic_rag/reports/corpus_investigation/2026-03-12-version-lineage-rca/court_registry_enrichment.md",
+    "/Users/artemgendler/dev/legal_agentic_rag/reports/corpus_investigation/2026-03-12-version-lineage-rca/full_gpt5mini_quality_report_v3_titles.md",
+    "/Users/artemgendler/dev/legal_agentic_rag/reports/corpus_investigation/2026-03-12-version-lineage-rca/full_gpt5mini_quality_report_v3_titles.json",
+    "/Users/artemgendler/dev/legal_agentic_rag/reports/competition_runs/prepare_report.azure_gpt5mini_full_corpus_v3_titles.json"
+  ]
+}

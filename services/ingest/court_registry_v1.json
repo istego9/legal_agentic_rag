@@ -1,0 +1,204 @@
+{
+  "registry_version": "court_registry_v1",
+  "court_systems": [
+    {
+      "court_system_key": "difc_courts",
+      "court_system_name": "Dubai International Financial Centre Courts",
+      "aliases": [
+        "DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS",
+        "THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS",
+        "DIFC COURTS"
+      ],
+      "source_urls": [
+        "https://www.difccourts.ae/about/court-structure",
+        "https://www.difccourts.ae/about/jurisdiction"
+      ]
+    }
+  ],
+  "courts": [
+    {
+      "court_key": "difc_court_of_appeal",
+      "court_system_key": "difc_courts",
+      "court_name": "Court of Appeal",
+      "court_level": "Court of Appeal",
+      "court_kind": "court",
+      "aliases": [
+        "COURT OF APPEAL",
+        "COURT OF APPEAL - ORDERS"
+      ],
+      "case_number_prefixes": [
+        "CA"
+      ],
+      "division_name": null,
+      "source_urls": [
+        "https://www.difccourts.ae/about/jurisdiction",
+        "https://www.difccourts.ae/about/court-structure"
+      ]
+    },
+    {
+      "court_key": "difc_court_of_first_instance",
+      "court_system_key": "difc_courts",
+      "court_name": "Court of First Instance",
+      "court_level": "Court of First Instance",
+      "court_kind": "court",
+      "aliases": [
+        "COURT OF FIRST INSTANCE",
+        "COURT OF FIRST INSTANCE - ORDERS"
+      ],
+      "case_number_prefixes": [
+        "CFI",
+        "ARB"
+      ],
+      "division_name": null,
+      "source_urls": [
+        "https://www.difccourts.ae/about/jurisdiction",
+        "https://www.difccourts.ae/difc-courts/services/court-of-first-instance"
+      ]
+    },
+    {
+      "court_key": "difc_small_claims_tribunal",
+      "court_system_key": "difc_courts",
+      "court_name": "Small Claims Tribunal",
+      "court_level": "Small Claims Tribunal",
+      "court_kind": "tribunal",
+      "aliases": [
+        "SMALL CLAIMS TRIBUNAL",
+        "SCT - JUDGMENTS AND ORDERS",
+        "SCT - ORDERS",
+        "SCT - JUDGMENTS"
+      ],
+      "case_number_prefixes": [
+        "S CT",
+        "SCT"
+      ],
+      "division_name": null,
+      "source_urls": [
+        "https://www.difccourts.ae/about/court-structure"
+      ]
+    },
+    {
+      "court_key": "difc_digital_economy_court_division",
+      "court_system_key": "difc_courts",
+      "court_name": "Digital Economy Court Division",
+      "court_level": "Court of First Instance",
+      "court_kind": "division",
+      "aliases": [
+        "DIGITAL ECONOMY COURT",
+        "DIGITAL ECONOMY COURT - ORDERS",
+        "DIGITAL ECONOMY COURT - JUDGMENTS"
+      ],
+      "case_number_prefixes": [
+        "DEC"
+      ],
+      "division_name": "Digital Economy Court Division",
+      "source_urls": [
+        "https://www.difccourts.ae/media-centre/newsroom/difc-courts-manages-increased-caseload-alongside-newly-engineered-services-future-digital-economy",
+        "https://www.difccourts.ae/media-centre/newsroom/dubais-difc-courts-shares-insights-case-activity"
+      ]
+    },
+    {
+      "court_key": "difc_technology_and_construction_division",
+      "court_system_key": "difc_courts",
+      "court_name": "Technology & Construction Division",
+      "court_level": "Court of First Instance",
+      "court_kind": "division",
+      "aliases": [
+        "TECHNOLOGY AND CONSTRUCTION DIVISION",
+        "TECHNOLOGY AND CONSTRUCTION DIVISION - ORDERS",
+        "TECHNOLOGY & CONSTRUCTION DIVISION",
+        "TECHNOLOGY & CONSTRUCTION DIVISION - ORDERS"
+      ],
+      "case_number_prefixes": [
+        "TCD"
+      ],
+      "division_name": "Technology & Construction Division",
+      "source_urls": [
+        "https://www.difccourts.ae/about/court-structure",
+        "https://www.difccourts.ae/difc-courts/services/specialised-divisions/technology-and-construction-division"
+      ]
+    }
+  ],
+  "document_streams": [
+    {
+      "stream_key": "orders",
+      "stream_name": "Orders",
+      "aliases": [
+        " - ORDERS",
+        " ORDERS"
+      ]
+    },
+    {
+      "stream_key": "judgments",
+      "stream_name": "Judgments",
+      "aliases": [
+        " - JUDGMENTS",
+        " JUDGMENTS"
+      ]
+    },
+    {
+      "stream_key": "judgments_and_orders",
+      "stream_name": "Judgments and Orders",
+      "aliases": [
+        "JUDGMENTS AND ORDERS"
+      ]
+    },
+    {
+      "stream_key": "order_with_reasons",
+      "stream_name": "Order with Reasons",
+      "aliases": [
+        "ORDER WITH REASONS",
+        "REASONS FOR THE ORDER"
+      ]
+    },
+    {
+      "stream_key": "enforcement_orders",
+      "stream_name": "Enforcement Orders",
+      "aliases": [
+        "ENFORCEMENT ORDERS"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "source_key": "difc_court_structure",
+      "url": "https://www.difccourts.ae/about/court-structure",
+      "supports": [
+        "Small Claims Tribunal",
+        "Court of First Instance",
+        "Technology & Construction Division"
+      ]
+    },
+    {
+      "source_key": "difc_jurisdiction",
+      "url": "https://www.difccourts.ae/about/jurisdiction",
+      "supports": [
+        "Court of First Instance",
+        "Court of Appeal",
+        "Dubai International Financial Centre Courts"
+      ]
+    },
+    {
+      "source_key": "difc_tcd_page",
+      "url": "https://www.difccourts.ae/difc-courts/services/specialised-divisions/technology-and-construction-division",
+      "supports": [
+        "Technology & Construction Division"
+      ]
+    },
+    {
+      "source_key": "difc_dec_news",
+      "url": "https://www.difccourts.ae/media-centre/newsroom/difc-courts-manages-increased-caseload-alongside-newly-engineered-services-future-digital-economy",
+      "supports": [
+        "Digital Economy Court Division"
+      ]
+    },
+    {
+      "source_key": "difc_case_activity_2024",
+      "url": "https://www.difccourts.ae/media-centre/newsroom/dubais-difc-courts-shares-insights-case-activity",
+      "supports": [
+        "Technology & Construction Division",
+        "Digital Economy Court Division",
+        "Small Claims Tribunal"
+      ]
+    }
+  ]
+}

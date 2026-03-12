@@ -849,10 +849,7 @@ def ingest_zip_stub(blob_url: str, project_id: str, parse_policy: str, dedupe_en
                 low_quality_text = False
 
             title_candidate = Path(member).stem.replace("_", " ").strip()
-            if _looks_like_hex(title_candidate):
-                title = f"Document {title_candidate[:12]}"
-            else:
-                title = title_candidate or pdf_id
+            source_label = title_candidate or pdf_id
 
             refs_source = f"{member} {preview_text}".strip() if preview_text else member
             refs = _extract_refs(refs_source)
@@ -879,7 +876,7 @@ def ingest_zip_stub(blob_url: str, project_id: str, parse_policy: str, dedupe_en
             historical_relation_type = (
                 "repealed" if uses_legislative_temporal and effective_end_date and not is_current_version else "original"
             )
-            ontology = _build_ontology(doc_type, title, refs, year, law_number, case_id)
+            ontology = _build_ontology(doc_type, source_label, refs, year, law_number, case_id)
             summary_source = preview_text
             tags = _uniq(
                 [
@@ -910,7 +907,6 @@ def ingest_zip_stub(blob_url: str, project_id: str, parse_policy: str, dedupe_en
 
             document_id = _stable_id("doc", canonical_doc_id, content_hash)
             page_count = parsed_page_count if parsed_page_count > 0 else 1
-            title_normalized = _title_normalized(title)
             version_group_id = _resolve_version_group_id(
                 doc_type=doc_type,
                 law_number=law_number,
@@ -926,17 +922,17 @@ def ingest_zip_stub(blob_url: str, project_id: str, parse_policy: str, dedupe_en
                 "canonical_doc_id": canonical_doc_id,
                 "content_hash": content_hash,
                 "doc_type": doc_type,
-                "title": title,
-                "citation_title": title,
+                "title": None,
+                "citation_title": None,
                 "law_number": law_number,
                 "case_id": case_id,
                 "year": year,
                 "page_count": page_count,
                 "duplicate_group_id": duplicate_group_id,
                 "status": "parsed",
-                "title_raw": title,
-                "title_normalized": title_normalized,
-                "short_title": title[:80],
+                "title_raw": None,
+                "title_normalized": None,
+                "short_title": None,
                 "language": "unknown",
                 "jurisdiction": "unknown",
                 "issued_date": issued_date,
@@ -957,7 +953,7 @@ def ingest_zip_stub(blob_url: str, project_id: str, parse_policy: str, dedupe_en
                 "legal_domains": tags[:5],
                 "entity_names": refs["entities"][:12],
                 "citation_keys": refs["law_refs"][:8] + refs["case_refs"][:8],
-                "search_text_compact": _compact_summary(summary_source, title),
+                "search_text_compact": _compact_summary(summary_source, source_label),
                 "search_priority_score": round(0.25 + classification_confidence * 0.5, 4),
                 "processing": {
                     "classification_confidence": classification_confidence,
@@ -965,7 +961,7 @@ def ingest_zip_stub(blob_url: str, project_id: str, parse_policy: str, dedupe_en
                     "parse_warning": parse_warning,
                     "parse_error": parse_error,
                     "tags": tags,
-                    "compact_summary": _compact_summary(summary_source, title),
+                    "compact_summary": _compact_summary(summary_source, source_label),
                     "processing_profile_version": PROCESSING_PROFILE_VERSION,
                     "source_archive_path": blob_url,
                     "source_archive_member": member,
@@ -991,10 +987,10 @@ def ingest_zip_stub(blob_url: str, project_id: str, parse_policy: str, dedupe_en
                     "source_file_name": Path(member).name,
                     "source_sha256": content_hash,
                     "duplicate_group_id": duplicate_group_id,
-                    "title_raw": title,
-                    "title_normalized": title_normalized,
-                    "short_title": title[:80],
-                    "citation_title": title,
+                    "title_raw": None,
+                    "title_normalized": None,
+                    "short_title": None,
+                    "citation_title": None,
                     "language": "unknown",
                     "jurisdiction": "unknown",
                     "issued_date": issued_date,
@@ -1016,7 +1012,7 @@ def ingest_zip_stub(blob_url: str, project_id: str, parse_policy: str, dedupe_en
                     "legal_domains": tags[:5],
                     "entity_names": refs["entities"][:12],
                     "citation_keys": refs["law_refs"][:8] + refs["case_refs"][:8],
-                    "search_text_compact": _compact_summary(summary_source, title),
+                    "search_text_compact": _compact_summary(summary_source, source_label),
                     "search_priority_score": round(0.25 + classification_confidence * 0.5, 4),
                     "status": "parsed",
                 }
@@ -1129,7 +1125,7 @@ def ingest_zip_stub(blob_url: str, project_id: str, parse_policy: str, dedupe_en
             for page_num, page_text in enumerate(page_texts):
                 safe_page_text = _sanitize_preview_text(page_text)
                 if not safe_page_text:
-                    safe_page_text = _compact_summary(summary_source, title)
+                    safe_page_text = _compact_summary(summary_source, source_label)
                 source_page_id = f"{pdf_id}_{page_num}"
                 page_id = _stable_id("page", document_id, source_page_id, content_hash)
                 page_ref_source = safe_page_text if safe_page_text else member
@@ -1159,7 +1155,7 @@ def ingest_zip_stub(blob_url: str, project_id: str, parse_policy: str, dedupe_en
                         "page_text_raw": safe_page_text[:2200],
                         "page_text_clean": safe_page_text[:2200],
                         "page_class": "needs_review" if low_quality_text else "body",
-                        "heading_path": [title[:40]],
+                        "heading_path": [source_label[:40]],
                         "contains_dates": bool(page_refs["dates"]),
                         "contains_money": bool(page_refs["money_mentions"]),
                         "contains_party_names": doc_type == "case" and bool(page_refs["entities"]),
@@ -1215,7 +1211,7 @@ def ingest_zip_stub(blob_url: str, project_id: str, parse_policy: str, dedupe_en
                         else SECTION_KIND_BY_DOC_TYPE.get(doc_type, "heading")
                     )
                     article_number = _detect_article_number(chunk_refs["article_refs"])
-                    retrieval_text = _retrieval_text(title, chunk, chunk_refs)
+                    retrieval_text = _retrieval_text(source_label, chunk, chunk_refs)
                     canonical_concept_id = f"{pdf_id}:{article_number}" if article_number else f"{pdf_id}:document"
                     provision_kind = (
                         "definition"
@@ -1409,8 +1405,8 @@ def ingest_zip_stub(blob_url: str, project_id: str, parse_policy: str, dedupe_en
                             "page_id": page_id,
                             "page_number": page_num,
                             "doc_type": doc_type,
-                            "title_normalized": title_normalized,
-                            "short_title": title[:80],
+                            "title_normalized": None,
+                            "short_title": None,
                             "jurisdiction": "unknown",
                             "status": "parsed",
                             "is_current_version": chunk_is_current_version,

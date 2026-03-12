@@ -155,3 +155,78 @@ def test_openai_provider_uses_direct_api_shape(monkeypatch) -> None:
     assert payload["service_tier"] == "flex"
     assert payload["max_tokens"] == 32
     assert payload["temperature"] == 0.0
+
+
+def test_azure_responses_api_uses_v1_responses_shape(monkeypatch) -> None:
+    captured: dict[str, object] = {}
+
+    class FakeResponse:
+        def raise_for_status(self) -> None:
+            return None
+
+        def json(self) -> dict[str, object]:
+            return {
+                "output": [
+                    {
+                        "type": "message",
+                        "content": [
+                            {
+                                "type": "output_text",
+                                "text": "OK",
+                            }
+                        ],
+                    }
+                ],
+                "usage": {"input_tokens": 13, "output_tokens": 3},
+            }
+
+    class FakeAsyncClient:
+        def __init__(self, *, timeout: float) -> None:
+            captured["timeout"] = timeout
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, exc_type, exc, tb) -> None:
+            return None
+
+        async def post(self, url: str, *, headers: dict[str, str], json: dict[str, object]) -> FakeResponse:
+            captured["url"] = url
+            captured["headers"] = headers
+            captured["json"] = json
+            return FakeResponse()
+
+    monkeypatch.setattr(azure_llm_module.httpx, "AsyncClient", FakeAsyncClient)
+    client = AzureLLMClient(
+        AzureOpenAIConfig(
+            provider="azure",
+            api_mode="responses",
+            endpoint="https://example.openai.azure.com",
+            api_key="secret",
+            deployment="wf-gpt5mini-metadata",
+            api_version="2024-10-21",
+            max_tokens=512,
+            timeout_seconds=4.0,
+            azure_tries=1,
+            reasoning_effort="minimal",
+            verbosity="low",
+        )
+    )
+
+    text, usage = asyncio.run(
+        client.complete_chat(
+            "Reply with exactly OK.",
+            user_context={"task": "metadata_normalizer", "pdf_id": "abc"},
+        )
+    )
+
+    assert text == "OK"
+    assert usage == {"prompt_tokens": 13, "completion_tokens": 3}
+    assert captured["url"] == "https://example.openai.azure.com/openai/v1/responses"
+    payload = captured["json"]
+    assert isinstance(payload, dict)
+    assert payload["model"] == "wf-gpt5mini-metadata"
+    assert payload["max_output_tokens"] == 512
+    assert payload["reasoning"] == {"effort": "minimal"}
+    assert payload["text"] == {"verbosity": "low"}
+    assert payload["metadata"] == {"task": "metadata_normalizer", "pdf_id": "abc"}

@@ -20,6 +20,7 @@ Runtime LLM calls are optional and gated by env variables. Recommended economica
 - `AZURE_OPENAI_ENDPOINT` — endpoint, e.g. `https://your-resource.openai.azure.com`
 - `AZURE_OPENAI_API_KEY` — key
 - `AZURE_OPENAI_DEPLOYMENT` — model deployment name (default: `gpt-4o-mini`)
+- `AZURE_OPENAI_API_MODE` — `chat_completions` by default; use `responses` for GPT-5-family Azure paths
 - `AZURE_OPENAI_API_VERSION` — Azure API version (default: `2024-02-15-preview`)
 - `AZURE_OPENAI_MAX_TOKENS` — max completion tokens (default: `256`)
 - `AZURE_OPENAI_TEMPERATURE` — default `0.0`
@@ -28,6 +29,7 @@ Runtime LLM calls are optional and gated by env variables. Recommended economica
 - `AZURE_OPENAI_TRIES` — retries on transient failure (default: `1`)
 - `AZURE_OPENAI_TOKEN_PARAMETER` — `max_tokens` by default, switch to `max_completion_tokens` for GPT-5 reasoning deployments
 - `AZURE_OPENAI_REASONING_EFFORT` — optional reasoning budget, e.g. `minimal` for lower TTFT on GPT-5-mini
+- `AZURE_OPENAI_VERBOSITY` — optional GPT-5 Responses API verbosity (`low`, `medium`, `high`)
 
 If any of `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_DEPLOYMENT` are missing, the API works in deterministic-only mode.
 
@@ -38,6 +40,7 @@ The same runtime client can also call OpenAI directly. Set `LLM_PROVIDER=openai`
 - `OPENAI_API_KEY` — required
 - `OPENAI_MODEL` — model id, for example `gpt-4.1-nano`
 - `OPENAI_BASE_URL` — default `https://api.openai.com/v1`
+- `OPENAI_API_MODE` — `chat_completions` by default, `responses` for GPT-5-family direct API usage
 - `OPENAI_MAX_TOKENS` — default `256`
 - `OPENAI_TEMPERATURE` — default `0.0`
 - `OPENAI_TIMEOUT_SECONDS` — default `6`
@@ -46,6 +49,28 @@ The same runtime client can also call OpenAI directly. Set `LLM_PROVIDER=openai`
 - `OPENAI_TOKEN_PARAMETER` — `max_tokens` by default, switch to `max_completion_tokens` for reasoning models
 - `OPENAI_REASONING_EFFORT` — optional, for example `minimal`
 - `OPENAI_SERVICE_TIER` — optional OpenAI processing tier such as `flex` or `priority`
+- `OPENAI_VERBOSITY` — optional GPT-5 Responses API verbosity
+
+## Corpus Metadata Normalizer (dedicated Azure GPT-5 path)
+
+The corpus metadata layer can use a separate Azure deployment from the runtime path.
+
+- `CORPUS_METADATA_NORMALIZER_PROVIDER` — optional override (`azure` or `openai`)
+- `CORPUS_METADATA_NORMALIZER_DEPLOYMENT` — Azure deployment name, recommended: `wf-gpt5mini-metadata`
+- `CORPUS_METADATA_NORMALIZER_API_MODE` — recommended: `responses`
+- `CORPUS_METADATA_NORMALIZER_MODEL` — optional direct OpenAI model id such as `gpt-5-mini`
+- `CORPUS_METADATA_NORMALIZER_MAX_TOKENS` — recommended output budget for title-page extraction
+- `CORPUS_METADATA_NORMALIZER_TIMEOUT_SECONDS` — metadata-request timeout override; for Azure GPT-5 mini use about `30`
+- `CORPUS_METADATA_NORMALIZER_TOKEN_PARAMETER` — use `max_output_tokens` for Responses API
+- `CORPUS_METADATA_NORMALIZER_REASONING_EFFORT` — recommended: `minimal`
+- `CORPUS_METADATA_NORMALIZER_VERBOSITY` — recommended: `low`
+
+For GPT-5-family metadata extraction on Azure, prefer the Azure Responses API path with:
+
+- deployment: `wf-gpt5mini-metadata`
+- api mode: `responses`
+- reasoning effort: `minimal`
+- verbosity: `low`
 
 ## OpenTelemetry (FastAPI)
 

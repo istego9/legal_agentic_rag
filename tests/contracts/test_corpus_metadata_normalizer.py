@@ -609,25 +609,48 @@ def test_title_prompt_is_typed_by_document_family() -> None:
 
     prompt_name, system_prompt, user_prompt = normalizer_module._title_page_prompt(envelope, "law-pdf")
 
-    assert prompt_name == "corpus_law_title_identity_v1"
-    assert "typed extraction contract `corpus_law_title_identity_v1`" in user_prompt
+    assert prompt_name == "corpus_law_title_identity_v2"
+    assert "typed extraction contract `corpus_law_title_identity_v2`" in user_prompt
     assert "title_page_amending_law_refs" in user_prompt
+    assert "Downstream code will not reuse `base_envelope` title values" in user_prompt
     assert "structured metadata from legal document title pages" in system_prompt
+
+
+def test_title_page_prompt_reroutes_case_like_regulation_hint_to_case_contract() -> None:
+    envelope = {
+        "canonical_document": {"doc_type": "regulation"},
+        "type_specific_document": {"regulation_number": None},
+        "processing_candidates": {},
+        "review": {},
+        "context": {
+            "page_1_text": "CFI 067/2025 Claim No. CFI 067/2025 COURT OF FIRST INSTANCE - ORDERS",
+            "page_2_text": "",
+        },
+    }
+
+    prompt_name, _system_prompt, user_prompt = normalizer_module._title_page_prompt(envelope, "case-like-pdf")
+
+    assert prompt_name == "corpus_case_title_identity_v2"
+    assert "effective_prompt_doc_type: case" in user_prompt
 
 
 def test_build_metadata_normalizer_client_supports_gpt5_override(monkeypatch) -> None:
     monkeypatch.setenv("AZURE_OPENAI_ENDPOINT", "https://example.openai.azure.com")
     monkeypatch.setenv("AZURE_OPENAI_API_KEY", "secret")
     monkeypatch.setenv("AZURE_OPENAI_DEPLOYMENT", "wf-fast10")
-    monkeypatch.setenv("CORPUS_METADATA_NORMALIZER_DEPLOYMENT", "gpt-5-mini")
+    monkeypatch.setenv("CORPUS_METADATA_NORMALIZER_DEPLOYMENT", "wf-gpt5mini-metadata")
     monkeypatch.delenv("CORPUS_METADATA_NORMALIZER_REASONING_EFFORT", raising=False)
     monkeypatch.delenv("CORPUS_METADATA_NORMALIZER_TOKEN_PARAMETER", raising=False)
+    monkeypatch.delenv("CORPUS_METADATA_NORMALIZER_API_MODE", raising=False)
+    monkeypatch.delenv("CORPUS_METADATA_NORMALIZER_VERBOSITY", raising=False)
 
     client = normalizer_module.build_metadata_normalizer_client()
 
-    assert client.config.deployment == "gpt-5-mini"
+    assert client.config.deployment == "wf-gpt5mini-metadata"
+    assert client.config.api_mode == "responses"
     assert client.config.reasoning_effort == "minimal"
-    assert client.config.token_parameter == "max_completion_tokens"
+    assert client.config.token_parameter == "max_output_tokens"
+    assert client.config.verbosity == "low"
 
 
 def test_extract_title_page_amending_law_refs() -> None:
@@ -636,6 +659,186 @@ def test_extract_title_page_amending_law_refs() -> None:
         "DIFC Laws Amendment Law DIFC Law No. 1 of 2024"
     )
 
-    assert len(refs) >= 1
+    assert len(refs) == 2
     assert refs[0]["law_number"] == "3"
     assert refs[0]["law_year"] == 2024
+    assert refs[1]["law_number"] == "1"
+    assert refs[1]["law_year"] == 2024
+
+
+def test_llm_normalizer_does_not_carry_over_existing_title_when_llm_omits_title(tmp_path: Path, monkeypatch) -> None:
+    payload = _payload()
+
+    class _NoTitleClient:
+        class config:
+            enabled = True
+            deployment = "fake-no-title-model"
+            model = None
+
+    def _fake_title_page_llm(client, *, envelope, pdf_id):
+        if envelope["canonical_document"]["doc_type"] == "law":
+            return (
+                {
+                    "canonical_document": {"doc_type": "law"},
+                    "type_specific_document": {"law_number": "2", "law_year": 2019},
+                    "processing_candidates": {},
+                    "review": {"manual_review_required": False, "manual_review_reasons": []},
+                },
+                {"prompt_tokens": 4, "completion_tokens": 2},
+            )
+        return (
+            {
+                "canonical_document": {"doc_type": "case"},
+                "type_specific_document": {"case_number": "DEC 001/2025", "neutral_citation": "DEC 001/2025"},
+                "processing_candidates": {"claim_number": "DEC 001/2025", "same_case_anchor_candidate": "dec_001_2025"},
+                "review": {"manual_review_required": False, "manual_review_reasons": []},
+            },
+            {"prompt_tokens": 4, "completion_tokens": 2},
+        )
+
+    monkeypatch.setattr(normalizer_module, "_title_page_llm", _fake_title_page_llm)
+    monkeypatch.setattr(normalizer_module, "_normalizer_cache_dir", lambda: tmp_path / "cache")
+
+    result = normalizer_module.run_corpus_metadata_normalization(
+        project_id="proj-1",
+        import_job_id="job-1",
+        documents=payload["documents"],
+        pages=payload["pages"],
+        chunk_search_documents=payload["chunk_search_documents"],
+        relation_edges=payload["relation_edges"],
+        document_bases=payload["document_bases"],
+        law_documents=payload["law_documents"],
+        case_documents=payload["case_documents"],
+        llm_client=_NoTitleClient(),
+    )
+
+    law_doc = result["updated_documents"]["law-1"]
+    assert law_doc["title"] is None
+    assert law_doc["title_raw"] is None
+    assert law_doc["short_title"] is None
+    assert law_doc["title_normalized"] is None
+    law_review = law_doc["processing"]["metadata_normalization"]["review"]
+    assert law_review["manual_review_required"] is True
+    assert "missing_title_identity" in law_review["manual_review_reasons"]
+
+
+def test_merge_title_envelope_applies_court_registry_normalization_for_case() -> None:
+    base = {
+        "canonical_document": {
+            "doc_type": "case",
+            "title_raw": "Coinmena v Foloosi",
+            "title_normalized": "coinmena v foloosi",
+            "short_title": "Coinmena v Foloosi",
+            "citation_title": "CFI 067/2025",
+            "language": "unknown",
+            "jurisdiction": "DIFC",
+            "issued_date": "2026-02-06",
+            "effective_start_date": None,
+            "effective_end_date": None,
+            "ocr_used": False,
+            "extraction_confidence": 0.8,
+        },
+        "type_specific_document": normalizer_module._case_type_specific_template("CFI 067/2025", "2026-02-06", "order"),
+        "processing_candidates": normalizer_module._case_processing_candidates_template("CFI 067/2025", "order"),
+        "review": {"manual_review_required": False, "manual_review_reasons": []},
+        "context": {
+            "page_1_text": "CFI 067/2025 Coinmena B.S.C. (C) v Foloosi Technologies Ltd COURT OF FIRST INSTANCE - ORDERS Claim No: CFI 067/2025 IN THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS",
+            "page_2_text": "",
+            "source_page_ids": ["sample_0"],
+        },
+    }
+    llm_payload = {
+        "canonical_document": {"doc_type": "case", "title_raw": "Coinmena B.S.C. (C) v Foloosi Technologies Ltd"},
+        "type_specific_document": {"case_number": "CFI 067/2025", "court_name": None, "court_level": None},
+        "processing_candidates": {"claim_number": "CFI 067/2025", "same_case_anchor_candidate": "cfi_067_2025"},
+        "review": {"manual_review_required": False, "manual_review_reasons": []},
+    }
+
+    merged = normalizer_module._merge_title_envelope(base, llm_payload)
+
+    assert merged["type_specific_document"]["court_name"] == "Court of First Instance"
+    assert merged["type_specific_document"]["court_level"] == "Court of First Instance"
+    assert merged["court_normalization"]["court_system_name"] == "Dubai International Financial Centre Courts"
+    assert merged["court_normalization"]["court_key"] == "difc_court_of_first_instance"
+
+
+def test_merge_title_envelope_applies_division_normalization_for_dec_case() -> None:
+    base = {
+        "canonical_document": {
+            "doc_type": "case",
+            "title_raw": "Techteryx Ltd v Aria Commodities",
+            "title_normalized": "techteryx ltd v aria commodities",
+            "short_title": "Techteryx Ltd v Aria Commodities",
+            "citation_title": "DEC 001/2025",
+            "language": "unknown",
+            "jurisdiction": "DIFC",
+            "issued_date": "2025-05-21",
+            "effective_start_date": None,
+            "effective_end_date": None,
+            "ocr_used": False,
+            "extraction_confidence": 0.8,
+        },
+        "type_specific_document": normalizer_module._case_type_specific_template("DEC 001/2025", "2025-05-21", "reasons"),
+        "processing_candidates": normalizer_module._case_processing_candidates_template("DEC 001/2025", "reasons"),
+        "review": {"manual_review_required": False, "manual_review_reasons": []},
+        "context": {
+            "page_1_text": "DEC 001/2025 Techteryx Ltd v Aria Commodities DIGITAL ECONOMY COURT - ORDERS Claim No. DEC 001/2025 IN THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS IN THE COURT OF FIRST INSTANCE",
+            "page_2_text": "",
+            "source_page_ids": ["sample_0"],
+        },
+    }
+
+    merged = normalizer_module._merge_title_envelope(base, {})
+
+    assert merged["type_specific_document"]["court_name"] == "Digital Economy Court Division"
+    assert merged["type_specific_document"]["court_level"] == "Court of First Instance"
+    assert merged["court_normalization"]["court_division_name"] == "Digital Economy Court Division"
+    assert merged["court_normalization"]["court_system_name"] == "Dubai International Financial Centre Courts"
+
+
+def test_merge_title_envelope_clamps_verbose_case_title_to_caption() -> None:
+    base = {
+        "canonical_document": {
+            "doc_type": "case",
+            "title_raw": None,
+            "title_normalized": None,
+            "short_title": None,
+            "citation_title": "CA 004/2025",
+            "language": "unknown",
+            "jurisdiction": "DIFC",
+            "issued_date": "2025-12-08",
+            "effective_start_date": None,
+            "effective_end_date": None,
+            "ocr_used": False,
+            "extraction_confidence": 0.8,
+        },
+        "type_specific_document": normalizer_module._case_type_specific_template("CA 004/2025", "2025-12-08", "reasons"),
+        "processing_candidates": normalizer_module._case_processing_candidates_template("CA 004/2025", "reasons"),
+        "review": {"manual_review_required": False, "manual_review_reasons": []},
+        "context": {
+            "page_1_text": "CA 004/2025 (1) M r Oran (2) Oaken v Oved DECEMBER 08, 2025 COURT OF APPEAL - ORDERS Case No: CA 004/2025 THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS IN THE COURT OF APPEAL BETWEEN (1) MRORAN (2) OAKEN Appellants and OVED Respondent ORDER WITH REASONS",
+            "page_2_text": "",
+            "source_page_ids": ["sample_0"],
+        },
+    }
+    llm_payload = {
+        "canonical_document": {
+            "doc_type": "case",
+            "title_raw": "THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS IN THE COURT OF APPEAL BETWEEN (1) MRORAN (2) OAKEN Appellants and OVED Respondent",
+        },
+        "type_specific_document": {
+            "case_number": "CA 004/2025",
+            "court_name": "Court of Appeal",
+            "court_level": "Court of Appeal",
+        },
+        "processing_candidates": {
+            "claim_number": "CA 004/2025",
+            "same_case_anchor_candidate": "ca_004_2025",
+        },
+        "review": {"manual_review_required": False, "manual_review_reasons": []},
+    }
+
+    merged = normalizer_module._merge_title_envelope(base, llm_payload)
+
+    assert merged["canonical_document"]["title_raw"] == "(1) Mr Oran (2) Oaken v Oved"
+    assert merged["canonical_document"]["short_title"] == "(1) Mr Oran (2) Oaken v Oved"

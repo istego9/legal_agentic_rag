@@ -8,6 +8,9 @@ Azure deployment references for the extracted Legal Agentic RAG product.
 - Separate Azure OpenAI deployment for corpus metadata normalization is recommended
   when you want a GPT-5-family typed extraction path
   - recommended deployment name: `wf-gpt5mini-metadata`
+  - recommended API mode: `responses`
+  - recommended reasoning effort: `minimal`
+  - recommended verbosity: `low`
 - App runtime for API
 - App runtime for Web
 
@@ -22,6 +25,7 @@ Use:
 - `AZURE_OPENAI_ENDPOINT`
 - `AZURE_OPENAI_API_KEY`
 - `AZURE_OPENAI_DEPLOYMENT`
+- `AZURE_OPENAI_API_MODE`
 - `AZURE_OPENAI_API_VERSION`
 - `AZURE_OPENAI_MAX_TOKENS`
 - `AZURE_OPENAI_TEMPERATURE`
@@ -30,13 +34,28 @@ Use:
 - `AZURE_OPENAI_TRIES`
 - `AZURE_OPENAI_TOKEN_PARAMETER`
 - `AZURE_OPENAI_REASONING_EFFORT`
+- `AZURE_OPENAI_VERBOSITY`
 - `CORPUS_METADATA_NORMALIZER_PROVIDER`
 - `CORPUS_METADATA_NORMALIZER_DEPLOYMENT`
+- `CORPUS_METADATA_NORMALIZER_API_MODE`
 - `CORPUS_METADATA_NORMALIZER_MODEL`
 - `CORPUS_METADATA_NORMALIZER_MAX_TOKENS`
 - `CORPUS_METADATA_NORMALIZER_TIMEOUT_SECONDS`
 - `CORPUS_METADATA_NORMALIZER_TOKEN_PARAMETER`
 - `CORPUS_METADATA_NORMALIZER_REASONING_EFFORT`
+- `CORPUS_METADATA_NORMALIZER_VERBOSITY`
+
+## Recommended Azure GPT-5 metadata profile
+
+For title-page extraction and document metadata normalization on Azure:
+
+- deployment: `wf-gpt5mini-metadata`
+- API mode: `responses`
+- token parameter: `max_output_tokens`
+- reasoning effort: `minimal`
+- verbosity: `low`
+
+This keeps the general platform deployment separate from the stricter corpus metadata path.
 
 ## Local Docker quickstart
 

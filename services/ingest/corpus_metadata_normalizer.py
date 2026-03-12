@@ -14,10 +14,11 @@ import time
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from legal_rag_api.azure_llm import AzureLLMClient, AzureOpenAIConfig
+from services.ingest.court_registry import normalize_case_court_structure
 
 
-NORMALIZATION_PROFILE_VERSION = "corpus_metadata_normalizer_v3"
-TITLE_PAGE_PROMPT_SET_VERSION = "corpus_typed_title_identity_prompt_set_v1"
+NORMALIZATION_PROFILE_VERSION = "corpus_metadata_normalizer_v5"
+TITLE_PAGE_PROMPT_SET_VERSION = "corpus_typed_title_identity_prompt_set_v3"
 CASE_RELATION_PROMPT_VERSION = "corpus_case_relation_resolver_v1"
 _ALLOWED_DOC_TYPES = {"law", "regulation", "enactment_notice", "case", "other"}
 _ALLOWED_CASE_ROLES = {"judgment", "order", "reasons", "permission", "appeal", "other"}
@@ -130,6 +131,29 @@ _MONTHS = {
     "november": 11,
     "december": 12,
 }
+_CASE_TITLE_STOP_MARKERS = (
+    "CLAIM NO",
+    "CASE NO",
+    "APPEAL NO",
+    "IN THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS",
+    "IN THE COURT OF",
+    "BETWEEN",
+    "BEFORE",
+    "COUNSEL",
+    "HEARING",
+    "JUDGMENT :",
+    "ORDER WITH REASONS",
+    "REASONS FOR THE ORDER",
+)
+_CASE_TITLE_DATE_PATTERN = re.compile(
+    r"\b(?:JANUARY|FEBRUARY|MARCH|APRIL|MAY|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER)\b",
+    flags=re.IGNORECASE,
+)
+_CASE_CAPTION_PATTERN = re.compile(
+    r"(?i)(?:\b(?:CA|CFI|DEC|ARB|ENF|TCD|S\s*CT|SCT)\s+\d{1,5}/(?:19|20)\d{2}\b\s+)?"
+    r"((?:\(\d+\)\s*)?.+?\bv\b.+?)(?=\s+(?:JANUARY|FEBRUARY|MARCH|APRIL|MAY|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER)\b|\s+(?:COURT OF APPEAL|COURT OF FIRST INSTANCE|DIGITAL ECONOMY COURT|TECHNOLOGY AND CONSTRUCTION DIVISION|SMALL CLAIMS TRIBUNAL|SCT\b)|\s+(?:CLAIM NO|CASE NO|APPEAL NO)\b|$)",
+    flags=re.IGNORECASE,
+)
 
 
 def _utcnow() -> datetime:
@@ -159,11 +183,11 @@ def _load_prompt_markdown(name: str) -> str:
 def _title_prompt_name(doc_type: str) -> str:
     normalized = str(doc_type or "").strip().lower()
     return {
-        "law": "corpus_law_title_identity_v1",
-        "regulation": "corpus_regulation_title_identity_v1",
-        "enactment_notice": "corpus_enactment_notice_title_identity_v1",
-        "case": "corpus_case_title_identity_v1",
-    }.get(normalized, "corpus_other_title_router_v1")
+        "law": "corpus_law_title_identity_v2",
+        "regulation": "corpus_regulation_title_identity_v2",
+        "enactment_notice": "corpus_enactment_notice_title_identity_v2",
+        "case": "corpus_case_title_identity_v2",
+    }.get(normalized, "corpus_other_title_router_v2")
 
 
 def _title_schema_hint(doc_type: str) -> str:
@@ -404,12 +428,14 @@ def build_metadata_normalizer_client() -> AzureLLMClient:
     provider_override = (os.getenv("CORPUS_METADATA_NORMALIZER_PROVIDER") or "").strip().lower()
     if provider_override in {"azure", "openai"}:
         config.provider = provider_override
+    api_mode_override = (os.getenv("CORPUS_METADATA_NORMALIZER_API_MODE") or "").strip().lower()
     deployment_override = (os.getenv("CORPUS_METADATA_NORMALIZER_DEPLOYMENT") or "").strip()
     model_override = (os.getenv("CORPUS_METADATA_NORMALIZER_MODEL") or "").strip()
     token_parameter_override = (os.getenv("CORPUS_METADATA_NORMALIZER_TOKEN_PARAMETER") or "").strip()
     reasoning_effort_override = (os.getenv("CORPUS_METADATA_NORMALIZER_REASONING_EFFORT") or "").strip()
     timeout_override = (os.getenv("CORPUS_METADATA_NORMALIZER_TIMEOUT_SECONDS") or "").strip()
     max_tokens_override = (os.getenv("CORPUS_METADATA_NORMALIZER_MAX_TOKENS") or "").strip()
+    verbosity_override = (os.getenv("CORPUS_METADATA_NORMALIZER_VERBOSITY") or "").strip()
     if config.provider == "azure":
         if deployment_override:
             config.deployment = deployment_override
@@ -417,14 +443,20 @@ def build_metadata_normalizer_client() -> AzureLLMClient:
         if model_override:
             config.model = model_override
     selected_model_name = deployment_override or model_override or config.deployment or config.model or ""
-    if selected_model_name.lower().startswith("gpt-5") and not reasoning_effort_override:
+    normalized_model_name = selected_model_name.lower()
+    looks_like_gpt5 = normalized_model_name.startswith("gpt-5") or "gpt5" in normalized_model_name
+    if api_mode_override in {"chat_completions", "responses"}:
+        config.api_mode = api_mode_override
+    elif looks_like_gpt5:
+        config.api_mode = "responses"
+    if looks_like_gpt5 and not reasoning_effort_override:
         config.reasoning_effort = "minimal"
-        config.token_parameter = "max_completion_tokens"
+        config.token_parameter = "max_output_tokens" if config.api_mode == "responses" else "max_completion_tokens"
     if reasoning_effort_override:
         config.reasoning_effort = reasoning_effort_override
         if not token_parameter_override:
-            config.token_parameter = "max_completion_tokens"
-    if token_parameter_override in {"max_tokens", "max_completion_tokens"}:
+            config.token_parameter = "max_output_tokens" if config.api_mode == "responses" else "max_completion_tokens"
+    if token_parameter_override in {"max_tokens", "max_completion_tokens", "max_output_tokens"}:
         config.token_parameter = token_parameter_override
     if timeout_override:
         try:
@@ -436,6 +468,10 @@ def build_metadata_normalizer_client() -> AzureLLMClient:
             config.max_tokens = int(max_tokens_override)
         except ValueError:
             pass
+    if not verbosity_override and looks_like_gpt5 and config.api_mode == "responses":
+        config.verbosity = "low"
+    elif verbosity_override:
+        config.verbosity = verbosity_override
     return AzureLLMClient(config=config)
 
 
@@ -565,26 +601,40 @@ def _extract_case_identifier_from_text(text: str) -> str | None:
 
 def _extract_title_page_amending_law_refs(text: str) -> List[Dict[str, Any]]:
     source = str(text or "").replace("_", " ")
-    signals = ("is amended by", "as amended by", "laws amendment law", "amending law")
-    if not any(signal in source.lower() for signal in signals):
+    lowered = source.lower()
+    start_candidates = [
+        lowered.find("is amended by"),
+        lowered.find("as amended by"),
+        lowered.find("amendment law"),
+        lowered.find("amending law"),
+    ]
+    start_positions = [position for position in start_candidates if position >= 0]
+    if not start_positions:
         return []
+    amendment_block = source[min(start_positions):]
     pattern = re.compile(
-        r"(?i)(?:as amended by|is amended by|laws amendment law|amending law)\s+"
-        r"((?:[A-Za-z][A-Za-z0-9&'()/-]*\s+){0,10}?"
-        r"law\s+(?:difc\s+)?law\s+no\.?\s*([A-Za-z0-9./-]{1,24})\s+of\s+((?:19|20)\d{2}))"
+        r"(?i)("
+        r"(?:[A-Za-z][A-Za-z0-9&'()/-]*\s+){0,16}?"
+        r"DIFC\s+Law\s+No\.?\s*([A-Za-z0-9./-]{1,24})\s+of\s+((?:19|20)\d{2})"
+        r")"
     )
     refs: List[Dict[str, Any]] = []
-    for index, match in enumerate(pattern.finditer(source), start=1):
-        title = _compact_text(match.group(1), 200)
+    seen = set()
+    for index, match in enumerate(pattern.finditer(amendment_block), start=1):
+        title = _compact_text(match.group(1), 240)
         law_number = str(match.group(2) or "").strip()
         year = str(match.group(3) or "").strip()
+        key = (title.lower(), law_number, year)
+        if key in seen:
+            continue
+        seen.add(key)
         refs.append(
             {
                 "title": title or None,
                 "law_number": law_number or None,
                 "law_year": int(year) if year.isdigit() else None,
-                "reference_phrase": _compact_text(match.group(0), 240),
-                "order_index": index,
+                "reference_phrase": _compact_text(match.group(0), 280),
+                "order_index": len(refs) + 1,
             }
         )
     return refs
@@ -659,11 +709,60 @@ def _is_placeholder_title(value: Any) -> bool:
     return bool(_PLACEHOLDER_TITLE_PATTERN.fullmatch(text))
 
 
-def _seed_title_value(value: Any) -> str | None:
+def _clean_extracted_title(value: Any) -> str | None:
     text = str(value or "").strip()
     if not text or _is_placeholder_title(text):
         return None
     return text
+
+
+def _normalize_case_caption_spacing(value: str) -> str:
+    text = re.sub(r"\bM\s+r\b", "Mr", value)
+    text = re.sub(r"\bM\s+s\b", "Ms", text)
+    text = re.sub(r"\bD\s+r\b", "Dr", text)
+    text = re.sub(r"\s+", " ", text).strip(" ,;:-")
+    return text
+
+
+def _derive_case_caption_from_context(context_text: str, case_number: str | None) -> str | None:
+    source = _compact_text(context_text, 2200)
+    if not source:
+        return None
+    normalized_case_number = _normalize_case_identifier(case_number) if case_number else None
+    if normalized_case_number:
+        source = re.sub(
+            re.escape(normalized_case_number),
+            normalized_case_number,
+            source,
+            count=1,
+            flags=re.IGNORECASE,
+        )
+    match = _CASE_CAPTION_PATTERN.search(source)
+    if match:
+        caption = _normalize_case_caption_spacing(match.group(1))
+        if " v " in f" {caption} ":
+            return caption
+    if "BETWEEN" in source.upper():
+        between_match = re.search(
+            r"(?i)\bBETWEEN\b\s+(.+?)\s+\b(?:Claimant|Appellant|Applicant|Plaintiff)s?\b\s+and\s+(.+?)\s+\b(?:Respondent|Defendant|Defendants?)\b",
+            source,
+        )
+        if between_match:
+            left = _normalize_case_caption_spacing(between_match.group(1))
+            right = _normalize_case_caption_spacing(between_match.group(2))
+            if left and right:
+                return f"{left} v {right}"
+    return None
+
+
+def _should_clamp_case_title(title: str | None) -> bool:
+    text = str(title or "").strip()
+    if not text:
+        return False
+    upper = text.upper()
+    if upper.startswith("THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS"):
+        return True
+    return any(marker in upper for marker in _CASE_TITLE_STOP_MARKERS)
 
 
 def _sanitize_reason_list(value: Any) -> List[str]:
@@ -697,6 +796,13 @@ def _first_non_empty(*values: Any) -> str | None:
         if text:
             return text
     return None
+
+
+def _has_title_identity(canonical_document: Dict[str, Any]) -> bool:
+    return any(
+        str(canonical_document.get(key) or "").strip()
+        for key in ("title_raw", "short_title", "citation_title")
+    )
 
 
 def _case_signals_from_payload(
@@ -796,12 +902,15 @@ def _sanitize_title_envelope(base: Dict[str, Any], merged: Dict[str, Any]) -> Di
     type_specific_document = dict(sanitized.get("type_specific_document") or {})
     processing_candidates = dict(sanitized.get("processing_candidates") or {})
     review = dict(sanitized.get("review") or {})
+    court_normalization = dict(sanitized.get("court_normalization") or {})
     context = base.get("context") or {}
     context_text = f"{context.get('page_1_text', '')}\n{context.get('page_2_text', '')}".strip()
     base_doc_type = str(base.get("canonical_document", {}).get("doc_type", "")).strip().lower()
     doc_type = str(canonical_document.get("doc_type", "")).strip().lower()
     if doc_type not in _ALLOWED_DOC_TYPES:
         doc_type = base_doc_type if base_doc_type in _ALLOWED_DOC_TYPES else "other"
+    for key in ("title_raw", "title_normalized", "short_title", "citation_title"):
+        canonical_document[key] = _clean_extracted_title(canonical_document.get(key))
 
     derived_case_identifier = _first_non_empty(
         type_specific_document.get("case_number"),
@@ -838,6 +947,19 @@ def _sanitize_title_envelope(base: Dict[str, Any], merged: Dict[str, Any]) -> Di
         role = str(processing_candidates.get("document_role") or type_specific_document.get("procedural_stage") or "").strip().lower()
         if role not in _ALLOWED_CASE_ROLES:
             role = _case_role_from_text(context_text)
+        clamped_case_title = None
+        if _should_clamp_case_title(canonical_document.get("title_raw")):
+            clamped_case_title = _derive_case_caption_from_context(context_text, derived_case_identifier)
+        elif not _clean_extracted_title(canonical_document.get("title_raw")):
+            clamped_case_title = _derive_case_caption_from_context(context_text, derived_case_identifier)
+        if clamped_case_title:
+            canonical_document["title_raw"] = clamped_case_title
+            if not _clean_extracted_title(canonical_document.get("short_title")) or _should_clamp_case_title(canonical_document.get("short_title")):
+                canonical_document["short_title"] = clamped_case_title
+            if not _clean_extracted_title(canonical_document.get("title_normalized")):
+                canonical_document["title_normalized"] = clamped_case_title.lower()
+            if not _clean_extracted_title(canonical_document.get("citation_title")) and derived_case_identifier:
+                canonical_document["citation_title"] = derived_case_identifier
         case_template = _case_type_specific_template(
             derived_case_identifier,
             _normalize_date(str(type_specific_document.get("decision_date") or canonical_document.get("issued_date") or "")) or canonical_document.get("issued_date"),
@@ -862,6 +984,21 @@ def _sanitize_title_envelope(base: Dict[str, Any], merged: Dict[str, Any]) -> Di
         type_specific_document["case_number"] = _merge_string(type_specific_document.get("case_number"), derived_case_identifier)
         type_specific_document["neutral_citation"] = _merge_string(type_specific_document.get("neutral_citation"), derived_case_identifier)
         type_specific_document["procedural_stage"] = role if role in _ALLOWED_CASE_ROLES else "other"
+        court_normalization = normalize_case_court_structure(
+            case_number=derived_case_identifier,
+            context_text=context_text,
+            current_court_name=type_specific_document.get("court_name"),
+            current_court_level=type_specific_document.get("court_level"),
+        )
+        if court_normalization:
+            type_specific_document["court_name"] = _merge_string(
+                type_specific_document.get("court_name"),
+                court_normalization.get("court_name"),
+            )
+            type_specific_document["court_level"] = _merge_string(
+                type_specific_document.get("court_level"),
+                court_normalization.get("court_level"),
+            )
         canonical_document["effective_start_date"] = None
         canonical_document["effective_end_date"] = None
     else:
@@ -890,13 +1027,38 @@ def _sanitize_title_envelope(base: Dict[str, Any], merged: Dict[str, Any]) -> Di
     else:
         reasons = [item for item in reasons if item not in {"missing_case_anchor", "missing_legislative_number"}]
 
+    if _has_title_identity(canonical_document):
+        reasons = [item for item in reasons if item != "missing_title_identity"]
+    elif "missing_title_identity" not in reasons:
+        reasons.append("missing_title_identity")
+
     review["manual_review_reasons"] = reasons
     review["manual_review_required"] = bool(reasons)
     sanitized["canonical_document"] = canonical_document
     sanitized["type_specific_document"] = type_specific_document
     sanitized["processing_candidates"] = processing_candidates
     sanitized["review"] = review
+    if court_normalization:
+        sanitized["court_normalization"] = court_normalization
     return sanitized
+
+
+def _title_prompt_doc_type_hint(envelope: Dict[str, Any]) -> str:
+    doc_type_hint = str(envelope.get("canonical_document", {}).get("doc_type") or "other").strip().lower()
+    if doc_type_hint in _LEGISLATIVE_DOC_TYPES | {"other"}:
+        context = envelope.get("context") or {}
+        context_text = f"{context.get('page_1_text', '')}\n{context.get('page_2_text', '')}".strip()
+        canonical_document = dict(envelope.get("canonical_document") or {})
+        type_specific_document = dict(envelope.get("type_specific_document") or {})
+        processing_candidates = dict(envelope.get("processing_candidates") or {})
+        if _case_signals_from_payload(
+            canonical_document=canonical_document,
+            type_specific_document=type_specific_document,
+            processing_candidates=processing_candidates,
+            context_text=context_text,
+        ) and not _has_legislative_number(type_specific_document):
+            return "case"
+    return doc_type_hint
 
 
 def _stage_result(*, status: str, role: str, payload: Optional[Dict[str, Any]] = None, error: Optional[str] = None) -> Dict[str, Any]:
@@ -921,10 +1083,10 @@ def _base_envelope(document: Dict[str, Any], pages: List[Dict[str, Any]]) -> Dic
 
     canonical_document = {
         "doc_type": doc_type if doc_type in _ALLOWED_DOC_TYPES else "other",
-        "title_raw": _seed_title_value(document.get("title_raw") or document.get("title")),
-        "title_normalized": str(document.get("title_normalized") or "").strip() or None,
-        "short_title": _seed_title_value(str(document.get("short_title") or document.get("title") or "")[:80]),
-        "citation_title": _seed_title_value(document.get("citation_title") or document.get("title")),
+        "title_raw": None,
+        "title_normalized": None,
+        "short_title": None,
+        "citation_title": None,
         "language": str(document.get("language") or "unknown"),
         "jurisdiction": str(document.get("jurisdiction") or "unknown"),
         "issued_date": _normalize_date(str(document.get("issued_date") or "")) or None,
@@ -1054,7 +1216,8 @@ def _merge_title_envelope(base: Dict[str, Any], llm_payload: Dict[str, Any]) -> 
 
 def _title_page_prompt(envelope: Dict[str, Any], pdf_id: str) -> Tuple[str, str, str]:
     doc_type_hint = str(envelope.get("canonical_document", {}).get("doc_type") or "other").strip().lower()
-    prompt_name = _title_prompt_name(doc_type_hint)
+    effective_doc_type_hint = _title_prompt_doc_type_hint(envelope)
+    prompt_name = _title_prompt_name(effective_doc_type_hint)
     guidance = _load_prompt_markdown(prompt_name)
     system_prompt = (
         "You extract structured metadata from legal document title pages. "
@@ -1067,10 +1230,13 @@ def _title_page_prompt(envelope: Dict[str, Any], pdf_id: str) -> Tuple[str, str,
         f"{_title_schema_hint(doc_type_hint)}\n\n"
         "Important constraints:\n"
         "- Extract facts only from page_1_text and page_2_text.\n"
-        "- `review` is advisory only; use it only for blocking uncertainty, not for routine facts.\n"
-        "- If the extracted identity is internally complete and consistent, leave review reasons empty.\n"
-        "- For legislative documents, include title-page amendment references in `processing_candidates.title_page_amending_law_refs` when phrases such as `is amended by` or `as amended by` are present.\n\n"
+        "- Treat title fields as LLM-owned. Downstream code will not reuse `base_envelope` title values.\n"
+        "- Populate title fields from the heading or caption only. Do not copy the full first-page blob, body text, headnotes, procedural paragraphs, amendment history, or consolidated-version text into title fields.\n"
+        "- If no reliable title or caption is visible, leave title fields null.\n"
+        "- Use `review` only for genuine blocking uncertainty. If identity is complete and consistent, leave review reasons empty.\n"
+        "- For legislative documents, `processing_candidates.title_page_amending_law_refs` must be an ordered array containing every amendment-law reference visible on the title pages, not only the first one.\n\n"
         f"doc_type_hint: {doc_type_hint}\n"
+        f"effective_prompt_doc_type: {effective_doc_type_hint}\n"
         f"prompt_reference ({prompt_name}):\n{guidance[:2600]}\n\n"
         f"source_pdf_id: {pdf_id}\n\n"
         f"base_envelope:\n{json.dumps({k: v for k, v in envelope.items() if k != 'context'}, ensure_ascii=False)}\n\n"
@@ -1086,7 +1252,7 @@ async def _run_title_page_llm(client: AzureLLMClient, *, envelope: Dict[str, Any
         prompt,
         user_context={"task": "corpus_title_page_metadata_normalizer", "prompt_version": prompt_name, "pdf_id": pdf_id},
         system_prompt=system_prompt,
-        max_tokens=700,
+        max_tokens=1200,
         temperature=None,
         top_p=None,
     )
@@ -1390,6 +1556,7 @@ def run_corpus_metadata_normalization(
         type_specific = merged.get("type_specific_document", {})
         candidates = merged.get("processing_candidates", {})
         review = merged.get("review", {})
+        court_normalization = merged.get("court_normalization", {})
         processing = dict(updated_doc.get("processing") or {})
         processing["metadata_normalization"] = {
             "status": "completed" if error is None else "failed",
@@ -1405,17 +1572,17 @@ def run_corpus_metadata_normalization(
             "review": review,
             "updated_at": _utcnow().isoformat(),
         }
+        if isinstance(court_normalization, dict) and court_normalization:
+            processing["metadata_normalization"]["court_normalization"] = court_normalization
         if error:
             processing["metadata_normalization"]["error"] = error
         updated_doc["processing"] = processing
         updated_doc["doc_type"] = str(canonical.get("doc_type") or updated_doc.get("doc_type") or "other")
-        updated_doc["title"] = _merge_string(updated_doc.get("title"), canonical.get("title_raw"))
-        updated_doc["title_raw"] = _merge_string(updated_doc.get("title_raw"), canonical.get("title_raw"))
-        title_normalized = _merge_string(updated_doc.get("title_normalized"), canonical.get("title_normalized"))
-        if title_normalized:
-            updated_doc["title_normalized"] = title_normalized
-        updated_doc["short_title"] = _merge_string(updated_doc.get("short_title"), canonical.get("short_title"))
-        updated_doc["citation_title"] = _merge_string(updated_doc.get("citation_title"), canonical.get("citation_title"))
+        updated_doc["title"] = _clean_extracted_title(canonical.get("title_raw"))
+        updated_doc["title_raw"] = _clean_extracted_title(canonical.get("title_raw"))
+        updated_doc["title_normalized"] = _clean_extracted_title(canonical.get("title_normalized"))
+        updated_doc["short_title"] = _clean_extracted_title(canonical.get("short_title"))
+        updated_doc["citation_title"] = _clean_extracted_title(canonical.get("citation_title"))
         updated_doc["language"] = _merge_string(updated_doc.get("language"), canonical.get("language"))
         updated_doc["jurisdiction"] = _merge_string(updated_doc.get("jurisdiction"), canonical.get("jurisdiction"))
         updated_doc["issued_date"] = _merge_string(updated_doc.get("issued_date"), canonical.get("issued_date"))

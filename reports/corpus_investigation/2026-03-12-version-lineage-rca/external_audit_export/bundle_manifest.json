@@ -1,0 +1,125 @@
+{
+  "bundle_version": "external_audit_bundle_v2",
+  "files": [
+    {
+      "path": "reports/corpus_investigation/2026-03-12-version-lineage-rca/external_audit_export/README.md",
+      "sha256": "7a087d7073d62256dc9a3988bc7fdbbf3695112fb7f20d16916526c62f6c1206",
+      "size_bytes": 726
+    },
+    {
+      "path": "reports/corpus_investigation/2026-03-12-version-lineage-rca/external_audit_export/processing_rules_export.json",
+      "sha256": "53de37f94bac54b6fe20c20817f1d8d8b08bd8a571fa1e93dc03e08c4b23b52f",
+      "size_bytes": 3974
+    },
+    {
+      "path": "reports/corpus_investigation/2026-03-12-version-lineage-rca/external_audit_export/processing_rules_export.md",
+      "sha256": "7cc234d10eb486d009143a937358070b0eb58966e0791afd467039b810bf0f4e",
+      "size_bytes": 1993
+    },
+    {
+      "path": "reports/corpus_investigation/2026-03-12-version-lineage-rca/external_audit_export/processing_results_export.json",
+      "sha256": "ea44f08e12aeade2e93e81f83400d0eae9fab9799ba2c6e72b34fc1a90b702f8",
+      "size_bytes": 1410
+    },
+    {
+      "path": "reports/corpus_investigation/2026-03-12-version-lineage-rca/external_audit_export/processing_results_export.md",
+      "sha256": "1876ee2109703a421c3bed1d44bea1ed0c5f81c58ae8f2f14c010e035b081ef2",
+      "size_bytes": 818
+    },
+    {
+      "path": "datasets/official_fetch_2026-03-11/documents.zip",
+      "sha256": "965d75c8db33362ffe44cc0e6760d712c69c4c27fc4286c2a129fed23b5ae3eb",
+      "size_bytes": 6142717
+    },
+    {
+      "path": "reports/competition_runs/prepare_report.azure_gpt5mini_full_corpus_v3_titles.json",
+      "sha256": "0a5f00270d0ea54338e89504332ae001152785db52309a576536d8e26c83e16f",
+      "size_bytes": 2705801
+    },
+    {
+      "path": "reports/corpus_investigation/2026-03-12-version-lineage-rca/full_gpt5mini_quality_report_v3_titles.md",
+      "sha256": "f92adde80c2eb12b2f2a730028e15055d950c53a452fa61a0ac97c50ffe70287",
+      "size_bytes": 870
+    },
+    {
+      "path": "reports/corpus_investigation/2026-03-12-version-lineage-rca/full_gpt5mini_quality_report_v3_titles.json",
+      "sha256": "349e3da4167f30ea44be5590dde88e626dc4a28c2db8a6e393fe7971a2cab6d9",
+      "size_bytes": 36532
+    },
+    {
+      "path": "reports/corpus_investigation/2026-03-12-version-lineage-rca/court_registry_enrichment.md",
+      "sha256": "6dbb3560cdeb4cbb9a27e11129b5e8fa93e58cca89bd49f7a5bcc56d93b10085",
+      "size_bytes": 2839
+    },
+    {
+      "path": "services/ingest/court_registry_v1.json",
+      "sha256": "1f71440ffba57b1fbb398fd7dd808c2580397be5574107b88c430f3ad61911ef",
+      "size_bytes": 6034
+    },
+    {
+      "path": "services/ingest/court_registry.py",
+      "sha256": "2aada72a5808bc228d6b00c41bfe54000f1f58077351574127581e9d3f497812",
+      "size_bytes": 4358
+    },
+    {
+      "path": "services/ingest/corpus_metadata_normalizer.py",
+      "sha256": "f4a1f500e48baaa6bd73e16c9492c9513ffe913b59ff9bd05ffc973c52d172b6",
+      "size_bytes": 85984
+    },
+    {
+      "path": "services/ingest/ingest.py",
+      "sha256": "4a88844da55bbe6e32e1a601e411a2d892c0dd960634be74ff4cd585b2727e6e",
+      "size_bytes": 76208
+    },
+    {
+      "path": "apps/api/src/legal_rag_api/azure_llm.py",
+      "sha256": "0de7e672a7210452e35913e96d8cb7b746ea1faac4d81b395f5eb7d023bb27f4",
+      "size_bytes": 13591
+    },
+    {
+      "path": "packages/prompts/corpus_law_title_identity_v2.md",
+      "sha256": "26cda7ceac730d0794862fbb60405a35cf03426bd285a1042fa1d059e008ad7e",
+      "size_bytes": 1370
+    },
+    {
+      "path": "packages/prompts/corpus_regulation_title_identity_v2.md",
+      "sha256": "db696f6cddb805b66525434eedf0a47edc506bd79c0e6f9a577b88ae0b2bbed8",
+      "size_bytes": 1516
+    },
+    {
+      "path": "packages/prompts/corpus_enactment_notice_title_identity_v2.md",
+      "sha256": "c64fde20c30d6f4f4a954ad646a90f62f62a3ed264e8291c037834712a190b35",
+      "size_bytes": 883
+    },
+    {
+      "path": "packages/prompts/corpus_case_title_identity_v2.md",
+      "sha256": "7716fea85c4cc61e4e6beddbe9b96c2eb27aeb39051eab9b7d1c6f91f3cf8aa7",
+      "size_bytes": 1281
+    },
+    {
+      "path": "packages/prompts/corpus_other_title_router_v2.md",
+      "sha256": "2c0e895048208c745cbe4358c3cfb33c67cfeb4f27e95f98787b4566100ad28f",
+      "size_bytes": 956
+    },
+    {
+      "path": "tests/contracts/test_azure_llm_contracts.py",
+      "sha256": "5202003a8e483ee94ddd72ad8ab8161dbc0a7781d9a8bf8d0376b2c05cfd1f94",
+      "size_bytes": 7806
+    },
+    {
+      "path": "tests/contracts/test_azure_docker_env_contract.py",
+      "sha256": "fb7d09f7dc32022ce086bd38909172230ad0d9002addff1222b6c1bf5b475064",
+      "size_bytes": 2194
+    },
+    {
+      "path": "tests/contracts/test_corpus_metadata_normalizer.py",
+      "sha256": "ec27272e5da3933632a676d2703ef5c0335c3ad3536fe1ddecc4028aefccd37e",
+      "size_bytes": 37265
+    },
+    {
+      "path": "tests/contracts/test_ingest_stub_titles.py",
+      "sha256": "2a15e99ca9c43af044796697ee292dd0859b9fdf30106f0c286ede52da319f89",
+      "size_bytes": 1646
+    }
+  ]
+}
