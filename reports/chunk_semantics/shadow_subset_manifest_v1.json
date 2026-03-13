@@ -1,0 +1,278 @@
+{
+  "manifest_version": "chunk_semantics_shadow_subset_v1",
+  "program_label": "rules-first chunk/proposition shadow subset",
+  "selection_policy": "fixed_high_risk_subset_after_target_narrowing",
+  "items": [
+    {
+      "item_id": "employment_article11_no_waiver",
+      "source_kind": "real_chunk",
+      "pdf_id": "33bc02044716acdfedb164b065bdaec098aaadcae863c591f9931c88e7307d16",
+      "doc_id": "doc_e3d5c2c37434a72d15dd0a9c",
+      "page_id": "page_ae168bfb53ce36fe610896ca",
+      "chunk_id": "para_d5434318071aab73242a6bf4",
+      "doc_type": "law",
+      "section_kind": "exception",
+      "evaluation_bucket": "law_condition_negation",
+      "reason_for_selection": "Mixed invalidity, exception, and conditional waiver language in one legislative chunk.",
+      "query_ids": [
+        "employment_void_clause_boolean",
+        "employment_conditional_waiver_boolean"
+      ],
+      "expected": {
+        "condition_or_exception": true,
+        "negative_polarity": true
+      }
+    },
+    {
+      "item_id": "trust_article14_voidability",
+      "source_kind": "real_chunk",
+      "pdf_id": "4e387152960c1029b3711cacb05b287b13c977bc61f2558059a62b7b427a62eb",
+      "doc_id": "doc_f043cecc713e1c7d6ef2df5d",
+      "page_id": "page_df843c962f87236a72aa7780",
+      "chunk_id": "para_a342516baf4abbd9cd1bb874",
+      "doc_type": "law",
+      "section_kind": "operative_provision",
+      "evaluation_bucket": "law_invalidity",
+      "reason_for_selection": "Explicit void, voidable, and set-aside language under foreign-law conflict conditions.",
+      "query_ids": [
+        "trust_governing_law_valid"
+      ],
+      "expected": {
+        "negative_polarity": true
+      }
+    },
+    {
+      "item_id": "trust_article28_good_faith_exception",
+      "source_kind": "real_chunk",
+      "pdf_id": "4e387152960c1029b3711cacb05b287b13c977bc61f2558059a62b7b427a62eb",
+      "doc_id": "doc_f043cecc713e1c7d6ef2df5d",
+      "page_id": "page_b511d460d0d93a5919acd54d",
+      "chunk_id": "para_247daf60bde0c3735b22ad96",
+      "doc_type": "law",
+      "section_kind": "operative_provision",
+      "evaluation_bucket": "law_condition_negation",
+      "reason_for_selection": "Good-faith purchaser carve-out with subject-to and without-notice conditions.",
+      "query_ids": [
+        "trust_purchaser_good_faith_boolean"
+      ],
+      "expected": {
+        "condition_or_exception": true,
+        "negative_polarity": true
+      }
+    },
+    {
+      "item_id": "crs_article6_commencement_rule",
+      "source_kind": "real_chunk",
+      "pdf_id": "fbdd7f9dd299d83b1f398778da2e6765dfaaed62005667264734a1f76ec09071",
+      "doc_id": "doc_6ba0a3b33098614383aa16f1",
+      "page_id": "page_1c3aad2b3842691fe164a316",
+      "chunk_id": "para_58018e553bf0021cdca0cd72",
+      "doc_type": "law",
+      "section_kind": "exception",
+      "evaluation_bucket": "history_notice",
+      "reason_for_selection": "Commencement clause with enactment-notice grounding and retrospective carve-out.",
+      "query_ids": [
+        "crs_new_accounts_effective_date"
+      ],
+      "expected": {
+        "condition_or_exception": true
+      }
+    },
+    {
+      "item_id": "crs_article21_post_appeal_deadline",
+      "source_kind": "real_chunk",
+      "pdf_id": "fbdd7f9dd299d83b1f398778da2e6765dfaaed62005667264734a1f76ec09071",
+      "doc_id": "doc_6ba0a3b33098614383aa16f1",
+      "page_id": "page_0e64f51fbb0f40bbb70933e1",
+      "chunk_id": "para_09248a1c14a1e08ef7684459",
+      "doc_type": "law",
+      "section_kind": "operative_provision",
+      "evaluation_bucket": "history_notice",
+      "reason_for_selection": "Post-appeal business-day payment/action deadline after written notice.",
+      "query_ids": [
+        "crs_post_appeal_business_days"
+      ],
+      "expected": {
+        "deadline": true
+      }
+    },
+    {
+      "item_id": "crs_article9_penalty_amount",
+      "source_kind": "real_chunk",
+      "pdf_id": "fbdd7f9dd299d83b1f398778da2e6765dfaaed62005667264734a1f76ec09071",
+      "doc_id": "doc_6ba0a3b33098614383aa16f1",
+      "page_id": "page_75ebcfd997c440195edccd4c",
+      "chunk_id": "para_77688e447be3e7107806b27b",
+      "doc_type": "law",
+      "section_kind": "penalty",
+      "evaluation_bucket": "regulation_like_penalty",
+      "reason_for_selection": "Explicit contravention fine amount and accumulation language.",
+      "query_ids": [],
+      "expected": {
+        "money_amount": true
+      }
+    },
+    {
+      "item_id": "coinmena_costs_award_amount",
+      "source_kind": "real_chunk",
+      "pdf_id": "897ab23ed5a70034d3d708d871ad1da8bc7b6608d94b1ca46b5d578d985d3c13",
+      "doc_id": "doc_20e790a6c3e6369718932814",
+      "page_id": "page_7ed72693adc8238783542028",
+      "chunk_id": "para_29479a00511699646901ce89",
+      "doc_type": "case",
+      "section_kind": "operative_provision",
+      "evaluation_bucket": "case_order_costs",
+      "reason_for_selection": "Operative costs award amount with explicit quantified USD sum.",
+      "query_ids": [
+        "coinmena_costs_amount"
+      ],
+      "expected": {
+        "money_amount": true
+      }
+    },
+    {
+      "item_id": "coinmena_interest_deadline_clause",
+      "source_kind": "real_chunk",
+      "pdf_id": "897ab23ed5a70034d3d708d871ad1da8bc7b6608d94b1ca46b5d578d985d3c13",
+      "doc_id": "doc_20e790a6c3e6369718932814",
+      "page_id": "page_7cc5419a9e82911f717c00fd",
+      "chunk_id": "para_fe7a3c1a9355672bd16c7dd0",
+      "doc_type": "case",
+      "section_kind": "operative_provision",
+      "evaluation_bucket": "case_order_costs",
+      "reason_for_selection": "Interest consequence with payment deadline and rate in one operative clause.",
+      "query_ids": [
+        "coinmena_deadline_days"
+      ],
+      "expected": {
+        "deadline": true,
+        "interest": true,
+        "condition_or_exception": true
+      }
+    },
+    {
+      "item_id": "ca004_costs_quantification_order",
+      "source_kind": "real_chunk",
+      "pdf_id": "78ffe994cdc61ce6a2a6937c79fc52751bb5d2b4eaa4019f088fbccf70569c26",
+      "doc_id": "doc_abd6f1969945e2b26d6d4384",
+      "page_id": "page_13aaeb2c6eb475f69314412a",
+      "chunk_id": "para_800111e38159828604bfbd9f",
+      "doc_type": "case",
+      "section_kind": "order",
+      "evaluation_bucket": "case_order_costs",
+      "reason_for_selection": "Quantified AED costs order in operative order item.",
+      "query_ids": [],
+      "expected": {
+        "money_amount": true
+      }
+    },
+    {
+      "item_id": "ca004_interest_consequence",
+      "source_kind": "real_chunk",
+      "pdf_id": "78ffe994cdc61ce6a2a6937c79fc52751bb5d2b4eaa4019f088fbccf70569c26",
+      "doc_id": "doc_abd6f1969945e2b26d6d4384",
+      "page_id": "page_f47ed38d44d9e9213e1d161a",
+      "chunk_id": "para_0bc73243056b40570a82c7e1",
+      "doc_type": "case",
+      "section_kind": "order",
+      "evaluation_bucket": "case_order_costs",
+      "reason_for_selection": "Conditional interest clause with fourteen-day deadline and 9% rate.",
+      "query_ids": [
+        "ca004_interest_rate"
+      ],
+      "expected": {
+        "deadline": true,
+        "interest": true,
+        "condition_or_exception": true
+      }
+    },
+    {
+      "item_id": "enf269_adversarial_miranda_context",
+      "source_kind": "real_chunk",
+      "pdf_id": "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2",
+      "doc_id": "doc_b530aeca9810485b5403729c",
+      "page_id": "page_fe3c7d727fd0cfaa2c4a09f4",
+      "chunk_id": "para_5efb96f4b06b7863d710e50d",
+      "doc_type": "case",
+      "section_kind": "order",
+      "evaluation_bucket": "adversarial_no_answer",
+      "reason_for_selection": "Real operative costs order chunk paired with a public Miranda-rights no-answer trap.",
+      "query_ids": [],
+      "real_corpus_check_ids": [
+        "real_corpus_enf269_miranda_public_no_answer"
+      ],
+      "expected": {
+        "unsupported_or_abstain": true
+      }
+    },
+    {
+      "item_id": "employment_adversarial_plea_context",
+      "source_kind": "real_chunk",
+      "pdf_id": "33bc02044716acdfedb164b065bdaec098aaadcae863c591f9931c88e7307d16",
+      "doc_id": "doc_e3d5c2c37434a72d15dd0a9c",
+      "page_id": "page_24f8edbdc9d0e4ae61482094",
+      "chunk_id": "para_a433ef070933d6532f8d4b73",
+      "doc_type": "law",
+      "section_kind": "penalty",
+      "evaluation_bucket": "adversarial_no_answer",
+      "reason_for_selection": "Real employment-law payment clause paired with unrelated plea-bargain adversarial question.",
+      "query_ids": [
+        "adversarial_employment_plea_bargain"
+      ],
+      "expected": {
+        "unsupported_or_abstain": true
+      }
+    },
+    {
+      "item_id": "ca004_adversarial_jury_context",
+      "source_kind": "real_chunk",
+      "pdf_id": "78ffe994cdc61ce6a2a6937c79fc52751bb5d2b4eaa4019f088fbccf70569c26",
+      "doc_id": "doc_abd6f1969945e2b26d6d4384",
+      "page_id": "page_13aaeb2c6eb475f69314412a",
+      "chunk_id": "para_0ff30722c98b05a546db920a",
+      "doc_type": "case",
+      "section_kind": "procedural_history",
+      "evaluation_bucket": "adversarial_no_answer",
+      "reason_for_selection": "Real procedural/costs context from CA order paired with a jury-verdict trap question.",
+      "query_ids": [
+        "adversarial_ca004_jury_verdict"
+      ],
+      "expected": {
+        "unsupported_or_abstain": true
+      }
+    },
+    {
+      "item_id": "regulation_obligation_penalty_fixture",
+      "source_kind": "synthetic_fixture",
+      "pdf_id": "synthetic:regulation_obligation_penalty_fixture",
+      "doc_id": "synthetic:regulation_obligation_penalty_fixture:document",
+      "page_id": "synthetic:regulation_obligation_penalty_fixture:page",
+      "chunk_id": "synthetic:regulation_obligation_penalty_fixture:chunk",
+      "doc_type": "regulation",
+      "section_kind": "operative_provision",
+      "evaluation_bucket": "regulation",
+      "reason_for_selection": "Guardrail fixture for obligation plus penalty extraction in a regulation-shaped chunk.",
+      "fixture_id": "regulation_obligation_penalty_fixture",
+      "expected": {
+        "money_amount": true,
+        "negative_polarity": false
+      }
+    },
+    {
+      "item_id": "notice_mediated_commencement_fixture",
+      "source_kind": "synthetic_fixture",
+      "pdf_id": "synthetic:notice_mediated_commencement_fixture",
+      "doc_id": "synthetic:notice_mediated_commencement_fixture:document",
+      "page_id": "synthetic:notice_mediated_commencement_fixture:page",
+      "chunk_id": "synthetic:notice_mediated_commencement_fixture:chunk",
+      "doc_type": "enactment_notice",
+      "section_kind": "operative_provision",
+      "evaluation_bucket": "history_notice",
+      "reason_for_selection": "Guardrail fixture for notice-mediated commencement and carve-out preservation.",
+      "fixture_id": "notice_mediated_commencement_fixture",
+      "expected": {
+        "condition_or_exception": true
+      }
+    }
+  ]
+}
