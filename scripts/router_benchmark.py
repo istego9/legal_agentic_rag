@@ -400,7 +400,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "--public-dataset",
         type=Path,
         default=DEFAULT_PUBLIC_DATASET_PATH,
-        help="Path to public_dataset.json",
+        help="Path to public questions dataset JSON",
     )
     parser.add_argument(
         "--taxonomy",

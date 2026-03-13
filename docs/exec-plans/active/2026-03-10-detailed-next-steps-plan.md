@@ -67,7 +67,7 @@ This plan assumes the current repository already contains:
 **Goal:** stop treating all questions as the same problem.
 
 **Tasks**
-- Create a normalized taxonomy file from `public_dataset.json`.
+- Create a normalized taxonomy file from `datasets/official_fetch_2026-03-11/questions.json`.
 - Add labels:
   - `primary_route`
   - `answer_type_expected`

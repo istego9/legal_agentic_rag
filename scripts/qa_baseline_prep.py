@@ -24,7 +24,7 @@ RESULT_SCHEMA_VERSION = "qa_baseline_compare_results.schema.v1"
 PROMPT_PACK_VERSION = "qa_baseline_prompt_pack.v1"
 NAIVE_CONTEXT_STRATEGY_VERSION = "naive_context_search_default.v1"
 SLICE_ID = "first-meaningful-qa-2026-03-08"
-PUBLIC_DATASET_PATH = ROOT / "public_dataset.json"
+PUBLIC_DATASET_PATH = ROOT / "datasets" / "official_fetch_2026-03-11" / "questions.json"
 DEFAULT_OUTPUT_DIR = ROOT / "docs" / "exec-plans" / "active" / "artifacts" / "first_meaningful_qa"
 
 BASELINES: Dict[str, Dict[str, str]] = {

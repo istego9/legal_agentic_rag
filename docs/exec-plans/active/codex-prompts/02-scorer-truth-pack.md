@@ -20,7 +20,7 @@ Implement or harden scoring checks for:
 - `apps/api/src/legal_rag_api/routers/eval.py`
 - `apps/api/src/legal_rag_api/routers/runs.py`
 - `tests/scorer_regression/`
-- `public_dataset.json`
+- `datasets/official_fetch_2026-03-11/questions.json`
 
 ## Constraints
 - Do not weaken current tests.

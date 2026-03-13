@@ -8,7 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_valida
 
 
 ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_PUBLIC_DATASET_PATH = ROOT / "public_dataset.json"
+DEFAULT_PUBLIC_DATASET_PATH = ROOT / "datasets" / "official_fetch_2026-03-11" / "questions.json"
 DEFAULT_TAXONOMY_PATH = ROOT / "datasets" / "taxonomy" / "public_question_taxonomy.v1.jsonl"
 
 ANSWER_TYPES: Tuple[str, ...] = ("boolean", "number", "date", "name", "names", "free_text")
@@ -145,7 +145,7 @@ def validate_taxonomy_coverage(
     for row in public_questions:
         question_id = row["id"]
         if question_id in public_by_id:
-            errors.append(f"public_dataset duplicate question id: {question_id}")
+            errors.append(f"public questions dataset duplicate question id: {question_id}")
             continue
         public_by_id[question_id] = row
 
@@ -191,4 +191,3 @@ def load_and_validate_public_taxonomy(
     taxonomy_rows = load_public_question_taxonomy(taxonomy_path)
     errors = validate_taxonomy_coverage(public_questions, taxonomy_rows)
     return public_questions, taxonomy_rows, errors
-

@@ -27,7 +27,7 @@
 - `schemas`
 - RAG-relevant docs/specs/ADRs/diagrams
 - RAG tests
-- `public_dataset.json`
+- `datasets/official_fetch_2026-03-11/questions.json`
 - Minimal CI and local validation helpers
 
 ## Out Of Scope

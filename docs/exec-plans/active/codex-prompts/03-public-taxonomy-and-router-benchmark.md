@@ -3,7 +3,7 @@
 You are working inside the `legal_agentic_rag` repository.
 
 ## Objective
-Create a fully labeled taxonomy for `public_dataset.json` and benchmark the router against it.
+Create a fully labeled taxonomy for `datasets/official_fetch_2026-03-11/questions.json` and benchmark the router against it.
 
 ## Scope
 1. Create a versioned taxonomy artifact under tests fixtures or docs active plan.
@@ -22,7 +22,7 @@ Create a fully labeled taxonomy for `public_dataset.json` and benchmark the rout
 - `answerability_risk`
 
 ## Files to inspect first
-- `public_dataset.json`
+- `datasets/official_fetch_2026-03-11/questions.json`
 - `packages/router/`
 - `services/runtime/`
 - `apps/api/src/legal_rag_api/routers/qa.py`

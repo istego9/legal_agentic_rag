@@ -52,7 +52,7 @@ FREE_TEXT_NO_ANSWER = (
 )
 ALLOWED_ANSWER_TYPES = {"boolean", "number", "date", "name", "names", "free_text"}
 REPO_ROOT = Path(__file__).resolve().parents[5]
-PUBLIC_DATASET_PATH = REPO_ROOT / "public_dataset.json"
+PUBLIC_DATASET_PATH = REPO_ROOT / "datasets" / "official_fetch_2026-03-11" / "questions.json"
 _WHITESPACE_PATTERN = re.compile(r"\s+")
 _PART_REF_PATTERN = re.compile(r"\bpart\s+([A-Za-z0-9\-]+)\b", re.IGNORECASE)
 _CASE_NUMBER_PATTERN = re.compile(r"\b[A-Z]{2,4}\s*\d{1,4}/\d{4}\b")
@@ -1378,7 +1378,7 @@ def _normalize_question_payload(raw: Dict[str, Any], dataset_id: str) -> Dict[st
 
 def _load_public_dataset(limit: int) -> List[Dict[str, Any]]:
     if not PUBLIC_DATASET_PATH.exists():
-        raise HTTPException(status_code=404, detail="public_dataset.json not found")
+        raise HTTPException(status_code=404, detail="official questions dataset not found")
     payload = json.loads(PUBLIC_DATASET_PATH.read_text(encoding="utf-8"))
     if not isinstance(payload, list):
         raise HTTPException(status_code=422, detail="public dataset must be a list")

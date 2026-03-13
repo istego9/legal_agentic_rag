@@ -19,7 +19,7 @@
 - `apps/api/src/legal_rag_api/contracts.py`
 - `docs/exec-plans/active/legal-rag-extraction-from-legalr.md`
 - `docs/design-docs/adr-2026-03-06-winning-runtime-north-star-v1.md`
-- `public_dataset.json`
+- `datasets/official_fetch_2026-03-11/questions.json`
 
 ### Frozen global invariants
 - Канонический source на конкурсе = page.

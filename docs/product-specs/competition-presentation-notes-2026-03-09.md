@@ -76,7 +76,7 @@
 
 ## Repository Fit Review
 ### Strong alignment
-- `public_dataset.json` is already `70/30` by answer type: `70` deterministic (`boolean=35`, `date=1`, `name=14`, `names=3`, `number=17`) and `30` `free_text`.
+- `datasets/official_fetch_2026-03-11/questions.json` is the canonical public-question set for current baselines and review flows.
 - Shared contracts already match the six contest answer types in [`contracts.py`](/Users/artemgendler/dev/legal_agentic_rag/apps/api/src/legal_rag_api/contracts.py).
 - Page-level grounding/export semantics are frozen through `PageRef.source_page_id = pdf_id_page` and submission export uses page ids only.
 - Default scorer constants already match the presentation for grounding and TTFT:

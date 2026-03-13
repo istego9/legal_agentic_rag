@@ -42,7 +42,7 @@ This repository excludes only the separate control-panel/workflow layer.
 - Active execution plans: `docs/exec-plans/active/`
 - ADRs: `docs/design-docs/`
 - Shared contracts: `apps/api/src/legal_rag_api/contracts.py`
-- Public dataset contract anchor: `public_dataset.json`
+- Public questions contract anchor: `datasets/official_fetch_2026-03-11/questions.json`
 
 ## Repository Map
 - `apps/api/`: FastAPI surface for corpus, QA, eval, experiments, gold, synth
