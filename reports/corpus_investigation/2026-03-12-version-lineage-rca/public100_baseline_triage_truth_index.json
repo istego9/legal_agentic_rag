@@ -1,0 +1,24 @@
+{
+  "truth_index_version": "public100_baseline_triage_truth_index.v1",
+  "artifact_root": "/private/var/folders/c8/gj4phypn48sdjz9lb6d7f63w0000gn/T/pytest-of-artemgendler/pytest-429/test_main_writes_triage_artifa0/baseline",
+  "total_questions": 1,
+  "high_priority_review_count": 1,
+  "triage_status_counts": {
+    "review_high": 1
+  },
+  "top_5_buckets": [
+    {
+      "bucket": "answerable_vs_abstain_conflict",
+      "count": 1
+    },
+    {
+      "bucket": "retrieval_error",
+      "count": 1
+    }
+  ],
+  "artifacts": {
+    "triage_summary_path": "/private/var/folders/c8/gj4phypn48sdjz9lb6d7f63w0000gn/T/pytest-of-artemgendler/pytest-429/test_main_writes_triage_artifa0/baseline/triage_summary.md",
+    "triage_queue_path": "/private/var/folders/c8/gj4phypn48sdjz9lb6d7f63w0000gn/T/pytest-of-artemgendler/pytest-429/test_main_writes_triage_artifa0/baseline/triage_queue.jsonl",
+    "failure_taxonomy_path": "/private/var/folders/c8/gj4phypn48sdjz9lb6d7f63w0000gn/T/pytest-of-artemgendler/pytest-429/test_main_writes_triage_artifa0/baseline/failure_taxonomy.json"
+  }
+}
