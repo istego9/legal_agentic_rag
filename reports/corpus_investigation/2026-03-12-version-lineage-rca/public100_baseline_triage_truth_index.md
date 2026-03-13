@@ -1,18 +1,21 @@
 # Public100 Baseline Triage Truth Index
 
-- artifact_root: `/private/var/folders/c8/gj4phypn48sdjz9lb6d7f63w0000gn/T/pytest-of-artemgendler/pytest-429/test_main_writes_triage_artifa0/baseline`
-- total_questions: `1`
-- high_priority_review_count: `1`
-- triage_status_counts: `{'review_high': 1}`
+- artifact_root: `/Users/artemgendler/dev/legal_agentic_rag/.artifacts/competition_runs/public100_baseline`
+- total_questions: `100`
+- high_priority_review_count: `96`
+- triage_status_counts: `{'expected_negative': 4, 'review_high': 96}`
 
 ## Canonical Artifacts
 
-- triage_summary: `/private/var/folders/c8/gj4phypn48sdjz9lb6d7f63w0000gn/T/pytest-of-artemgendler/pytest-429/test_main_writes_triage_artifa0/baseline/triage_summary.md`
-- triage_queue: `/private/var/folders/c8/gj4phypn48sdjz9lb6d7f63w0000gn/T/pytest-of-artemgendler/pytest-429/test_main_writes_triage_artifa0/baseline/triage_queue.jsonl`
-- failure_taxonomy: `/private/var/folders/c8/gj4phypn48sdjz9lb6d7f63w0000gn/T/pytest-of-artemgendler/pytest-429/test_main_writes_triage_artifa0/baseline/failure_taxonomy.json`
+- triage_summary: `/Users/artemgendler/dev/legal_agentic_rag/.artifacts/competition_runs/public100_baseline/triage_summary.md`
+- triage_queue: `/Users/artemgendler/dev/legal_agentic_rag/.artifacts/competition_runs/public100_baseline/triage_queue.jsonl`
+- failure_taxonomy: `/Users/artemgendler/dev/legal_agentic_rag/.artifacts/competition_runs/public100_baseline/failure_taxonomy.json`
 
 ## Top 5 Buckets
 
-- `answerable_vs_abstain_conflict`: `1`
-- `retrieval_error`: `1`
+- `answerable_vs_abstain_conflict`: `96`
+- `retrieval_error`: `96`
+- `case_identity_conflict`: `47`
+- `compare_dimension_conflict`: `31`
+- `history_or_version_conflict`: `5`
 

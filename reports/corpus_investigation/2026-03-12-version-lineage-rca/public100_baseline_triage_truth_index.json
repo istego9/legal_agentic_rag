@@ -1,24 +1,37 @@
 {
   "truth_index_version": "public100_baseline_triage_truth_index.v1",
-  "artifact_root": "/private/var/folders/c8/gj4phypn48sdjz9lb6d7f63w0000gn/T/pytest-of-artemgendler/pytest-429/test_main_writes_triage_artifa0/baseline",
-  "total_questions": 1,
-  "high_priority_review_count": 1,
+  "artifact_root": "/Users/artemgendler/dev/legal_agentic_rag/.artifacts/competition_runs/public100_baseline",
+  "total_questions": 100,
+  "high_priority_review_count": 96,
   "triage_status_counts": {
-    "review_high": 1
+    "expected_negative": 4,
+    "review_high": 96
   },
   "top_5_buckets": [
     {
       "bucket": "answerable_vs_abstain_conflict",
-      "count": 1
+      "count": 96
     },
     {
       "bucket": "retrieval_error",
-      "count": 1
+      "count": 96
+    },
+    {
+      "bucket": "case_identity_conflict",
+      "count": 47
+    },
+    {
+      "bucket": "compare_dimension_conflict",
+      "count": 31
+    },
+    {
+      "bucket": "history_or_version_conflict",
+      "count": 5
     }
   ],
   "artifacts": {
-    "triage_summary_path": "/private/var/folders/c8/gj4phypn48sdjz9lb6d7f63w0000gn/T/pytest-of-artemgendler/pytest-429/test_main_writes_triage_artifa0/baseline/triage_summary.md",
-    "triage_queue_path": "/private/var/folders/c8/gj4phypn48sdjz9lb6d7f63w0000gn/T/pytest-of-artemgendler/pytest-429/test_main_writes_triage_artifa0/baseline/triage_queue.jsonl",
-    "failure_taxonomy_path": "/private/var/folders/c8/gj4phypn48sdjz9lb6d7f63w0000gn/T/pytest-of-artemgendler/pytest-429/test_main_writes_triage_artifa0/baseline/failure_taxonomy.json"
+    "triage_summary_path": "/Users/artemgendler/dev/legal_agentic_rag/.artifacts/competition_runs/public100_baseline/triage_summary.md",
+    "triage_queue_path": "/Users/artemgendler/dev/legal_agentic_rag/.artifacts/competition_runs/public100_baseline/triage_queue.jsonl",
+    "failure_taxonomy_path": "/Users/artemgendler/dev/legal_agentic_rag/.artifacts/competition_runs/public100_baseline/failure_taxonomy.json"
   }
 }

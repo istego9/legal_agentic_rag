@@ -138,7 +138,7 @@ def test_main_writes_triage_artifacts(tmp_path: Path) -> None:
         encoding="utf-8",
     )
 
-    rc = module.main(["--artifact-root", str(artifact_root), "--questions", str(questions_path)])
+    rc = module.main(["--artifact-root", str(artifact_root), "--questions", str(questions_path), "--no-tracked-truth"])
     assert rc == 0
     assert (artifact_root / "triage_summary.md").exists()
     assert (artifact_root / "triage_queue.jsonl").exists()

@@ -435,7 +435,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Build triage artifacts for the Public100 baseline run")
     parser.add_argument("--artifact-root", default=str(DEFAULT_BASELINE_ROOT))
     parser.add_argument("--questions", default=str(DEFAULT_QUESTIONS_PATH))
-    parser.add_argument("--tracked-truth", action="store_true", default=True)
+    parser.add_argument("--tracked-truth", dest="tracked_truth", action="store_true", default=True)
+    parser.add_argument("--no-tracked-truth", dest="tracked_truth", action="store_false")
     return parser
 
 
