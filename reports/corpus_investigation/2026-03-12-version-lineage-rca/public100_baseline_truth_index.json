@@ -1,0 +1,112 @@
+{
+  "truth_index_version": "public100_baseline_truth_index.v1",
+  "artifact_root": "/Users/artemgendler/dev/legal_agentic_rag/.artifacts/competition_runs/public100_baseline",
+  "artifacts": {
+    "prepare_report_path": "/Users/artemgendler/dev/legal_agentic_rag/.artifacts/competition_runs/public100_baseline/prepare_report.json",
+    "run_manifest_path": "/Users/artemgendler/dev/legal_agentic_rag/.artifacts/competition_runs/public100_baseline/run_manifest.json",
+    "run_summary_path": "/Users/artemgendler/dev/legal_agentic_rag/.artifacts/competition_runs/public100_baseline/run_summary.md",
+    "submission_path": "/Users/artemgendler/dev/legal_agentic_rag/.artifacts/competition_runs/public100_baseline/submission.json",
+    "validation_report_path": "/Users/artemgendler/dev/legal_agentic_rag/.artifacts/competition_runs/public100_baseline/submission.validation_report.json",
+    "preflight_report_path": "/Users/artemgendler/dev/legal_agentic_rag/.artifacts/competition_runs/public100_baseline/preflight_report.json",
+    "question_status_path": "/Users/artemgendler/dev/legal_agentic_rag/.artifacts/competition_runs/public100_baseline/question_status.jsonl"
+  },
+  "prepare_summary": {
+    "documents": 30,
+    "pages": 590,
+    "paragraphs": 2433,
+    "relation_edges": 1493,
+    "parse_errors": 0,
+    "parse_warnings": 0,
+    "metadata_normalization_status": "completed"
+  },
+  "run_summary": {
+    "question_count": 100,
+    "success_count": 100,
+    "failure_count": 0,
+    "resumed_from_cache_count": 0,
+    "abstain_count": 100,
+    "abstain_rate": 1.0,
+    "preflight_blocking_failed": false,
+    "official_submission_valid": true,
+    "invalid_prediction_count": 0
+  },
+  "route_distribution": {
+    "article_lookup": 45,
+    "cross_case_compare": 31,
+    "single_case_extraction": 16,
+    "history_lineage": 4,
+    "no_answer": 4
+  },
+  "top_failure_buckets": [
+    {
+      "bucket_type": "abstain",
+      "route_name": "cross_case_compare",
+      "answer_type": "boolean",
+      "detail": "abstained",
+      "count": 19
+    },
+    {
+      "bucket_type": "abstain",
+      "route_name": "article_lookup",
+      "answer_type": "number",
+      "detail": "abstained",
+      "count": 16
+    },
+    {
+      "bucket_type": "abstain",
+      "route_name": "article_lookup",
+      "answer_type": "free_text",
+      "detail": "abstained",
+      "count": 15
+    },
+    {
+      "bucket_type": "abstain",
+      "route_name": "article_lookup",
+      "answer_type": "boolean",
+      "detail": "abstained",
+      "count": 12
+    },
+    {
+      "bucket_type": "abstain",
+      "route_name": "cross_case_compare",
+      "answer_type": "name",
+      "detail": "abstained",
+      "count": 12
+    },
+    {
+      "bucket_type": "abstain",
+      "route_name": "single_case_extraction",
+      "answer_type": "free_text",
+      "detail": "abstained",
+      "count": 7
+    },
+    {
+      "bucket_type": "abstain",
+      "route_name": "history_lineage",
+      "answer_type": "free_text",
+      "detail": "abstained",
+      "count": 4
+    },
+    {
+      "bucket_type": "abstain",
+      "route_name": "no_answer",
+      "answer_type": "free_text",
+      "detail": "abstained",
+      "count": 4
+    },
+    {
+      "bucket_type": "abstain",
+      "route_name": "single_case_extraction",
+      "answer_type": "names",
+      "detail": "abstained",
+      "count": 4
+    },
+    {
+      "bucket_type": "abstain",
+      "route_name": "single_case_extraction",
+      "answer_type": "name",
+      "detail": "abstained",
+      "count": 2
+    }
+  ]
+}

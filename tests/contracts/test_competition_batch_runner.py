@@ -116,6 +116,16 @@ def test_run_manifest_and_safe_rerun_controls(tmp_path: Path) -> None:
     assert (output_dir / "submission.json").exists()
     assert (output_dir / "run_manifest.json").exists()
     assert (output_dir / "question_status.jsonl").exists()
+    assert (output_dir / "run_summary.md").exists()
+    manifest = json.loads((output_dir / "run_manifest.json").read_text(encoding="utf-8"))
+    assert "route_distribution" in manifest
+    assert "abstain_summary" in manifest
+    assert "latency_summary" in manifest
+    assert "top_failure_buckets" in manifest
+    run_summary = (output_dir / "run_summary.md").read_text(encoding="utf-8")
+    assert "## Route Distribution" in run_summary
+    assert "## Top Failure Buckets" in run_summary
+    assert "## Latency Summary" in run_summary
 
     with pytest.raises(SystemExit):
         module.main(

@@ -8,6 +8,7 @@ import asyncio
 from datetime import datetime, timezone
 import hashlib
 import json
+import math
 from pathlib import Path
 import shutil
 import subprocess
@@ -399,11 +400,108 @@ def _build_status_row(
     }
 
 
+def _route_distribution(responses_by_id: Dict[str, QueryResponse]) -> Dict[str, int]:
+    counts: Dict[str, int] = {}
+    for response in responses_by_id.values():
+        route_name = str(response.route_name or "").strip() or "unknown"
+        counts[route_name] = int(counts.get(route_name, 0)) + 1
+    return dict(sorted(counts.items(), key=lambda item: (-item[1], item[0])))
+
+
+def _abstain_summary(responses_by_id: Dict[str, QueryResponse]) -> Dict[str, Any]:
+    total = len(responses_by_id)
+    abstain_count = sum(1 for response in responses_by_id.values() if bool(response.abstained))
+    return {
+        "abstain_count": abstain_count,
+        "abstain_rate": round(abstain_count / max(1, total), 4),
+    }
+
+
+def _percentile(values: List[int], percentile: float) -> int:
+    if not values:
+        return 0
+    ordered = sorted(values)
+    rank = max(0, min(len(ordered) - 1, math.ceil((percentile / 100.0) * len(ordered)) - 1))
+    return int(ordered[rank])
+
+
+def _latency_summary(responses_by_id: Dict[str, QueryResponse]) -> Dict[str, Any]:
+    ttft_values = [int(response.telemetry.ttft_ms) for response in responses_by_id.values()]
+    total_values = [int(response.telemetry.total_response_ms) for response in responses_by_id.values()]
+    telemetry_complete_count = sum(1 for response in responses_by_id.values() if bool(response.telemetry.telemetry_complete))
+    model_names = sorted(
+        {
+            str(response.telemetry.model_name).strip()
+            for response in responses_by_id.values()
+            if str(response.telemetry.model_name).strip()
+        }
+    )
+    if not ttft_values or not total_values:
+        return {
+            "question_count": len(responses_by_id),
+            "telemetry_complete_count": telemetry_complete_count,
+            "model_names": model_names,
+        }
+    return {
+        "question_count": len(responses_by_id),
+        "telemetry_complete_count": telemetry_complete_count,
+        "model_names": model_names,
+        "ttft_ms": {
+            "avg": round(sum(ttft_values) / len(ttft_values), 2),
+            "p50": _percentile(ttft_values, 50),
+            "p95": _percentile(ttft_values, 95),
+            "max": max(ttft_values),
+        },
+        "total_response_ms": {
+            "avg": round(sum(total_values) / len(total_values), 2),
+            "p50": _percentile(total_values, 50),
+            "p95": _percentile(total_values, 95),
+            "max": max(total_values),
+        },
+    }
+
+
+def _top_failure_buckets(status_map: Dict[str, Dict[str, Any]], *, limit: int = 10) -> List[Dict[str, Any]]:
+    buckets: Dict[Tuple[str, str, str, str], int] = {}
+    for row in status_map.values():
+        route_name = str(row.get("route_name", "")).strip() or "unknown"
+        answer_type = str(row.get("answer_type", "")).strip() or "unknown"
+        validation = row.get("validation", {}) if isinstance(row.get("validation"), dict) else {}
+        if not bool(row.get("success")):
+            error = str(row.get("error", "")).strip() or "unknown_error"
+            error_label = error.split(":", 1)[0].strip() or "unknown_error"
+            key = ("runtime_exception", route_name, answer_type, error_label)
+        elif not bool(validation.get("competition_contract_valid", True)):
+            blocking = validation.get("blocking_failures", []) if isinstance(validation.get("blocking_failures"), list) else []
+            detail = "|".join(str(item).strip() for item in blocking if str(item).strip()) or "contract_failure"
+            key = ("contract_failure", route_name, answer_type, detail)
+        elif bool(row.get("abstained")):
+            key = ("abstain", route_name, answer_type, "abstained")
+        else:
+            continue
+        buckets[key] = int(buckets.get(key, 0)) + 1
+    ordered = sorted(buckets.items(), key=lambda item: (-item[1], item[0]))
+    return [
+        {
+            "bucket_type": bucket_type,
+            "route_name": route_name,
+            "answer_type": answer_type,
+            "detail": detail,
+            "count": count,
+        }
+        for (bucket_type, route_name, answer_type, detail), count in ordered[:limit]
+    ]
+
+
 def _summarize_markdown(manifest: Dict[str, Any]) -> str:
     counts = manifest.get("counts", {})
     validation = manifest.get("validation", {})
     artifacts = manifest.get("artifacts", {})
     inputs = manifest.get("inputs", {})
+    route_distribution = manifest.get("route_distribution", {})
+    abstain = manifest.get("abstain_summary", {})
+    latency = manifest.get("latency_summary", {})
+    failure_buckets = manifest.get("top_failure_buckets", [])
     lines = [
         "# Competition Batch Run Summary",
         "",
@@ -425,20 +523,60 @@ def _summarize_markdown(manifest: Dict[str, Any]) -> str:
         f"- success_count: `{counts.get('success_count', 0)}`",
         f"- failure_count: `{counts.get('failure_count', 0)}`",
         f"- resumed_from_cache_count: `{counts.get('resumed_from_cache_count', 0)}`",
+        f"- abstain_count: `{abstain.get('abstain_count', 0)}`",
+        f"- abstain_rate: `{abstain.get('abstain_rate', 0)}`",
         "",
         "## Validation",
         "",
         f"- strict_contract_mode: `{validation.get('strict_contract_mode', False)}`",
         f"- preflight_blocking_failed: `{validation.get('preflight_blocking_failed', False)}`",
         f"- official_submission_valid: `{validation.get('official_submission_valid', False)}`",
+        f"- invalid_prediction_count: `{validation.get('invalid_prediction_count', 0)}`",
         "",
-        "## Artifacts",
+        "## Route Distribution",
         "",
-        f"- submission_path: `{artifacts.get('submission_path', '')}`",
-        f"- question_status_path: `{artifacts.get('question_status_path', '')}`",
-        f"- preflight_report_path: `{artifacts.get('preflight_report_path', '')}`",
-        f"- validation_report_path: `{artifacts.get('validation_report_path', '')}`",
     ]
+    for route_name, count in route_distribution.items():
+        lines.append(f"- `{route_name}`: `{count}`")
+    lines.extend(
+        [
+            "",
+            "## Latency Summary",
+            "",
+            f"- telemetry_complete_count: `{latency.get('telemetry_complete_count', 0)}`",
+            f"- model_names: `{', '.join(latency.get('model_names', []))}`",
+        ]
+    )
+    ttft = latency.get("ttft_ms", {}) if isinstance(latency.get("ttft_ms"), dict) else {}
+    total_latency = latency.get("total_response_ms", {}) if isinstance(latency.get("total_response_ms"), dict) else {}
+    if ttft:
+        lines.append(
+            f"- ttft_ms avg/p50/p95/max: `{ttft.get('avg', 0)}` / `{ttft.get('p50', 0)}` / `{ttft.get('p95', 0)}` / `{ttft.get('max', 0)}`"
+        )
+    if total_latency:
+        lines.append(
+            f"- total_response_ms avg/p50/p95/max: `{total_latency.get('avg', 0)}` / `{total_latency.get('p50', 0)}` / `{total_latency.get('p95', 0)}` / `{total_latency.get('max', 0)}`"
+        )
+    lines.extend(["", "## Top Failure Buckets", ""])
+    if failure_buckets:
+        for bucket in failure_buckets:
+            lines.append(
+                f"- `{bucket.get('bucket_type', 'unknown')}` / `{bucket.get('route_name', 'unknown')}` / "
+                f"`{bucket.get('answer_type', 'unknown')}` / `{bucket.get('detail', 'n/a')}`: `{bucket.get('count', 0)}`"
+            )
+    else:
+        lines.append("- `none`")
+    lines.extend(
+        [
+            "",
+            "## Artifacts",
+            "",
+            f"- submission_path: `{artifacts.get('submission_path', '')}`",
+            f"- question_status_path: `{artifacts.get('question_status_path', '')}`",
+            f"- preflight_report_path: `{artifacts.get('preflight_report_path', '')}`",
+            f"- validation_report_path: `{artifacts.get('validation_report_path', '')}`",
+        ]
+    )
     return "\n".join(lines) + "\n"
 
 
@@ -681,6 +819,11 @@ def command_run(args: argparse.Namespace) -> int:
     else:
         store.set_run_status(run_id, run_status)
 
+    route_distribution = _route_distribution(responses_by_id)
+    abstain_summary = _abstain_summary(responses_by_id)
+    latency_summary = _latency_summary(responses_by_id)
+    top_failure_buckets = _top_failure_buckets(status_map)
+
     manifest = {
         "manifest_version": RUN_MANIFEST_VERSION,
         "run_id": run_id,
@@ -715,6 +858,10 @@ def command_run(args: argparse.Namespace) -> int:
             "invalid_prediction_count": int(preflight.get("invalid_prediction_count", 0) or 0),
             "official_submission_valid": bool(validation_report.get("valid", False)),
         },
+        "route_distribution": route_distribution,
+        "abstain_summary": abstain_summary,
+        "latency_summary": latency_summary,
+        "top_failure_buckets": top_failure_buckets,
         "architecture_summary": architecture_summary_meta,
         "prepare_result": prepare_result,
         "import_result": import_result,

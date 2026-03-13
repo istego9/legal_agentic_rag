@@ -192,6 +192,14 @@ def test_batch_runner_integration_groups_pages_and_handles_abstain(tmp_path: Pat
     by_id = {row["question_id"]: row for row in status_rows}
     assert by_id["q-abstain"]["abstained"] is True
     assert by_id["q-abstain"]["success"] is True
+    manifest = json.loads((output_dir / "run_manifest.json").read_text(encoding="utf-8"))
+    assert manifest["route_distribution"]
+    assert manifest["abstain_summary"]["abstain_count"] >= 1
+    assert "latency_summary" in manifest
+    run_summary = (output_dir / "run_summary.md").read_text(encoding="utf-8")
+    assert "q-abstain" not in run_summary
+    assert "## Route Distribution" in run_summary
+    assert "## Top Failure Buckets" in run_summary
 
     validate_rc = module.main(
         [
