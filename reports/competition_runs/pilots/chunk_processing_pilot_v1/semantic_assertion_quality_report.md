@@ -1,5 +1,7 @@
 # Semantic Assertion Quality Report
 
+> Superseded historical snapshot. Current canonical rules-first chunk/proposition pilot truth lives in `.artifacts/...` and is indexed by `reports/corpus_investigation/2026-03-12-version-lineage-rca/chunk_processing_pilot_truth_index.md`.
+
 - report_version: `chunk_processing_semantic_report_v1`
 - assertion_count: `632`
 - chunk_with_assertions_count: `623`

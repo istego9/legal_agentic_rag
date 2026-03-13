@@ -1,5 +1,7 @@
 # Chunk Processing Rules Export
 
+> Superseded historical snapshot. Current canonical rules-first chunk/proposition pilot truth lives in `.artifacts/...` and is indexed by `reports/corpus_investigation/2026-03-12-version-lineage-rca/chunk_processing_pilot_truth_index.md`.
+
 - export_version: `chunk_processing_rules_export_v1`
 ## pilot_scope
 

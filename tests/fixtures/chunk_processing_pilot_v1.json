@@ -1,5 +1,6 @@
 {
   "fixture_version": "chunk_processing_pilot_v1",
+  "evaluation_contract_version": "chunk_processing_truth_hardening_v1",
   "documents": [
     {
       "pdf_id": "33bc02044716acdfedb164b065bdaec098aaadcae863c591f9931c88e7307d16",
@@ -30,85 +31,725 @@
   "queries": [
     {
       "question_id": "employment_void_clause_boolean",
+      "source_reference": {
+        "kind": "public_question",
+        "question_id": "d6eb4a640e0ad690e92c1463e15f5394d36d8f5bb407f0fa4d7413c456c7a5bd"
+      },
+      "category": "law_article_history",
       "question": "Under Article 11(1) of the Employment Law 2019, is a provision in an agreement to waive minimum employment requirements void in all circumstances, except where expressly permitted by the Law?",
       "answer_type": "boolean",
       "route_hint": "article_lookup",
+      "expected_action": "abstain",
       "expected_answer": true,
+      "expected_source_family": "law",
+      "expected_pdf_ids": [
+        "33bc02044716acdfedb164b065bdaec098aaadcae863c591f9931c88e7307d16"
+      ],
+      "expected_article_number": "11",
       "direct_answer_expected": {
         "eligible": false,
         "expected_action": "abstain"
-      },
-      "expected_pdf_id": "33bc02044716acdfedb164b065bdaec098aaadcae863c591f9931c88e7307d16",
-      "expected_article_number": "11"
+      }
     },
     {
       "question_id": "employment_conditional_waiver_boolean",
+      "source_reference": {
+        "kind": "public_question",
+        "question_id": "0149374f1699ab209f6169cffcdd94f45072fca07fbf7a580720760f5c32f658"
+      },
+      "category": "law_article_history",
       "question": "Under Article 11(2)(b) of the Employment Law 2019, can an Employee waive any right under this Law by entering into a written agreement with their Employer to terminate employment, provided they were given an opportunity to receive independent legal advice or took part in mediation?",
       "answer_type": "boolean",
       "route_hint": "article_lookup",
+      "expected_action": "abstain",
       "expected_answer": true,
+      "expected_source_family": "law",
+      "expected_pdf_ids": [
+        "33bc02044716acdfedb164b065bdaec098aaadcae863c591f9931c88e7307d16"
+      ],
+      "expected_article_number": "11",
       "direct_answer_expected": {
         "eligible": false,
         "expected_action": "abstain"
-      },
-      "expected_pdf_id": "33bc02044716acdfedb164b065bdaec098aaadcae863c591f9931c88e7307d16",
-      "expected_article_number": "11"
+      }
     },
     {
       "question_id": "coinmena_costs_amount",
+      "source_reference": {
+        "kind": "pilot_query",
+        "label": "Coinmena operative costs award amount"
+      },
+      "category": "case_order_costs_deadline",
       "question": "In Coinmena B.S.C. (C) v Foloosi Technologies Ltd, what total sum must the Applicant pay as the Costs Award?",
       "answer_type": "number",
       "route_hint": "single_case_extraction",
+      "expected_action": "answer",
       "expected_answer": 155879.5,
+      "expected_source_family": "case",
+      "expected_pdf_ids": [
+        "897ab23ed5a70034d3d708d871ad1da8bc7b6608d94b1ca46b5d578d985d3c13"
+      ],
       "direct_answer_expected": {
         "eligible": true,
         "expected_action": "answer",
         "expected_answer": 155879.5
-      },
-      "expected_pdf_id": "897ab23ed5a70034d3d708d871ad1da8bc7b6608d94b1ca46b5d578d985d3c13"
+      }
     },
     {
       "question_id": "coinmena_deadline_days",
+      "source_reference": {
+        "kind": "pilot_query",
+        "label": "Coinmena operative payment deadline"
+      },
+      "category": "case_order_costs_deadline",
       "question": "In Coinmena B.S.C. (C) v Foloosi Technologies Ltd, within how many days must the Applicant pay the Costs Award?",
       "answer_type": "number",
       "route_hint": "single_case_extraction",
+      "expected_action": "answer",
       "expected_answer": 14,
+      "expected_source_family": "case",
+      "expected_pdf_ids": [
+        "897ab23ed5a70034d3d708d871ad1da8bc7b6608d94b1ca46b5d578d985d3c13"
+      ],
       "direct_answer_expected": {
         "eligible": true,
         "expected_action": "answer",
         "expected_answer": 14
-      },
-      "expected_pdf_id": "897ab23ed5a70034d3d708d871ad1da8bc7b6608d94b1ca46b5d578d985d3c13"
+      }
     },
     {
       "question_id": "ca004_interest_rate",
+      "source_reference": {
+        "kind": "pilot_query",
+        "label": "CA 004 interest consequence"
+      },
+      "category": "case_order_costs_deadline",
       "question": "In CA 004/2025 Mr Oran and Oaken v Oved, if the costs are not paid within fourteen days, at what annual rate does interest accrue?",
       "answer_type": "number",
       "route_hint": "single_case_extraction",
+      "expected_action": "abstain",
       "expected_answer": 9,
+      "expected_source_family": "case",
+      "expected_pdf_ids": [
+        "78ffe994cdc61ce6a2a6937c79fc52751bb5d2b4eaa4019f088fbccf70569c26"
+      ],
       "direct_answer_expected": {
         "eligible": false,
         "expected_action": "abstain"
-      },
-      "expected_pdf_id": "78ffe994cdc61ce6a2a6937c79fc52751bb5d2b4eaa4019f088fbccf70569c26"
+      }
     },
     {
       "question_id": "ca004_court_name",
+      "source_reference": {
+        "kind": "pilot_query",
+        "label": "CA 004 issuing court"
+      },
+      "category": "case_order_costs_deadline",
       "question": "Which court issued the order in CA 004/2025 Mr Oran and Oaken v Oved?",
       "answer_type": "name",
       "route_hint": "single_case_extraction",
+      "expected_action": "answer",
       "expected_answer": "Court Of Appeal",
+      "expected_source_family": "case",
+      "expected_pdf_ids": [
+        "78ffe994cdc61ce6a2a6937c79fc52751bb5d2b4eaa4019f088fbccf70569c26"
+      ],
       "direct_answer_expected": {
         "eligible": true,
         "expected_action": "answer",
         "expected_answer": "Court Of Appeal"
+      }
+    }
+  ],
+  "expanded_queries": [
+    {
+      "question_id": "employment_void_clause_boolean",
+      "source_reference": {
+        "kind": "public_question",
+        "question_id": "d6eb4a640e0ad690e92c1463e15f5394d36d8f5bb407f0fa4d7413c456c7a5bd"
       },
-      "expected_pdf_id": "78ffe994cdc61ce6a2a6937c79fc52751bb5d2b4eaa4019f088fbccf70569c26"
+      "category": "law_article_history",
+      "question": "Under Article 11(1) of the Employment Law 2019, is a provision in an agreement to waive minimum employment requirements void in all circumstances, except where expressly permitted by the Law?",
+      "answer_type": "boolean",
+      "route_hint": "article_lookup",
+      "expected_action": "abstain",
+      "expected_answer": true,
+      "expected_source_family": "law",
+      "expected_pdf_ids": [
+        "33bc02044716acdfedb164b065bdaec098aaadcae863c591f9931c88e7307d16"
+      ],
+      "expected_article_number": "11",
+      "direct_answer_expected": {
+        "eligible": false,
+        "expected_action": "abstain"
+      }
+    },
+    {
+      "question_id": "employment_conditional_waiver_boolean",
+      "source_reference": {
+        "kind": "public_question",
+        "question_id": "0149374f1699ab209f6169cffcdd94f45072fca07fbf7a580720760f5c32f658"
+      },
+      "category": "law_article_history",
+      "question": "Under Article 11(2)(b) of the Employment Law 2019, can an Employee waive any right under this Law by entering into a written agreement with their Employer to terminate employment, provided they were given an opportunity to receive independent legal advice or took part in mediation?",
+      "answer_type": "boolean",
+      "route_hint": "article_lookup",
+      "expected_action": "abstain",
+      "expected_answer": true,
+      "expected_source_family": "law",
+      "expected_pdf_ids": [
+        "33bc02044716acdfedb164b065bdaec098aaadcae863c591f9931c88e7307d16"
+      ],
+      "expected_article_number": "11",
+      "direct_answer_expected": {
+        "eligible": false,
+        "expected_action": "abstain"
+      }
+    },
+    {
+      "question_id": "coinmena_costs_amount",
+      "source_reference": {
+        "kind": "pilot_query",
+        "label": "Coinmena operative costs award amount"
+      },
+      "category": "case_order_costs_deadline",
+      "question": "In Coinmena B.S.C. (C) v Foloosi Technologies Ltd, what total sum must the Applicant pay as the Costs Award?",
+      "answer_type": "number",
+      "route_hint": "single_case_extraction",
+      "expected_action": "answer",
+      "expected_answer": 155879.5,
+      "expected_source_family": "case",
+      "expected_pdf_ids": [
+        "897ab23ed5a70034d3d708d871ad1da8bc7b6608d94b1ca46b5d578d985d3c13"
+      ],
+      "direct_answer_expected": {
+        "eligible": true,
+        "expected_action": "answer",
+        "expected_answer": 155879.5
+      }
+    },
+    {
+      "question_id": "coinmena_deadline_days",
+      "source_reference": {
+        "kind": "pilot_query",
+        "label": "Coinmena operative payment deadline"
+      },
+      "category": "case_order_costs_deadline",
+      "question": "In Coinmena B.S.C. (C) v Foloosi Technologies Ltd, within how many days must the Applicant pay the Costs Award?",
+      "answer_type": "number",
+      "route_hint": "single_case_extraction",
+      "expected_action": "answer",
+      "expected_answer": 14,
+      "expected_source_family": "case",
+      "expected_pdf_ids": [
+        "897ab23ed5a70034d3d708d871ad1da8bc7b6608d94b1ca46b5d578d985d3c13"
+      ],
+      "direct_answer_expected": {
+        "eligible": true,
+        "expected_action": "answer",
+        "expected_answer": 14
+      }
+    },
+    {
+      "question_id": "ca004_interest_rate",
+      "source_reference": {
+        "kind": "pilot_query",
+        "label": "CA 004 interest consequence"
+      },
+      "category": "case_order_costs_deadline",
+      "question": "In CA 004/2025 Mr Oran and Oaken v Oved, if the costs are not paid within fourteen days, at what annual rate does interest accrue?",
+      "answer_type": "number",
+      "route_hint": "single_case_extraction",
+      "expected_action": "abstain",
+      "expected_answer": 9,
+      "expected_source_family": "case",
+      "expected_pdf_ids": [
+        "78ffe994cdc61ce6a2a6937c79fc52751bb5d2b4eaa4019f088fbccf70569c26"
+      ],
+      "direct_answer_expected": {
+        "eligible": false,
+        "expected_action": "abstain"
+      }
+    },
+    {
+      "question_id": "ca004_court_name",
+      "source_reference": {
+        "kind": "pilot_query",
+        "label": "CA 004 issuing court"
+      },
+      "category": "case_order_costs_deadline",
+      "question": "Which court issued the order in CA 004/2025 Mr Oran and Oaken v Oved?",
+      "answer_type": "name",
+      "route_hint": "single_case_extraction",
+      "expected_action": "answer",
+      "expected_answer": "Court Of Appeal",
+      "expected_source_family": "case",
+      "expected_pdf_ids": [
+        "78ffe994cdc61ce6a2a6937c79fc52751bb5d2b4eaa4019f088fbccf70569c26"
+      ],
+      "direct_answer_expected": {
+        "eligible": true,
+        "expected_action": "answer",
+        "expected_answer": "Court Of Appeal"
+      }
+    },
+    {
+      "question_id": "employment_contract_days",
+      "source_reference": {
+        "kind": "public_question",
+        "question_id": "e59a0dc49c291402ead91342b065bc4e9ded0043d126f73dd00ba6045aae46b7"
+      },
+      "category": "law_article_history",
+      "question": "Under Article 14(1) of the Employment Law 2019, how many days does an Employer have to provide an Employee with a written Employment Contract after the commencement of employment?",
+      "answer_type": "number",
+      "route_hint": "article_lookup",
+      "expected_action": "answer",
+      "expected_answer": 7,
+      "expected_source_family": "law",
+      "expected_pdf_ids": [
+        "33bc02044716acdfedb164b065bdaec098aaadcae863c591f9931c88e7307d16"
+      ],
+      "expected_article_number": "14",
+      "direct_answer_expected": {
+        "eligible": false,
+        "expected_action": "abstain"
+      }
+    },
+    {
+      "question_id": "employment_ramadan_hours",
+      "source_reference": {
+        "kind": "public_question",
+        "question_id": "2fc105ec9d11e361b057e8ce21245fbc01f14cefe5ccddada9d7541c952106d2"
+      },
+      "category": "law_article_history",
+      "question": "If a Muslim Employee works during the holy month of Ramadan, what is the maximum number of hours they can be required to work each day according to Article 23 of the Employment Law 2019?",
+      "answer_type": "number",
+      "route_hint": "article_lookup",
+      "expected_action": "answer",
+      "expected_answer": 6,
+      "expected_source_family": "law",
+      "expected_pdf_ids": [
+        "33bc02044716acdfedb164b065bdaec098aaadcae863c591f9931c88e7307d16"
+      ],
+      "expected_article_number": "23",
+      "direct_answer_expected": {
+        "eligible": false,
+        "expected_action": "abstain"
+      }
+    },
+    {
+      "question_id": "employment_probation_months",
+      "source_reference": {
+        "kind": "public_question",
+        "question_id": "84ef7f354a41168e99812515cd775297b36c35a541c5b8eb1978be771554b546"
+      },
+      "category": "law_article_history",
+      "question": "According to Article 14(2)(l) of the Employment Law 2019, what is the maximum probation period in months for an Employee, except in specific fixed-term contract circumstances?",
+      "answer_type": "number",
+      "route_hint": "article_lookup",
+      "expected_action": "answer",
+      "expected_answer": 6,
+      "expected_source_family": "law",
+      "expected_pdf_ids": [
+        "33bc02044716acdfedb164b065bdaec098aaadcae863c591f9931c88e7307d16"
+      ],
+      "expected_article_number": "14",
+      "direct_answer_expected": {
+        "eligible": false,
+        "expected_action": "abstain"
+      }
+    },
+    {
+      "question_id": "employment_limitation_months",
+      "source_reference": {
+        "kind": "public_question",
+        "question_id": "e153746c20cc385a520728ac381151f424c9eee10e4c582904fee70afe9af243"
+      },
+      "category": "law_article_history",
+      "question": "According to Article 10 of the Employment Law 2019, how many months after the Termination Date must a claim under this Law be presented to the Court, unless otherwise specified?",
+      "answer_type": "number",
+      "route_hint": "article_lookup",
+      "expected_action": "answer",
+      "expected_answer": 6,
+      "expected_source_family": "law",
+      "expected_pdf_ids": [
+        "33bc02044716acdfedb164b065bdaec098aaadcae863c591f9931c88e7307d16"
+      ],
+      "expected_article_number": "10",
+      "direct_answer_expected": {
+        "eligible": false,
+        "expected_action": "abstain"
+      }
+    },
+    {
+      "question_id": "employment_administering_authority",
+      "source_reference": {
+        "kind": "adapted_from_public_question",
+        "question_id": "095cb50318776a3b8ef11769cd941775694c194924783ee31109c25e3306600e"
+      },
+      "category": "law_article_history",
+      "coverage_kind": "regulation_related",
+      "question": "Which authority administers the Employment Law and any Regulations made under it?",
+      "answer_type": "name",
+      "route_hint": "history_lineage",
+      "expected_action": "abstain",
+      "expected_answer": "DIFCA",
+      "expected_source_family": "law",
+      "expected_pdf_ids": [
+        "33bc02044716acdfedb164b065bdaec098aaadcae863c591f9931c88e7307d16"
+      ],
+      "expected_article_number": "8",
+      "direct_answer_expected": {
+        "eligible": false,
+        "expected_action": "abstain"
+      }
+    },
+    {
+      "question_id": "trust_governing_law_valid",
+      "source_reference": {
+        "kind": "public_question",
+        "question_id": "e14ad296801b3fb6855a3a9338f1e9b8e2d1bfb05c99682a3cf4f9140b49b17b"
+      },
+      "category": "law_article_history",
+      "question": "Under Article 11(5) of the DIFC Trust Law 2018, is a term of the trust expressly declaring that the laws of the DIFC shall govern the trust valid, effective, and conclusive regardless of any other circumstance?",
+      "answer_type": "boolean",
+      "route_hint": "article_lookup",
+      "expected_action": "answer",
+      "expected_answer": true,
+      "expected_source_family": "law",
+      "expected_pdf_ids": [
+        "4e387152960c1029b3711cacb05b287b13c977bc61f2558059a62b7b427a62eb"
+      ],
+      "expected_article_number": "11",
+      "direct_answer_expected": {
+        "eligible": false,
+        "expected_action": "abstain"
+      }
+    },
+    {
+      "question_id": "trust_purchaser_good_faith_boolean",
+      "source_reference": {
+        "kind": "public_question",
+        "question_id": "32bb32856c65215eddb17d2b5b938f58b4bec525af96f8637686e33b0d696e89"
+      },
+      "category": "law_article_history",
+      "question": "According to Article 28(4) of the DIFC Trust Law 2018, can an order made consequential to a declaration under Articles 24 to 27 prejudice a purchaser in good faith for value of trust property without notice of the voidable matters?",
+      "answer_type": "boolean",
+      "route_hint": "article_lookup",
+      "expected_action": "answer",
+      "expected_answer": false,
+      "expected_source_family": "law",
+      "expected_pdf_ids": [
+        "4e387152960c1029b3711cacb05b287b13c977bc61f2558059a62b7b427a62eb"
+      ],
+      "expected_article_number": "28",
+      "direct_answer_expected": {
+        "eligible": false,
+        "expected_action": "abstain"
+      }
+    },
+    {
+      "question_id": "crs_record_retention_years",
+      "source_reference": {
+        "kind": "public_question",
+        "question_id": "3ab3489605bc64891f36d9f3c7cf9c8608d08163b8673db41aa359097786b4bc"
+      },
+      "category": "law_article_history",
+      "question": "According to Article 12(4) of the Common Reporting Standard Law 2018, for how many years must records be retained by Reporting Financial Institutions after the date of reporting the information?",
+      "answer_type": "number",
+      "route_hint": "article_lookup",
+      "expected_action": "answer",
+      "expected_answer": 6,
+      "expected_source_family": "law",
+      "expected_pdf_ids": [
+        "fbdd7f9dd299d83b1f398778da2e6765dfaaed62005667264734a1f76ec09071"
+      ],
+      "expected_article_number": "12",
+      "direct_answer_expected": {
+        "eligible": false,
+        "expected_action": "abstain"
+      }
+    },
+    {
+      "question_id": "crs_fine_payment_days",
+      "source_reference": {
+        "kind": "public_question",
+        "question_id": "f5c27c961e218728abde9ff9031d1701cb36db4a2e590d2dbd8914dd28a27b20"
+      },
+      "category": "law_article_history",
+      "question": "According to Article 19(2)(c) of the Common Reporting Standard Law 2018, how many days does a Reporting Financial Institution have to pay a fine for opening a New Account without a valid self-certification after receiving notification?",
+      "answer_type": "number",
+      "route_hint": "article_lookup",
+      "expected_action": "answer",
+      "expected_answer": 30,
+      "expected_source_family": "law",
+      "expected_pdf_ids": [
+        "fbdd7f9dd299d83b1f398778da2e6765dfaaed62005667264734a1f76ec09071"
+      ],
+      "expected_article_number": "19",
+      "direct_answer_expected": {
+        "eligible": false,
+        "expected_action": "abstain"
+      }
+    },
+    {
+      "question_id": "crs_post_appeal_business_days",
+      "source_reference": {
+        "kind": "public_question",
+        "question_id": "e0798bd394af022603f1ed7a09641de2bb414bd14a9d6a2c494980c86095ccff"
+      },
+      "category": "law_article_history",
+      "question": "If the Relevant Authority confirms a fine or action after an appeal under Article 21(5) of the Common Reporting Standard Law 2018, how many business days does the Reporting Financial Institution have to pay the fine or perform the action?",
+      "answer_type": "number",
+      "route_hint": "article_lookup",
+      "expected_action": "answer",
+      "expected_answer": 30,
+      "expected_source_family": "law",
+      "expected_pdf_ids": [
+        "fbdd7f9dd299d83b1f398778da2e6765dfaaed62005667264734a1f76ec09071"
+      ],
+      "expected_article_number": "21",
+      "direct_answer_expected": {
+        "eligible": false,
+        "expected_action": "abstain"
+      }
+    },
+    {
+      "question_id": "crs_new_accounts_effective_date",
+      "source_reference": {
+        "kind": "corpus_derived_question",
+        "label": "CRS commencement-style effective date for new accounts"
+      },
+      "category": "law_article_history",
+      "coverage_kind": "commencement_style",
+      "question": "Under Article 6 of the Common Reporting Standard Law 2018, what is the effective date for due diligence requirements for New Accounts?",
+      "answer_type": "date",
+      "route_hint": "history_lineage",
+      "expected_action": "abstain",
+      "expected_answer": "2017-01-01",
+      "expected_source_family": "law",
+      "expected_pdf_ids": [
+        "fbdd7f9dd299d83b1f398778da2e6765dfaaed62005667264734a1f76ec09071"
+      ],
+      "expected_article_number": "6",
+      "direct_answer_expected": {
+        "eligible": false,
+        "expected_action": "abstain"
+      }
+    },
+    {
+      "question_id": "compare_employment_article11_same_effect",
+      "source_reference": {
+        "kind": "custom_frozen_query",
+        "label": "Employment Article 11 compare"
+      },
+      "category": "compare",
+      "question": "Do Article 11(1) and Article 11(2)(b) of the Employment Law 2019 have the same operative effect on an Employee's ability to waive statutory rights?",
+      "answer_type": "boolean",
+      "route_hint": "cross_law_compare",
+      "expected_action": "abstain",
+      "expected_source_family": "compare",
+      "expected_pdf_ids": [
+        "33bc02044716acdfedb164b065bdaec098aaadcae863c591f9931c88e7307d16"
+      ],
+      "direct_answer_expected": {
+        "eligible": false,
+        "expected_action": "abstain"
+      }
+    },
+    {
+      "question_id": "compare_coinmena_ca004_earlier_issue_date",
+      "source_reference": {
+        "kind": "custom_frozen_query",
+        "label": "Coinmena vs CA004 issue-date compare"
+      },
+      "category": "compare",
+      "question": "Which case has the earlier Date of Issue: Coinmena B.S.C. (C) v Foloosi Technologies Ltd or CA 004/2025 Mr Oran and Oaken v Oved?",
+      "answer_type": "name",
+      "route_hint": "cross_case_compare",
+      "expected_action": "abstain",
+      "expected_answer": "CA 004/2025",
+      "expected_source_family": "compare",
+      "expected_pdf_ids": [
+        "897ab23ed5a70034d3d708d871ad1da8bc7b6608d94b1ca46b5d578d985d3c13",
+        "78ffe994cdc61ce6a2a6937c79fc52751bb5d2b4eaa4019f088fbccf70569c26"
+      ],
+      "direct_answer_expected": {
+        "eligible": false,
+        "expected_action": "abstain"
+      }
+    },
+    {
+      "question_id": "compare_coinmena_ca004_same_parties",
+      "source_reference": {
+        "kind": "custom_frozen_query",
+        "label": "Coinmena vs CA004 party overlap"
+      },
+      "category": "compare",
+      "question": "Do Coinmena B.S.C. (C) v Foloosi Technologies Ltd and CA 004/2025 Mr Oran and Oaken v Oved involve any of the same legal entities or individuals as parties?",
+      "answer_type": "boolean",
+      "route_hint": "cross_case_compare",
+      "expected_action": "abstain",
+      "expected_answer": false,
+      "expected_source_family": "compare",
+      "expected_pdf_ids": [
+        "897ab23ed5a70034d3d708d871ad1da8bc7b6608d94b1ca46b5d578d985d3c13",
+        "78ffe994cdc61ce6a2a6937c79fc52751bb5d2b4eaa4019f088fbccf70569c26"
+      ],
+      "direct_answer_expected": {
+        "eligible": false,
+        "expected_action": "abstain"
+      }
+    },
+    {
+      "question_id": "compare_coinmena_ca004_same_court",
+      "source_reference": {
+        "kind": "custom_frozen_query",
+        "label": "Coinmena vs CA004 court compare"
+      },
+      "category": "compare",
+      "question": "Were Coinmena B.S.C. (C) v Foloosi Technologies Ltd and CA 004/2025 Mr Oran and Oaken v Oved issued by the same court?",
+      "answer_type": "boolean",
+      "route_hint": "cross_case_compare",
+      "expected_action": "abstain",
+      "expected_answer": false,
+      "expected_source_family": "compare",
+      "expected_pdf_ids": [
+        "897ab23ed5a70034d3d708d871ad1da8bc7b6608d94b1ca46b5d578d985d3c13",
+        "78ffe994cdc61ce6a2a6937c79fc52751bb5d2b4eaa4019f088fbccf70569c26"
+      ],
+      "direct_answer_expected": {
+        "eligible": false,
+        "expected_action": "abstain"
+      }
+    },
+    {
+      "question_id": "adversarial_coinmena_miranda_rights",
+      "source_reference": {
+        "kind": "custom_frozen_query",
+        "label": "Coinmena adversarial Miranda rights"
+      },
+      "category": "adversarial_no_answer",
+      "question": "Were the Miranda rights properly administered in Coinmena B.S.C. (C) v Foloosi Technologies Ltd?",
+      "answer_type": "free_text",
+      "route_hint": "single_case_extraction",
+      "expected_action": "abstain",
+      "expected_source_family": "case",
+      "expected_pdf_ids": [
+        "897ab23ed5a70034d3d708d871ad1da8bc7b6608d94b1ca46b5d578d985d3c13"
+      ],
+      "direct_answer_expected": {
+        "eligible": false,
+        "expected_action": "abstain"
+      }
+    },
+    {
+      "question_id": "adversarial_ca004_jury_verdict",
+      "source_reference": {
+        "kind": "custom_frozen_query",
+        "label": "CA004 adversarial jury verdict"
+      },
+      "category": "adversarial_no_answer",
+      "question": "What did the jury decide in CA 004/2025 Mr Oran and Oaken v Oved?",
+      "answer_type": "free_text",
+      "route_hint": "single_case_extraction",
+      "expected_action": "abstain",
+      "expected_source_family": "case",
+      "expected_pdf_ids": [
+        "78ffe994cdc61ce6a2a6937c79fc52751bb5d2b4eaa4019f088fbccf70569c26"
+      ],
+      "direct_answer_expected": {
+        "eligible": false,
+        "expected_action": "abstain"
+      }
+    },
+    {
+      "question_id": "adversarial_employment_plea_bargain",
+      "source_reference": {
+        "kind": "custom_frozen_query",
+        "label": "Employment law adversarial plea bargain"
+      },
+      "category": "adversarial_no_answer",
+      "question": "What plea bargain is described in the Employment Law 2019?",
+      "answer_type": "free_text",
+      "route_hint": "article_lookup",
+      "expected_action": "abstain",
+      "expected_source_family": "law",
+      "expected_pdf_ids": [
+        "33bc02044716acdfedb164b065bdaec098aaadcae863c591f9931c88e7307d16"
+      ],
+      "direct_answer_expected": {
+        "eligible": false,
+        "expected_action": "abstain"
+      }
+    }
+  ],
+  "real_corpus_checks": [
+    {
+      "check_id": "real_corpus_employment_administering_authority",
+      "fixture_classification": "real_corpus_fixture",
+      "coverage_kind": "regulation_related",
+      "project_scope": "pilot_project",
+      "source_reference": {
+        "kind": "adapted_from_public_question",
+        "question_id": "095cb50318776a3b8ef11769cd941775694c194924783ee31109c25e3306600e"
+      },
+      "question": "Which authority administers the Employment Law and any Regulations made under it?",
+      "answer_type": "name",
+      "route_hint": "history_lineage",
+      "expected_action": "abstain",
+      "expected_answer": "DIFCA",
+      "expected_source_family": "law",
+      "expected_pdf_ids": [
+        "33bc02044716acdfedb164b065bdaec098aaadcae863c591f9931c88e7307d16"
+      ]
+    },
+    {
+      "check_id": "real_corpus_crs_new_accounts_effective_date",
+      "fixture_classification": "real_corpus_fixture",
+      "coverage_kind": "commencement_style",
+      "project_scope": "pilot_project",
+      "source_reference": {
+        "kind": "corpus_derived_question",
+        "label": "CRS commencement-style effective date for new accounts"
+      },
+      "question": "Under Article 6 of the Common Reporting Standard Law 2018, what is the effective date for due diligence requirements for New Accounts?",
+      "answer_type": "date",
+      "route_hint": "history_lineage",
+      "expected_action": "abstain",
+      "expected_answer": "2017-01-01",
+      "expected_source_family": "law",
+      "expected_pdf_ids": [
+        "fbdd7f9dd299d83b1f398778da2e6765dfaaed62005667264734a1f76ec09071"
+      ]
+    },
+    {
+      "check_id": "real_corpus_enf269_miranda_public_no_answer",
+      "fixture_classification": "real_corpus_fixture",
+      "coverage_kind": "public_adversarial_no_answer",
+      "project_scope": "supplemental_single_doc",
+      "supplemental_pdf_ids": [
+        "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2"
+      ],
+      "source_reference": {
+        "kind": "public_question",
+        "question_id": "89f4b2e86cf7e48e185b9d5775d67e7c8a51beccbb20abce8dac2a1b0e80b723"
+      },
+      "question": "Were the Miranda rights properly administered in case ENF 269/2023?",
+      "answer_type": "free_text",
+      "route_hint": "single_case_extraction",
+      "expected_action": "abstain",
+      "expected_source_family": "case",
+      "expected_pdf_ids": [
+        "5d3df6d69fac3ef91e13ac835b43a35e9e434fbc7e72ea5c01e288d69b66e6a2"
+      ]
     }
   ],
   "semantic_gate_fixtures": [
     {
       "fixture_id": "regulation_obligation_penalty_fixture",
+      "fixture_classification": "synthetic_guardrail_fixture",
+      "coverage_kind": "regulation_obligation_penalty",
       "source_reference": {
         "kind": "synthetic_fixture",
         "label": "regulation_obligation_penalty_v1"
@@ -143,6 +784,8 @@
     },
     {
       "fixture_id": "notice_mediated_commencement_fixture",
+      "fixture_classification": "synthetic_guardrail_fixture",
+      "coverage_kind": "notice_mediated_commencement",
       "source_reference": {
         "kind": "synthetic_fixture",
         "label": "notice_mediated_commencement_v1"
@@ -175,6 +818,8 @@
     },
     {
       "fixture_id": "adversarial_no_answer_fixture",
+      "fixture_classification": "synthetic_guardrail_fixture",
+      "coverage_kind": "adversarial_no_answer",
       "source_reference": {
         "kind": "synthetic_fixture",
         "label": "adversarial_no_answer_v1"
@@ -198,6 +843,90 @@
         "must_have_empty_propositions": true,
         "must_not_overanswer": true
       }
+    }
+  ],
+  "shadow_subset": [
+    {
+      "item_id": "employment_article_11_chunk_family",
+      "shadow_kind": "real_chunk_family",
+      "fixture_classification": "real_corpus_fixture",
+      "pdf_id": "33bc02044716acdfedb164b065bdaec098aaadcae863c591f9931c88e7307d16",
+      "article_number": "11",
+      "text_terms": [
+        "waive"
+      ],
+      "query_ids": [
+        "employment_void_clause_boolean",
+        "employment_conditional_waiver_boolean"
+      ]
+    },
+    {
+      "item_id": "coinmena_operative_order_chunk_family",
+      "shadow_kind": "real_chunk_family",
+      "fixture_classification": "real_corpus_fixture",
+      "pdf_id": "897ab23ed5a70034d3d708d871ad1da8bc7b6608d94b1ca46b5d578d985d3c13",
+      "text_terms": [
+        "Costs Award",
+        "interest"
+      ],
+      "section_kind_case": "order",
+      "query_ids": [
+        "coinmena_costs_amount",
+        "coinmena_deadline_days"
+      ]
+    },
+    {
+      "item_id": "ca004_operative_order_chunk_family",
+      "shadow_kind": "real_chunk_family",
+      "fixture_classification": "real_corpus_fixture",
+      "pdf_id": "78ffe994cdc61ce6a2a6937c79fc52751bb5d2b4eaa4019f088fbccf70569c26",
+      "text_terms": [
+        "interest",
+        "9%"
+      ],
+      "section_kind_case": "order",
+      "query_ids": [
+        "ca004_interest_rate",
+        "ca004_court_name"
+      ]
+    },
+    {
+      "item_id": "crs_penalty_chunk_family",
+      "shadow_kind": "real_chunk_family",
+      "fixture_classification": "real_corpus_fixture",
+      "pdf_id": "fbdd7f9dd299d83b1f398778da2e6765dfaaed62005667264734a1f76ec09071",
+      "article_number": "19",
+      "text_terms": [
+        "self-certification",
+        "fine"
+      ],
+      "query_ids": [
+        "crs_fine_payment_days"
+      ]
+    },
+    {
+      "item_id": "regulation_obligation_penalty_fixture",
+      "shadow_kind": "synthetic_fixture",
+      "fixture_classification": "synthetic_guardrail_fixture",
+      "fixture_id": "regulation_obligation_penalty_fixture"
+    },
+    {
+      "item_id": "notice_mediated_commencement_fixture",
+      "shadow_kind": "synthetic_fixture",
+      "fixture_classification": "synthetic_guardrail_fixture",
+      "fixture_id": "notice_mediated_commencement_fixture"
+    },
+    {
+      "item_id": "adversarial_no_answer_fixture",
+      "shadow_kind": "synthetic_fixture",
+      "fixture_classification": "synthetic_guardrail_fixture",
+      "fixture_id": "adversarial_no_answer_fixture"
+    },
+    {
+      "item_id": "public_adversarial_enf269_miranda_question",
+      "shadow_kind": "real_public_question",
+      "fixture_classification": "real_corpus_fixture",
+      "check_id": "real_corpus_enf269_miranda_public_no_answer"
     }
   ]
 }

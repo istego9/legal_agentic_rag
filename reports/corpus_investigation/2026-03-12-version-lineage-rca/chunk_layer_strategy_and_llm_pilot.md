@@ -1,4 +1,4 @@
-# Chunk Layer Strategy And LLM Pilot
+# Rules-First Chunk/Proposition Pilot Strategy
 
 ## Scope
 

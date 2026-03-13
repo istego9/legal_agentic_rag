@@ -42,6 +42,7 @@ _NEGATIVE_BOOLEAN_PATTERN = re.compile(
     r"\b(?:not|no|denied|dismissed|rejected|without|different)\b",
     re.IGNORECASE,
 )
+_QUERY_TOKEN_PATTERN = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.()/:-]{1,}")
 _MONTH_FORMATS = (
     "%Y-%m-%d",
     "%Y/%m/%d",
@@ -262,6 +263,68 @@ def _candidate_evidence_text(candidate: Dict[str, Any]) -> str:
         str(projection.get("text_clean", "")),
     ]
     return _collapse_whitespace(" ".join(part for part in parts if part))
+
+
+def _query_signal_tokens(question_text: str) -> List[str]:
+    stop = {"the", "a", "an", "of", "to", "under", "this", "that", "is", "are", "by", "with", "their", "any", "how", "many", "what"}
+    return [token.casefold() for token in _QUERY_TOKEN_PATTERN.findall(_collapse_whitespace(question_text)) if token.casefold() not in stop]
+
+
+def _candidate_structure_hits(candidate: Dict[str, Any]) -> Dict[str, bool]:
+    debug = candidate.get("retrieval_debug") if isinstance(candidate.get("retrieval_debug"), dict) else {}
+    hits = debug.get("structure_hits")
+    return hits if isinstance(hits, dict) else {}
+
+
+def _article_lookup_specificity(candidate: Dict[str, Any]) -> tuple[int, float]:
+    hits = _candidate_structure_hits(candidate)
+    weighted = 0
+    if hits.get("article"):
+        weighted += 8
+    if hits.get("clause"):
+        weighted += 4
+    if hits.get("paragraph"):
+        weighted += 4
+    if hits.get("section"):
+        weighted += 3
+    if hits.get("schedule"):
+        weighted += 3
+    if hits.get("law_title"):
+        weighted += 3
+    if hits.get("law_number"):
+        weighted += 2
+    if hits.get("law_year"):
+        weighted += 2
+    if hits.get("doc_type"):
+        weighted += 1
+    return weighted, float(candidate.get("score", 0.0) or 0.0)
+
+
+def _narrow_article_lookup_candidates(candidates: List[Dict[str, Any]], *, question_text: str = "") -> List[Dict[str, Any]]:
+    if not candidates:
+        return candidates
+    lowered_question = question_text.lower()
+    if any(
+        marker in lowered_question
+        for marker in ("same year as", "earlier than", "later than", "compare", "versus", "vs ")
+    ):
+        return candidates
+    scored = [(_article_lookup_specificity(candidate), candidate) for candidate in candidates]
+    best_weight = max(weight for (weight, _score), _candidate in scored)
+    if best_weight <= 0:
+        return candidates
+    narrowed = [candidate for (weight, _score), candidate in scored if weight == best_weight]
+    narrowed.sort(key=lambda item: float(item.get("score", 0.0) or 0.0), reverse=True)
+    top_page_id = str((((narrowed[0].get("page") or {}) if isinstance(narrowed[0].get("page"), dict) else {})).get("source_page_id", "")).strip()
+    if top_page_id:
+        same_page = [
+            candidate
+            for candidate in narrowed
+            if str((((candidate.get("page") or {}) if isinstance(candidate.get("page"), dict) else {})).get("source_page_id", "")).strip() == top_page_id
+        ]
+        if same_page:
+            return same_page
+    return narrowed
 
 
 def _ordered_unique(values: List[Any]) -> List[Any]:
@@ -550,7 +613,7 @@ def _extract_numeric_candidates(candidate_text: str, question_text: str) -> List
 
     if unit_terms:
         unit_pattern = re.compile(
-            rf"(?P<number>{_NUMBER_TOKEN_PATTERN.pattern})\s*(?:{'|'.join(re.escape(term) for term in unit_terms)})\b",
+            rf"\(?\s*(?P<number>{_NUMBER_TOKEN_PATTERN.pattern})\s*\)?\s*(?:{'|'.join(re.escape(term) for term in unit_terms)})\b",
             re.IGNORECASE,
         )
         for match in unit_pattern.finditer(candidate_text):
@@ -898,6 +961,53 @@ def _solve_free_text(question_text: str, route_name: str, candidates: List[Dict[
                 break
 
     selected_index, selected_extract = preferred
+    query_tokens = set(_query_signal_tokens(question_text))
+    extract_tokens = {token.casefold() for token in _QUERY_TOKEN_PATTERN.findall(selected_extract)}
+    overlap_count = len(query_tokens.intersection(extract_tokens))
+    exact_identifier_hits = sum(1 for candidate in candidates if candidate.get("exact_identifier_hit"))
+    preferred_structure_hits = _candidate_structure_hits(candidates[selected_index]) if 0 <= selected_index < len(candidates) else {}
+    article_structural_hit = bool(
+        preferred_structure_hits.get("article")
+        or preferred_structure_hits.get("section")
+        or preferred_structure_hits.get("clause")
+        or preferred_structure_hits.get("paragraph")
+    )
+    if overlap_count < 2 and exact_identifier_hits == 0:
+        if len(query_tokens) < 2:
+            return _result(
+                answer=selected_extract,
+                abstained=False,
+                confidence=0.58,
+                answer_type="free_text",
+                route_name=route_name,
+                path="free_text_short_query_extract",
+                candidate_count=len(candidates),
+                matched_candidate_indices=[selected_index],
+                values_considered=[extract for _, extract in extracts[:3]],
+            )
+        if route_name == "article_lookup" and _ARTICLE_MARKER_PATTERN.search(question_text) and article_structural_hit:
+            return _result(
+                answer=selected_extract,
+                abstained=False,
+                confidence=0.72,
+                answer_type="free_text",
+                route_name=route_name,
+                path="free_text_article_structural_extract",
+                candidate_count=len(candidates),
+                matched_candidate_indices=[selected_index],
+                values_considered=[extract for _, extract in extracts[:3]],
+            )
+        return _result(
+            answer=None,
+            abstained=True,
+            confidence=0.0,
+            answer_type="free_text",
+            route_name=route_name,
+            path="free_text_abstain_low_overlap",
+            candidate_count=len(candidates),
+            matched_candidate_indices=[],
+            values_considered=[extract for _, extract in extracts[:3]],
+        )
     return _result(
         answer=selected_extract,
         abstained=False,
@@ -920,6 +1030,8 @@ def solve_deterministic(
     lowered = text.lower()
     answer_type = str(question.get("answer_type", "free_text"))
     candidate_rows = candidates or []
+    if route_name == "article_lookup":
+        candidate_rows = _narrow_article_lookup_candidates(candidate_rows, question_text=text)
 
     if not text:
         return _result(

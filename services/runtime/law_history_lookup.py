@@ -660,6 +660,33 @@ def _extract_candidate_dates(candidate: Dict[str, Any], relation_kind: str) -> L
     return _ordered_unique([value for value in normalized if value])
 
 
+def _extract_scoped_effective_dates(candidate: Dict[str, Any], question_text: str) -> List[str]:
+    lowered_question = question_text.lower()
+    scope_terms: List[str] = []
+    if "new account" in lowered_question:
+        scope_terms.append("new account")
+    if "pre-existing account" in lowered_question or "pre existing account" in lowered_question:
+        scope_terms.append("pre-existing account")
+        scope_terms.append("pre existing account")
+    if not scope_terms:
+        return []
+    text = _candidate_text(candidate)
+    lowered_text = text.lower()
+    anchor_positions = [lowered_text.find(term) for term in scope_terms if lowered_text.find(term) >= 0]
+    if not anchor_positions:
+        return []
+    date_hits: List[tuple[int, str]] = []
+    for match in _DATE_TOKEN_PATTERN.finditer(text):
+        normalized = _normalize_date_token(match.group(0))
+        if normalized:
+            date_hits.append((match.start(), normalized))
+    if not date_hits:
+        return []
+    best_anchor = anchor_positions[0]
+    nearest = min(date_hits, key=lambda item: abs(item[0] - best_anchor))
+    return [nearest[1]]
+
+
 def _extract_relation_names(candidate: Dict[str, Any], relation_kind: str) -> List[str]:
     projection = _candidate_projection(candidate)
     paragraph = _candidate_paragraph(candidate)
@@ -841,13 +868,18 @@ def _solve_date(question_text: str, candidates: List[Dict[str, Any]], history_in
     values: List[str] = []
 
     for index, candidate in enumerate(candidates):
-        if relation_kind in {"notice_mediated_commencement", "commenced_on", "effective_from"}:
+        scoped_effective_dates = _extract_scoped_effective_dates(candidate, question_text) if relation_kind == "effective_from" else []
+        if relation_kind in {"notice_mediated_commencement", "commenced_on"}:
             if not _candidate_matches_notice_anchor(candidate, history_intent):
                 continue
+        if relation_kind == "effective_from" and not scoped_effective_dates and not _candidate_matches_law_anchor(candidate, history_intent):
+            continue
         if relation_kind in {"amended_by", "amends", "repealed_by", "repeals", "superseded_by", "supersedes", "enacted_on"}:
             if not _candidate_matches_law_anchor(candidate, history_intent):
                 continue
-        date_values = _extract_candidate_dates(candidate, relation_kind)
+        date_values = scoped_effective_dates
+        if not date_values:
+            date_values = _extract_candidate_dates(candidate, relation_kind)
         if not date_values:
             continue
         values.extend(date_values)

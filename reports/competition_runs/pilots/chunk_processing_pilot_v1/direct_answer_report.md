@@ -1,5 +1,7 @@
 # Direct Answer Report
 
+> Superseded historical snapshot. Current canonical rules-first chunk/proposition pilot truth lives in `.artifacts/...` and is indexed by `reports/corpus_investigation/2026-03-12-version-lineage-rca/chunk_processing_pilot_truth_index.md`.
+
 - report_version: `chunk_processing_direct_answer_report_v1`
 - query_count: `6`
 - direct_answer_used_count: `2`

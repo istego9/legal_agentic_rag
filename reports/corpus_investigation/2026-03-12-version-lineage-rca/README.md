@@ -1,5 +1,9 @@
 ## Corpus Version/Lineage Investigation
 
+> Current rules-first chunk/proposition pilot truth is not tracked directly in
+> this directory. Use `chunk_processing_pilot_truth_index.md` for canonical
+> artifact-root runs and current metrics.
+
 This directory contains the March 12, 2026 investigation package for the
 version-grouping and current-version problems discovered during full-corpus
 `prepare`.
@@ -65,11 +69,12 @@ version-grouping and current-version problems discovered during full-corpus
 - `typed_prompt_redesign.md`
   - typed prompt redesign, official-docs-derived best practices, and the grounded consolidated-law plan
 - `chunk_layer_strategy_and_llm_pilot.md`
-  - boundary note for deterministic vs LLM chunk semantics, including provenance requirements and pilot findings
+  - boundary note for the rules-first chunk/proposition pilot, including provenance requirements and pilot findings
 - `chunk_llm_pilot.json`
   - raw Azure GPT-5-mini chunk-semantic pilot outputs used to validate negation and conditional handling
 - `chunk_processing_external_audit_export.zip`
-  - self-contained external-audit bundle for the 5-document chunk-processing pilot, including reports, prompts, implementation files, tests, and source documents
+  - historical tracked bundle snapshot; current canonical audit bundle lives
+    under `.artifacts/...` and is indexed by `chunk_processing_pilot_truth_index.md`
 - `problem_report.md`
   - human-readable RCA
 - `prompt_specs.md`
@@ -90,5 +95,8 @@ version-grouping and current-version problems discovered during full-corpus
 - `prepare_report.azure_fast_classifier_pg.json` is the PostgreSQL-backed Azure run using the fast classifier model and rules-only chunk enrichment.
 - `prepare_report.azure_fast_classifier_hardened_pg_final.json` is the PostgreSQL-backed Azure run after hardening the title-page normalizer review invariants and case-anchor fallback.
 - `prepare_report.azure_typed_prompts_pg_final_rerun.json` is the PostgreSQL-backed Azure run after splitting title-page extraction by document family.
-- `chunk_processing_external_audit_export.zip` is the audit package for the 5-document chunk-processing pilot with provenance coverage and direct-answer evaluation.
+- `chunk_processing_external_audit_export.zip` is a historical tracked snapshot of the 5-document pilot.
+- Current canonical pilot roots are:
+  - `.artifacts/competition_runs/pilots/chunk_processing_pilot_v1`
+  - `.artifacts/competition_runs/pilots/chunk_processing_pilot_v1_run2`
 - This directory is the research overlay that explains why the artifacts are not yet sufficient for trustworthy lineage/version use.

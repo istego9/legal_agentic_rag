@@ -17,7 +17,7 @@ from legal_rag_api.contracts import QueryResponse, Telemetry  # noqa: E402
 from legal_rag_api.main import app  # noqa: E402
 from legal_rag_api.routers import qa as qa_router  # noqa: E402
 from services.runtime.law_article_lookup import resolve_law_article_lookup_intent  # noqa: E402
-from services.runtime.solvers import normalize_answer  # noqa: E402
+from services.runtime.solvers import normalize_answer, solve_deterministic  # noqa: E402
 
 
 def _runtime_policy(*, return_debug_trace: bool) -> dict:
@@ -57,6 +57,19 @@ def test_law_article_resolution_parses_section_clause_and_law_number_year() -> N
     assert intent["law_year"] == "2020"
     assert intent["resolved_doc_type_guess"] == "regulation"
     assert intent["requires_structural_lookup"] is True
+
+
+def test_structural_match_recovers_article_hit_from_chunk_text_when_projection_lacks_anchor() -> None:
+    intent = resolve_law_article_lookup_intent("What is stated in article 1?")
+    hits = qa_router._structural_match(
+        qa_router._question_structure("What is stated in article 1?", lookup_intent=intent),
+        {
+            "paragraph": {"text": "Article 1 placeholder"},
+            "chunk_projection": {"text_clean": "Article 1 placeholder"},
+        },
+    )
+
+    assert hits["article"] is True
 
 
 def test_answer_normalization_contract_covers_free_text_and_typed_values() -> None:
@@ -180,3 +193,145 @@ def test_no_silent_fallback_blocks_unresolved_law_article_lookup(monkeypatch) ->
     assert payload["debug"]["no_silent_fallback"]["article_resolution_blocked"] is True
     assert payload["debug"]["abstain_reason"] == "law_article_resolution_missing"
     assert llm_called["value"] is False
+
+
+def test_article_lookup_number_solver_prefers_stronger_structural_match() -> None:
+    question = {
+        "question": "Under Article 14(1) of the Employment Law 2019, how many days does an Employer have to provide a written Employment Contract?",
+        "answer_type": "number",
+    }
+    candidates = [
+        {
+            "paragraph": {"text": "11. No waiver Nothing in this Law precludes ..."},
+            "page": {"source_page_id": "employment_10"},
+            "chunk_projection": {"text_clean": "11. No waiver Nothing in this Law precludes ..."},
+            "score": 2.4,
+            "retrieval_debug": {
+                "structure_hits": {
+                    "article": True,
+                    "law_title": False,
+                    "law_number": False,
+                    "law_year": False,
+                    "doc_type": True,
+                }
+            },
+        },
+        {
+            "paragraph": {"text": "14. Right to a written contract ... within seven (7) days of commencement."},
+            "page": {"source_page_id": "employment_5"},
+            "chunk_projection": {"text_clean": "14. Right to a written contract ... within seven (7) days of commencement."},
+            "score": 2.3,
+            "retrieval_debug": {
+                "structure_hits": {
+                    "article": True,
+                    "law_title": True,
+                    "law_number": False,
+                    "law_year": True,
+                    "doc_type": True,
+                }
+            },
+        },
+    ]
+
+    result = solve_deterministic(question, "article_lookup", candidates)
+    assert result.abstained is False
+    assert result.answer == 7
+
+
+def test_article_lookup_free_text_abstains_when_overlap_is_too_low() -> None:
+    question = {
+        "question": "What plea bargain is described in the Employment Law 2019?",
+        "answer_type": "free_text",
+    }
+    candidates = [
+        {
+            "paragraph": {"text": "11. No waiver"},
+            "page": {"source_page_id": "employment_10"},
+            "chunk_projection": {"text_clean": "11. No waiver"},
+            "score": 0.45,
+            "exact_identifier_hit": False,
+            "retrieval_debug": {"structure_hits": {}},
+        }
+    ]
+
+    result = solve_deterministic(question, "article_lookup", candidates)
+    assert result.abstained is True
+    assert result.trace["path"] == "free_text_abstain_low_overlap"
+
+
+def test_article_lookup_free_text_allows_structural_article_extract_with_low_overlap() -> None:
+    question = {
+        "question": "What is stated in article 1?",
+        "answer_type": "free_text",
+    }
+    candidates = [
+        {
+            "paragraph": {"text": "1. Application This Law applies in the DIFC."},
+            "page": {"source_page_id": "employment_1"},
+            "chunk_projection": {"text_clean": "1. Application This Law applies in the DIFC."},
+            "score": 1.2,
+            "exact_identifier_hit": False,
+            "retrieval_debug": {"structure_hits": {"article": True, "doc_type": True}},
+        }
+    ]
+
+    result = solve_deterministic(question, "article_lookup", candidates)
+    assert result.abstained is False
+    assert result.trace["path"] == "free_text_article_structural_extract"
+
+
+def test_short_free_text_query_uses_top_extract_without_forcing_abstain() -> None:
+    question = {
+        "question": "sample",
+        "answer_type": "free_text",
+    }
+    candidates = [
+        {
+            "paragraph": {"text": "Sample clause text"},
+            "page": {"source_page_id": "sample_0"},
+            "chunk_projection": {"text_clean": "Sample clause text"},
+            "score": 0.9,
+            "exact_identifier_hit": False,
+            "retrieval_debug": {"structure_hits": {}},
+        }
+    ]
+
+    result = solve_deterministic(question, "default", candidates)
+    assert result.abstained is False
+    assert result.trace["path"] == "free_text_short_query_extract"
+
+
+def test_article_lookup_same_year_compare_does_not_collapse_to_single_page() -> None:
+    question = {
+        "question": "Was the Employment Law enacted in the same year as the Intellectual Property Law?",
+        "answer_type": "boolean",
+    }
+    candidates = [
+        {
+            "paragraph": {"text": "Employment Law No. 2 of 2019 was enacted on 28 August 2019."},
+            "page": {"source_page_id": "employment_1"},
+            "chunk_projection": {
+                "text_clean": "Employment Law No. 2 of 2019 was enacted on 28 August 2019.",
+                "law_year": 2019,
+                "dates": ["2019-08-28"],
+            },
+            "score": 1.5,
+            "retrieval_debug": {"structure_hits": {"article": True, "law_title": True, "law_year": True, "doc_type": True}},
+        },
+        {
+            "paragraph": {"text": "Intellectual Property Law No. 4 of 2019 was enacted on 10 September 2019."},
+            "page": {"source_page_id": "ip_1"},
+            "chunk_projection": {
+                "text_clean": "Intellectual Property Law No. 4 of 2019 was enacted on 10 September 2019.",
+                "law_year": 2019,
+                "dates": ["2019-09-10"],
+            },
+            "score": 1.4,
+            "retrieval_debug": {"structure_hits": {"article": True, "law_title": True, "law_year": True, "doc_type": True}},
+        },
+    ]
+
+    result = solve_deterministic(question, "article_lookup", candidates)
+    assert result.abstained is False
+    assert result.answer is True
+    assert result.trace["path"] == "boolean_same_year"

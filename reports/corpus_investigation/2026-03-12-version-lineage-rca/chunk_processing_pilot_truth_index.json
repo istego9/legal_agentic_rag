@@ -1,0 +1,40 @@
+{
+  "truth_index_version": "chunk_processing_pilot_truth_index_v1",
+  "program_label": "rules-first chunk/proposition pilot",
+  "canonical_artifact_roots": [
+    "/Users/artemgendler/dev/legal_agentic_rag/.artifacts/competition_runs/pilots/chunk_processing_pilot_v1",
+    "/Users/artemgendler/dev/legal_agentic_rag/.artifacts/competition_runs/pilots/chunk_processing_pilot_v1_run2"
+  ],
+  "latest_confirmation_run_root": "/Users/artemgendler/dev/legal_agentic_rag/.artifacts/competition_runs/pilots/chunk_processing_pilot_v1_run2",
+  "shadow_subset_root": "/Users/artemgendler/dev/legal_agentic_rag/.artifacts/competition_runs/pilots/chunk_processing_shadow_subset_v1",
+  "summary_metrics": {
+    "structural_gate_passed": true,
+    "semantic_gate_passed": true,
+    "retrieval_gate_passed": true,
+    "direct_answer_gate_passed": true,
+    "retrieval_top3_expected_hit_ratio": 1.0,
+    "expanded_frozen_query_count": 24,
+    "expanded_frozen_query_pass_ratio": 0.625,
+    "direct_answer_precision_on_eligible": 1.0,
+    "provenance_missing_counts": {
+      "document_fields": 0,
+      "assertions": 0,
+      "projections": 0,
+      "direct_answers": 0
+    },
+    "real_corpus_fixture_count": 3,
+    "real_corpus_fixture_pass_ratio": 1.0,
+    "shadow_subset_item_count": 8,
+    "shadow_improved_assertion_count": 7
+  },
+  "superseded_tracked_paths": [
+    "reports/competition_runs/pilots/chunk_processing_pilot_v1/direct_answer_report.md",
+    "reports/competition_runs/pilots/chunk_processing_pilot_v1/processing_results_export.md",
+    "reports/competition_runs/pilots/chunk_processing_pilot_v1/processing_rules_export.md",
+    "reports/competition_runs/pilots/chunk_processing_pilot_v1/provenance_coverage_report.md",
+    "reports/competition_runs/pilots/chunk_processing_pilot_v1/retrieval_quality_report.md",
+    "reports/competition_runs/pilots/chunk_processing_pilot_v1/semantic_assertion_quality_report.md",
+    "reports/competition_runs/pilots/chunk_processing_pilot_v1/structural_chunk_quality_report.md",
+    "reports/corpus_investigation/2026-03-12-version-lineage-rca/chunk_processing_external_audit_export/README.md"
+  ]
+}

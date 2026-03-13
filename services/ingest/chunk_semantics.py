@@ -67,12 +67,17 @@ _RELATION_ALIASES = {
     "awards_costs": "awarded_costs",
     "orders_to_pay": "ordered_to_pay",
     "obligation": "requires",
+    "duty_to_file": "requires",
     "must_file": "requires",
     "must_file_within": "requires",
     "penalty_liability": "penalizes",
+    "is_punishable_by": "penalizes",
     "liable_to": "penalizes",
+    "comes_into_force": "governs",
     "comes_into_force_on": "governs",
     "comes_into_force_via": "governs",
+    "commences_on": "governs",
+    "commencement_requires": "governs",
     "forum_of_proceeding": "governs",
 }
 _MODALITY_ALIASES = {

@@ -290,3 +290,138 @@ def test_normalize_chunk_semantics_maps_regulation_and_notice_relation_aliases()
     )
     relations = [item["relation_type"] for item in payload["propositions"]]
     assert relations == ["requires", "governs", "penalizes"]
+
+
+def test_normalize_chunk_semantics_maps_duty_to_file_to_requires() -> None:
+    payload = chunk_semantics_module.normalize_chunk_semantics_payload(
+        {
+            "section_kind": "operative_provision",
+            "provision_kind": "obligation",
+            "semantic_dense_summary": "A regulated person must file an annual return.",
+            "semantic_query_terms": ["annual return"],
+            "propositions": [
+                {
+                    "subject_type": "actor",
+                    "subject_text": "regulated person",
+                    "relation_type": "duty_to_file",
+                    "object_type": "legal_object",
+                    "object_text": "annual compliance return within 30 days",
+                    "modality": "obligation",
+                    "polarity": "affirmative",
+                    "conditions": [],
+                    "exceptions": [],
+                    "citation_refs": ["Article 19"],
+                    "dense_paraphrase": "A regulated person must file the annual compliance return within 30 days.",
+                    "direct_answer": {"eligible": False, "answer_type": "none"},
+                }
+            ],
+        },
+        doc_type="regulation",
+    )
+
+    assert payload["propositions"][0]["relation_type"] == "requires"
+
+
+def test_normalize_chunk_semantics_maps_comes_into_force_to_governs() -> None:
+    payload = chunk_semantics_module.normalize_chunk_semantics_payload(
+        {
+            "section_kind": "operative_provision",
+            "provision_kind": "procedure",
+            "semantic_dense_summary": "The notice brings provisions into force on a stated date.",
+            "semantic_query_terms": ["comes into force"],
+            "propositions": [
+                {
+                    "subject_type": "law_articles",
+                    "subject_text": "Articles 1 to 5",
+                    "relation_type": "comes_into_force",
+                    "object_type": "date",
+                    "object_text": "1 January 2027",
+                    "modality": "procedure",
+                    "polarity": "affirmative",
+                    "conditions": [],
+                    "exceptions": ["except Article 4"],
+                    "citation_refs": ["Notice paragraph 1"],
+                    "dense_paraphrase": "Articles 1 to 5 come into force on 1 January 2027 except Article 4.",
+                    "direct_answer": {"eligible": False, "answer_type": "none"},
+                }
+            ],
+        },
+        doc_type="enactment_notice",
+    )
+
+    assert payload["propositions"][0]["relation_type"] == "governs"
+
+
+def test_normalize_chunk_semantics_maps_notice_commencement_aliases_to_governs() -> None:
+    payload = chunk_semantics_module.normalize_chunk_semantics_payload(
+        {
+            "section_kind": "operative_provision",
+            "provision_kind": "procedure",
+            "semantic_dense_summary": "Specified provisions commence on the stated date, with one article requiring further notice.",
+            "semantic_query_terms": ["commencement", "further notice"],
+            "propositions": [
+                {
+                    "subject_type": "law_articles",
+                    "subject_text": "Articles 1 to 5",
+                    "relation_type": "commences_on",
+                    "object_type": "date",
+                    "object_text": "1 January 2027",
+                    "modality": "procedure",
+                    "polarity": "affirmative",
+                    "conditions": [],
+                    "exceptions": ["except Article 4"],
+                    "citation_refs": ["Notice paragraph 1"],
+                    "dense_paraphrase": "Articles 1 to 5 commence on 1 January 2027 except Article 4.",
+                    "direct_answer": {"eligible": False, "answer_type": "none"},
+                },
+                {
+                    "subject_type": "law_article",
+                    "subject_text": "Article 4",
+                    "relation_type": "commencement_requires",
+                    "object_type": "notice_requirement",
+                    "object_text": "a further notice appointing the commencement date",
+                    "modality": "procedure",
+                    "polarity": "affirmative",
+                    "conditions": [],
+                    "exceptions": [],
+                    "citation_refs": ["Notice paragraph 1"],
+                    "dense_paraphrase": "Article 4 commences only when a further notice appoints its date.",
+                    "direct_answer": {"eligible": False, "answer_type": "none"},
+                },
+            ],
+        },
+        doc_type="enactment_notice",
+    )
+
+    relations = [item["relation_type"] for item in payload["propositions"]]
+    assert relations == ["governs", "governs"]
+
+
+def test_normalize_chunk_semantics_maps_is_punishable_by_to_penalizes() -> None:
+    payload = chunk_semantics_module.normalize_chunk_semantics_payload(
+        {
+            "section_kind": "operative_provision",
+            "provision_kind": "penalty",
+            "semantic_dense_summary": "A contravention is punishable by a fine.",
+            "semantic_query_terms": ["fine"],
+            "propositions": [
+                {
+                    "subject_type": "act_infringement",
+                    "subject_text": "contravention",
+                    "relation_type": "is_punishable_by",
+                    "object_type": "penalty",
+                    "object_text": "a fine not exceeding AED 50,000",
+                    "modality": "procedure",
+                    "polarity": "affirmative",
+                    "conditions": [],
+                    "exceptions": [],
+                    "citation_refs": ["Article 19"],
+                    "dense_paraphrase": "The contravention is punishable by a fine up to AED 50,000.",
+                    "direct_answer": {"eligible": False, "answer_type": "none"},
+                }
+            ],
+        },
+        doc_type="regulation",
+    )
+
+    assert payload["propositions"][0]["relation_type"] == "penalizes"

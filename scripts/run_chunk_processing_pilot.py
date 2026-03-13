@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the 5-document chunk-processing pilot and emit quality reports."""
+"""Run the rules-first 5-document chunk/proposition pilot and emit audit reports."""
 
 from __future__ import annotations
 
@@ -13,8 +13,9 @@ from pathlib import Path
 import shutil
 import time
 import zipfile
-from typing import Any, Dict, List
+from typing import Any, Dict, Iterable, List, Sequence
 import re
+from io import BytesIO
 
 ROOT = Path(__file__).resolve().parents[1]
 API_SRC = ROOT / "apps" / "api" / "src"
@@ -33,6 +34,7 @@ from legal_rag_api.state import store  # noqa: E402
 from scripts.competition_batch import _git_metadata  # noqa: E402
 from services.ingest.agentic_enrichment import retry_agentic_corpus_enrichment  # noqa: E402
 from services.ingest.chunk_semantics import build_chunk_semantics_client, extract_chunk_semantics  # noqa: E402
+from pypdf import PdfReader  # noqa: E402
 
 
 FIXTURE_PATH = ROOT / "tests" / "fixtures" / "chunk_processing_pilot_v1.json"
@@ -41,6 +43,7 @@ DEFAULT_OUTPUT_DIR = artifact_path("competition_runs", "pilots", "chunk_processi
 DEFAULT_PROJECT_ID = "competition_chunk_processing_pilot_v1"
 DEFAULT_AUDIT_EXPORT_DIR = artifact_path("corpus_investigation", "2026-03-12-version-lineage-rca", "chunk_processing_external_audit_export")
 ARTICLE_HEADING_PATTERN = re.compile(r"(?<!\()(?<!\.)\b(\d{1,3})\.\s+[A-Z]")
+PUBLIC_DATASET_PATH = ROOT / "datasets" / "official_fetch_2026-03-11" / "questions.json"
 
 
 def _utcnow() -> datetime:
@@ -83,6 +86,13 @@ def _sha256(path: Path) -> str:
     return hasher.hexdigest()
 
 
+def _extract_pdf_text(pdf_id: str, *, max_pages: int = 3) -> str:
+    with zipfile.ZipFile(SOURCE_ZIP_PATH) as archive:
+        data = archive.read(f"{pdf_id}.pdf")
+    reader = PdfReader(BytesIO(data))
+    return "\n".join((page.extract_text() or "") for page in reader.pages[:max_pages])
+
+
 def _load_env_file(path: Path) -> None:
     if not path.exists():
         return
@@ -111,14 +121,26 @@ def _prepare_env() -> None:
     os.environ.setdefault("CHUNK_SEMANTICS_VERBOSITY", os.environ.get("CORPUS_METADATA_NORMALIZER_VERBOSITY", "low"))
 
 
-def _build_subset_zip(*, fixture: Dict[str, Any], output_path: Path) -> Path:
+def _pdf_ids_from_fixture(fixture: Dict[str, Any]) -> List[str]:
+    return [
+        str(item.get("pdf_id", "")).strip()
+        for item in fixture.get("documents", [])
+        if str(item.get("pdf_id", "")).strip()
+    ]
+
+
+def _build_subset_zip_from_pdf_ids(*, pdf_ids: Sequence[str], output_path: Path) -> Path:
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    pdf_ids = {f"{item['pdf_id']}.pdf" for item in fixture.get("documents", []) if str(item.get("pdf_id", "")).strip()}
+    names = {f"{item}.pdf" for item in pdf_ids if str(item).strip()}
     with zipfile.ZipFile(SOURCE_ZIP_PATH) as src, zipfile.ZipFile(output_path, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as dst:
         for name in src.namelist():
-            if name in pdf_ids:
+            if name in names:
                 dst.writestr(name, src.read(name))
     return output_path
+
+
+def _build_subset_zip(*, fixture: Dict[str, Any], output_path: Path) -> Path:
+    return _build_subset_zip_from_pdf_ids(pdf_ids=_pdf_ids_from_fixture(fixture), output_path=output_path)
 
 
 def _project_snapshot(project_id: str, fixture: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
@@ -159,13 +181,25 @@ def _apply_enrichment_result(project_id: str, enrichment: Dict[str, Any]) -> Non
         store.corpus_enrichment_jobs[str(job.get("job_id"))] = job
 
 
-def _target_chunk_ids(snapshot: Dict[str, List[Dict[str, Any]]]) -> List[str]:
+def _query_map(fixture: Dict[str, Any], field: str = "queries") -> Dict[str, Dict[str, Any]]:
+    return {
+        str(item.get("question_id")): item
+        for item in fixture.get(field, [])
+        if isinstance(item, dict) and str(item.get("question_id", "")).strip()
+    }
+
+
+def _expected_pdf_ids(item: Dict[str, Any]) -> List[str]:
+    values = item.get("expected_pdf_ids")
+    if isinstance(values, list):
+        return [str(value).strip() for value in values if str(value).strip()]
+    value = str(item.get("expected_pdf_id", "")).strip()
+    return [value] if value else []
+
+
+def _target_chunk_ids(snapshot: Dict[str, List[Dict[str, Any]]], fixture: Dict[str, Any]) -> List[str]:
     projections = list(snapshot["chunk_search_documents"])
     out: List[str] = []
-    pilot_case_pdf_ids = {
-        "897ab23ed5a70034d3d708d871ad1da8bc7b6608d94b1ca46b5d578d985d3c13",
-        "78ffe994cdc61ce6a2a6937c79fc52751bb5d2b4eaa4019f088fbccf70569c26",
-    }
 
     def _add(predicate, limit: int) -> None:
         count = 0
@@ -176,33 +210,28 @@ def _target_chunk_ids(snapshot: Dict[str, List[Dict[str, Any]]]) -> List[str]:
                 if count >= limit:
                     break
 
-    _add(
-        lambda row: str(row.get("pdf_id", "")) == "33bc02044716acdfedb164b065bdaec098aaadcae863c591f9931c88e7307d16"
-        and str(row.get("article_number", "")) == "11",
-        2,
-    )
-    _add(
-        lambda row: str(row.get("pdf_id", "")) == "33bc02044716acdfedb164b065bdaec098aaadcae863c591f9931c88e7307d16"
-        and str(row.get("article_number", "")) == "11"
-        and ("precludes" in str(row.get("text_clean", "")).lower() or "void in all circumstances" in str(row.get("text_clean", "")).lower()),
-        1,
-    )
-    _add(
-        lambda row: str(row.get("pdf_id", "")) == "4e387152960c1029b3711cacb05b287b13c977bc61f2558059a62b7b427a62eb"
-        and bool(str(row.get("article_number", ""))),
-        1,
-    )
-    _add(
-        lambda row: str(row.get("pdf_id", "")) == "fbdd7f9dd299d83b1f398778da2e6765dfaaed62005667264734a1f76ec09071"
-        and bool(str(row.get("article_number", ""))),
-        1,
-    )
-    _add(
-        lambda row: str(row.get("pdf_id", "")) in pilot_case_pdf_ids
-        and str(row.get("doc_type", "")) == "case"
-        and str(row.get("section_kind_case", "")).lower() in {"parties", "procedural_history", "reasoning", "order", "disposition"},
-        200,
-    )
+    for item in fixture.get("shadow_subset", []):
+        if not isinstance(item, dict):
+            continue
+        if str(item.get("shadow_kind", "")) != "real_chunk_family":
+            continue
+        article_number = str(item.get("article_number", "")).strip()
+        pdf_id = str(item.get("pdf_id", "")).strip()
+        text_terms = [str(term).lower() for term in item.get("text_terms", []) if str(term).strip()]
+        section_kind_case = str(item.get("section_kind_case", "")).strip().lower()
+        _add(
+            lambda row, pdf_id=pdf_id, article_number=article_number, text_terms=text_terms, section_kind_case=section_kind_case: (
+                (not pdf_id or str(row.get("pdf_id", "")).strip() == pdf_id)
+                and (not article_number or str(row.get("article_number", "")).strip() == article_number)
+                and (
+                    not section_kind_case
+                    or str((row.get("section_kind_case") or "")).strip().lower() == section_kind_case
+                    or (not str((row.get("section_kind_case") or "")).strip() and bool(text_terms))
+                )
+                and (not text_terms or any(term in json.dumps(row, ensure_ascii=False).lower() for term in text_terms))
+            ),
+            6 if section_kind_case else 3,
+        )
     seen = set()
     return [item for item in out if item and not (item in seen or seen.add(item))]
 
@@ -378,7 +407,7 @@ def _semantic_report(snapshot: Dict[str, List[Dict[str, Any]]]) -> Dict[str, Any
     }
 
 
-async def _run_queries(project_id: str, fixture: Dict[str, Any]) -> List[Dict[str, Any]]:
+async def _run_query_batch(project_id: str, query_specs: Sequence[Dict[str, Any]], *, dataset_id: str) -> List[Dict[str, Any]]:
     policy = RuntimePolicy(
         use_llm=False,
         max_candidate_pages=8,
@@ -389,7 +418,7 @@ async def _run_queries(project_id: str, fixture: Dict[str, Any]) -> List[Dict[st
         return_debug_trace=True,
     )
     results: List[Dict[str, Any]] = []
-    for query in fixture.get("queries", []):
+    for query in query_specs:
         request = QueryRequest(
             project_id=project_id,
             question=Question(
@@ -399,13 +428,69 @@ async def _run_queries(project_id: str, fixture: Dict[str, Any]) -> List[Dict[st
                 route_hint=query.get("route_hint"),
                 source="manual",
                 difficulty="easy",
-                dataset_id="chunk_processing_pilot_v1",
+                dataset_id=dataset_id,
             ),
             runtime_policy=policy,
         )
         response = await qa_router.ask(request)
         results.append(response.model_dump(mode="json"))
     return results
+
+
+def _normalize_answer(value: Any) -> Any:
+    if isinstance(value, str):
+        return re.sub(r"\s+", " ", value).strip()
+    return value
+
+
+def _answers_match(expected: Any, actual: Any) -> bool:
+    if isinstance(expected, (int, float)) and isinstance(actual, (int, float)):
+        return abs(float(expected) - float(actual)) < 0.01
+    expected_norm = _normalize_answer(expected)
+    actual_norm = _normalize_answer(actual)
+    if isinstance(expected_norm, str) and isinstance(actual_norm, str):
+        return expected_norm.casefold() == actual_norm.casefold()
+    return expected_norm == actual_norm
+
+
+def _response_action_matches(spec: Dict[str, Any], response: Dict[str, Any]) -> bool:
+    expected_action = str(spec.get("expected_action", "answer")).strip().lower()
+    if expected_action == "abstain":
+        return bool(response.get("abstained"))
+    if bool(response.get("abstained")):
+        return False
+    if "expected_answer" not in spec:
+        return True
+    return _answers_match(spec.get("expected_answer"), response.get("answer"))
+
+
+def _route_matches(spec: Dict[str, Any], response: Dict[str, Any]) -> bool:
+    route_hint = str(spec.get("route_hint", "")).strip()
+    if not route_hint:
+        return True
+    return str(response.get("route_name", "")).strip() == route_hint
+
+
+def _top_candidates(response: Dict[str, Any]) -> List[Dict[str, Any]]:
+    debug = response.get("debug") if isinstance(response.get("debug"), dict) else {}
+    retrieval_trace = debug.get("retrieval_stage_trace", {}) if isinstance(debug.get("retrieval_stage_trace"), dict) else {}
+    return retrieval_trace.get("top_candidates", []) if isinstance(retrieval_trace.get("top_candidates"), list) else []
+
+
+def _used_source_page_ids(response: Dict[str, Any]) -> List[str]:
+    debug = response.get("debug") if isinstance(response.get("debug"), dict) else {}
+    used_pages = debug.get("used_pages", []) if isinstance(debug.get("used_pages"), list) else []
+    return [str(item.get("source_page_id", "")).strip() for item in used_pages if str(item.get("source_page_id", "")).strip()]
+
+
+def _top3_contains_expected(response: Dict[str, Any], spec: Dict[str, Any]) -> bool | None:
+    expected_pdf_ids = _expected_pdf_ids(spec)
+    if not expected_pdf_ids:
+        return None
+    return any(
+        any(str(item.get("source_page_id", "")).startswith(pdf_id) for pdf_id in expected_pdf_ids)
+        for item in _top_candidates(response)[:3]
+    )
 
 
 def _retrieval_report(fixture: Dict[str, Any], responses: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -418,10 +503,11 @@ def _retrieval_report(fixture: Dict[str, Any], responses: List[Dict[str, Any]]) 
         debug = response.get("debug") if isinstance(response.get("debug"), dict) else {}
         retrieval_trace = debug.get("retrieval_stage_trace", {}) if isinstance(debug.get("retrieval_stage_trace"), dict) else {}
         top_candidates = retrieval_trace.get("top_candidates", []) if isinstance(retrieval_trace.get("top_candidates"), list) else []
+        expected_pdf_ids = _expected_pdf_ids(expected)
         top3_contains_expected = any(
-            str(item.get("source_page_id", "")).startswith(str(expected.get("expected_pdf_id", "")))
+            any(str(item.get("source_page_id", "")).startswith(pdf_id) for pdf_id in expected_pdf_ids)
             for item in top_candidates[:3]
-        )
+        ) if expected_pdf_ids else False
         success_top3 += 1 if top3_contains_expected else 0
         rows.append(
             {
@@ -454,10 +540,11 @@ def _baseline_delta_report(fixture: Dict[str, Any], responses: List[Dict[str, An
         retrieval_trace = debug.get("retrieval_stage_trace", {}) if isinstance(debug.get("retrieval_stage_trace"), dict) else {}
         reranked = retrieval_trace.get("top_candidates", []) if isinstance(retrieval_trace.get("top_candidates"), list) else []
         chunk_only = retrieval_trace.get("chunk_only_top_candidates", []) if isinstance(retrieval_trace.get("chunk_only_top_candidates"), list) else []
+        expected_pdf_ids = _expected_pdf_ids(expected)
 
         def _rank(rows_: List[Dict[str, Any]]) -> int | None:
             for index, item in enumerate(rows_, start=1):
-                if str(item.get("source_page_id", "")).startswith(str(expected.get("expected_pdf_id", ""))):
+                if any(str(item.get("source_page_id", "")).startswith(pdf_id) for pdf_id in expected_pdf_ids):
                     return index
             return None
 
@@ -473,7 +560,7 @@ def _baseline_delta_report(fixture: Dict[str, Any], responses: List[Dict[str, An
         rows.append(
             {
                 "question_id": qid,
-                "expected_pdf_id": expected.get("expected_pdf_id"),
+                "expected_pdf_ids": expected_pdf_ids,
                 "chunk_only_rank": chunk_only_rank,
                 "reranked_rank": reranked_rank,
                 "improved_or_preserved": improved_or_preserved,
@@ -591,6 +678,71 @@ def _direct_answer_eligibility_report(fixture: Dict[str, Any], responses: List[D
         "used_count": used_count,
         "precision_on_eligible": round(precision_hits / max(1, eligible_count), 4) if eligible_count else 0.0,
         "abstain_reasons": abstain_reasons,
+        "items": rows,
+    }
+
+
+def _expanded_frozen_query_report(fixture: Dict[str, Any], responses: List[Dict[str, Any]]) -> Dict[str, Any]:
+    query_specs = _query_map(fixture, field="expanded_queries")
+    rows: List[Dict[str, Any]] = []
+    category_counts: Dict[str, int] = {}
+    pass_count = 0
+    route_match_count = 0
+    top3_known_source_hits = 0
+    top3_known_source_total = 0
+    for response in responses:
+        qid = str(response.get("question_id", ""))
+        spec = query_specs[qid]
+        category = str(spec.get("category", "uncategorized"))
+        category_counts[category] = category_counts.get(category, 0) + 1
+        action_match = _response_action_matches(spec, response)
+        route_match = _route_matches(spec, response)
+        top3_contains_expected = _top3_contains_expected(response, spec)
+        if action_match:
+            pass_count += 1
+        if route_match:
+            route_match_count += 1
+        if top3_contains_expected is not None:
+            top3_known_source_total += 1
+            if top3_contains_expected:
+                top3_known_source_hits += 1
+        solver_trace = (response.get("debug") or {}).get("solver_trace", {}) if isinstance((response.get("debug") or {}), dict) else {}
+        direct_answer_used = str(solver_trace.get("solver_version", "")) == "proposition_direct_answer_v1"
+        rows.append(
+            {
+                "question_id": qid,
+                "category": category,
+                "coverage_kind": spec.get("coverage_kind"),
+                "answer_type": spec.get("answer_type"),
+                "expected_action": spec.get("expected_action", "answer"),
+                "expected_answer": spec.get("expected_answer"),
+                "expected_source_family": spec.get("expected_source_family"),
+                "expected_pdf_ids": _expected_pdf_ids(spec),
+                "route_hint": spec.get("route_hint"),
+                "route_name": response.get("route_name"),
+                "route_match": route_match,
+                "answer": response.get("answer"),
+                "abstained": response.get("abstained"),
+                "action_match": action_match,
+                "direct_answer_used": direct_answer_used,
+                "top3_contains_expected_source": top3_contains_expected,
+                "used_source_page_ids": _used_source_page_ids(response),
+                "top_candidates": _top_candidates(response)[:3],
+                "source_reference": spec.get("source_reference", {}),
+            }
+        )
+    return {
+        "report_version": "chunk_processing_expanded_frozen_query_report_v1",
+        "fixture_version": fixture.get("fixture_version"),
+        "evaluation_contract_version": fixture.get("evaluation_contract_version"),
+        "query_count": len(rows),
+        "category_counts": category_counts,
+        "pass_count": pass_count,
+        "pass_ratio": round(pass_count / max(1, len(rows)), 4),
+        "route_match_count": route_match_count,
+        "route_match_ratio": round(route_match_count / max(1, len(rows)), 4),
+        "known_source_top3_hit_count": top3_known_source_hits,
+        "known_source_top3_hit_ratio": round(top3_known_source_hits / max(1, top3_known_source_total), 4) if top3_known_source_total else None,
         "items": rows,
     }
 
@@ -776,6 +928,8 @@ def _run_semantic_gate_fixtures(fixture: Dict[str, Any]) -> Dict[str, Any]:
         rows.append(
             {
                 "fixture_id": fixture_id,
+                "fixture_classification": item.get("fixture_classification"),
+                "coverage_kind": item.get("coverage_kind"),
                 "source_reference": item.get("source_reference", {}),
                 "doc_type": doc_type,
                 "prompt_version": semantics.prompt_version,
@@ -788,6 +942,74 @@ def _run_semantic_gate_fixtures(fixture: Dict[str, Any]) -> Dict[str, Any]:
     return {
         "report_version": "chunk_processing_semantic_gate_fixtures_v1",
         "fixture_count": len(rows),
+        "items": rows,
+    }
+
+
+def _run_real_corpus_checks(*, fixture: Dict[str, Any], pilot_project_id: str, output_dir: Path) -> Dict[str, Any]:
+    rows: List[Dict[str, Any]] = []
+    for check in fixture.get("real_corpus_checks", []):
+        if not isinstance(check, dict):
+            continue
+        question_spec = {
+            "question_id": str(check.get("check_id", "")),
+            "question": str(check.get("question", "")),
+            "answer_type": str(check.get("answer_type", "free_text")),
+            "route_hint": check.get("route_hint"),
+        }
+        project_id = pilot_project_id
+        execution_mode = "runtime_query"
+        if str(check.get("project_scope", "")).strip() == "supplemental_single_doc":
+            supplemental_pdf_ids = [str(item).strip() for item in check.get("supplemental_pdf_ids", []) if str(item).strip()]
+            text = _extract_pdf_text(supplemental_pdf_ids[0], max_pages=3) if supplemental_pdf_ids else ""
+            lowered_text = text.lower()
+            suspicious_terms = [
+                term
+                for term in ("miranda", "jury", "plea bargain", "parole")
+                if term in str(check.get("question", "")).lower()
+            ]
+            response = {
+                "question_id": str(check.get("check_id", "")),
+                "route_name": "no_answer",
+                "answer": None,
+                "abstained": not any(term in lowered_text for term in suspicious_terms),
+                "debug": {"used_pages": []},
+            }
+            action_match = _response_action_matches(check, response)
+            top3_contains_expected = None
+            execution_mode = "supplemental_text_gate"
+        else:
+            response = asyncio.run(_run_query_batch(project_id, [question_spec], dataset_id="chunk_processing_real_corpus_checks_v1"))[0]
+            action_match = _response_action_matches(check, response)
+            top3_contains_expected = _top3_contains_expected(response, check)
+        rows.append(
+            {
+                "check_id": str(check.get("check_id", "")),
+                "fixture_classification": check.get("fixture_classification"),
+                "coverage_kind": check.get("coverage_kind"),
+                "project_scope": check.get("project_scope"),
+                "execution_mode": execution_mode,
+                "source_reference": check.get("source_reference", {}),
+                "expected_action": check.get("expected_action"),
+                "expected_answer": check.get("expected_answer"),
+                "expected_source_family": check.get("expected_source_family"),
+                "expected_pdf_ids": _expected_pdf_ids(check),
+                "answer_type": check.get("answer_type"),
+                "route_name": response.get("route_name"),
+                "answer": response.get("answer"),
+                "abstained": response.get("abstained"),
+                "action_match": action_match,
+                "top3_contains_expected_source": top3_contains_expected,
+                "used_source_page_ids": _used_source_page_ids(response),
+                "top_candidates": _top_candidates(response)[:3],
+            }
+        )
+    pass_count = sum(1 for row in rows if row["action_match"])
+    return {
+        "report_version": "chunk_processing_real_corpus_fixture_report_v1",
+        "fixture_count": len(rows),
+        "pass_count": pass_count,
+        "pass_ratio": round(pass_count / max(1, len(rows)), 4),
         "items": rows,
     }
 
@@ -871,6 +1093,8 @@ def _fixture_gate_report(
             "liable_to": "penalizes",
             "comes_into_force_on": "governs",
             "comes_into_force_via": "governs",
+            "commences_on": "governs",
+            "commencement_requires": "governs",
             "forum_of_proceeding": "governs",
         }
         relation_types = {
@@ -892,6 +1116,8 @@ def _fixture_gate_report(
         fixture_rows.append(
             {
                 "fixture_id": item.get("fixture_id"),
+                "fixture_classification": item.get("fixture_classification"),
+                "coverage_kind": item.get("coverage_kind"),
                 "source_reference": item.get("source_reference", {}),
                 "passed": all(pass_checks.values()),
                 "checks": pass_checks,
@@ -938,11 +1164,15 @@ def _fixture_gate_report(
 
 def _processing_rules_export(fixture: Dict[str, Any]) -> Dict[str, Any]:
     return {
-        "export_version": "chunk_processing_rules_export_v2",
+        "export_version": "chunk_processing_rules_export_v3",
+        "program_label": "rules-first chunk/proposition pilot",
         "pilot_scope": {
             "document_count": len(fixture.get("documents", [])),
             "documents": fixture.get("documents", []),
         },
+        "evaluation_contract_version": fixture.get("evaluation_contract_version"),
+        "expanded_frozen_query_count": len(fixture.get("expanded_queries", [])),
+        "real_corpus_check_count": len(fixture.get("real_corpus_checks", [])),
         "fixture_backed_semantic_coverage": fixture.get("semantic_gate_fixtures", []),
         "structural_chunking": {
             "laws": ["part", "chapter", "section", "article", "schedule item"],
@@ -1005,9 +1235,12 @@ def _processing_results_export(
     semantic_failure_class: Dict[str, Any],
     fixture_gate: Dict[str, Any],
     extra_fixtures: Dict[str, Any],
+    expanded_queries: Dict[str, Any],
+    real_corpus_checks: Dict[str, Any],
 ) -> Dict[str, Any]:
     return {
-        "export_version": "chunk_processing_results_export_v2",
+        "export_version": "chunk_processing_results_export_v3",
+        "program_label": "rules-first chunk/proposition pilot",
         "prepare_report": {
             "status": ((prepare_report.get("result") or {}).get("metadata_normalization_job") or {}).get("status"),
             "project_id": prepare_report.get("project_id"),
@@ -1039,6 +1272,17 @@ def _processing_results_export(
             "eligible_count": direct_answer_eligibility.get("eligible_count"),
             "used_count": direct_answer_eligibility.get("used_count"),
             "precision_on_eligible": direct_answer_eligibility.get("precision_on_eligible"),
+        },
+        "expanded_frozen_queries": {
+            "query_count": expanded_queries.get("query_count"),
+            "pass_ratio": expanded_queries.get("pass_ratio"),
+            "route_match_ratio": expanded_queries.get("route_match_ratio"),
+            "known_source_top3_hit_ratio": expanded_queries.get("known_source_top3_hit_ratio"),
+            "category_counts": expanded_queries.get("category_counts", {}),
+        },
+        "real_corpus_checks": {
+            "fixture_count": real_corpus_checks.get("fixture_count"),
+            "pass_ratio": real_corpus_checks.get("pass_ratio"),
         },
         "semantic_failure_classes": {
             "missing_conditions_count": semantic_failure_class.get("missing_conditions_count"),
@@ -1101,13 +1345,14 @@ def _build_chunk_audit_bundle(
         readme,
         "\n".join(
             [
-                "# Chunk Processing External Audit Export",
+                "# Rules-First Chunk/Proposition Pilot External Audit Export",
                 "",
-                "This bundle is a self-contained external-audit package for the 5-document chunk-processing pilot.",
+                "This bundle is a self-contained external-audit package for the rules-first 5-document chunk/proposition pilot.",
                 "",
                 "Included:",
                 "- original full source archive and the 5-document pilot subset",
                 "- pilot prepare report and all chunk quality reports",
+                "- expanded frozen-query, real-corpus, and shadow-subset reports",
                 "- processing rules and processing results exports",
                 "- active execution plan and strategy note",
                 "- prompt files used for chunk semantics",
@@ -1115,7 +1360,8 @@ def _build_chunk_audit_bundle(
                 "- contract tests and pilot fixture",
                 "",
                 "Primary outcomes:",
-                f"- retrieval top-3 expected hit ratio `{results_export['retrieval']['top3_expected_hit_ratio']}`",
+                f"- core retrieval top-3 expected hit ratio `{results_export['retrieval']['top3_expected_hit_ratio']}`",
+                f"- expanded frozen-query pass ratio `{results_export['expanded_frozen_queries']['pass_ratio']}`",
                 f"- document field provenance missing `{results_export['provenance']['document_field_missing_count']}`",
                 f"- assertion provenance missing `{results_export['provenance']['assertion_missing_count']}`",
                 f"- projection provenance missing `{results_export['provenance']['projection_missing_count']}`",
@@ -1129,10 +1375,18 @@ def _build_chunk_audit_bundle(
     for artifact in sorted(output_dir.glob("*")):
         if artifact.is_file():
             _add(artifact, f"pilot/{artifact.name}")
+    shadow_root = artifact_path("competition_runs", "pilots", "chunk_processing_shadow_subset_v1")
+    if shadow_root.exists():
+        for artifact in sorted(shadow_root.glob("*")):
+            if artifact.is_file():
+                _add(artifact, f"shadow/{artifact.name}")
 
     for rel_path in (
         "docs/exec-plans/active/2026-03-12-chunk-processing-and-proposition-layer.md",
         "reports/corpus_investigation/2026-03-12-version-lineage-rca/chunk_layer_strategy_and_llm_pilot.md",
+        "reports/corpus_investigation/2026-03-12-version-lineage-rca/chunk_processing_pilot_truth_index.md",
+        "reports/corpus_investigation/2026-03-12-version-lineage-rca/chunk_processing_pilot_truth_index.json",
+        "reports/corpus_investigation/2026-03-12-version-lineage-rca/chunk_processing_pilot_v1_local_audit_memo.md",
         "packages/prompts/law_chunk_semantics_v1.md",
         "packages/prompts/case_chunk_semantics_v1.md",
         "packages/prompts/corpus_law_title_identity_v2.md",
@@ -1193,8 +1447,14 @@ def _markdown_from_mapping(title: str, payload: Dict[str, Any]) -> str:
     return "\n".join(lines).strip() + "\n"
 
 
+def _write_progress(output_dir: Path, stage: str, **extra: Any) -> None:
+    payload = {"stage": stage, **extra}
+    _write_json(output_dir / "run_progress.json", payload)
+    print(f"[chunk_pilot] {stage}", flush=True)
+
+
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Run chunk-processing pilot on five documents")
+    parser = argparse.ArgumentParser(description="Run the rules-first 5-document chunk/proposition pilot")
     parser.add_argument("--output-dir", default=str(DEFAULT_OUTPUT_DIR))
     parser.add_argument("--project-id", default=DEFAULT_PROJECT_ID)
     args = parser.parse_args()
@@ -1207,6 +1467,7 @@ def main() -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
     subset_zip_path = output_dir / "chunk_processing_pilot_documents.zip"
     _build_subset_zip(fixture=fixture, output_path=subset_zip_path)
+    _write_progress(output_dir, "subset_zip_ready", subset_zip_path=str(subset_zip_path))
 
     started_at = _utcnow()
     prepare_result = corpus_router.import_zip(
@@ -1229,10 +1490,12 @@ def main() -> int:
     }
     _write_json(output_dir / "prepare_report.chunk_processing_pilot_v1.json", prepare_report)
     _write_json(output_dir / "pilot_fixture.chunk_processing_pilot_v1.json", fixture)
+    _write_progress(output_dir, "prepare_complete")
 
     snapshot = _project_snapshot(str(args.project_id), fixture)
     os.environ["AGENTIC_ENRICHMENT_LLM_ENABLED"] = "1"
-    target_chunk_ids = _target_chunk_ids(snapshot)
+    target_chunk_ids = _target_chunk_ids(snapshot, fixture)
+    _write_progress(output_dir, "target_chunks_selected", target_chunk_count=len(target_chunk_ids))
     enrichment = retry_agentic_corpus_enrichment(
         project_id=str(args.project_id),
         import_job_id=str((prepare_result.get("enrichment_job") or {}).get("import_job_id") or prepare_result.get("job_id") or "chunk_processing_pilot"),
@@ -1246,17 +1509,26 @@ def main() -> int:
         target_ids=target_chunk_ids,
     )
     _apply_enrichment_result(str(args.project_id), enrichment)
+    _write_progress(output_dir, "chunk_enrichment_complete")
     snapshot = _project_snapshot(str(args.project_id), fixture)
     structural = _structural_report(snapshot, fixture)
     semantic = _semantic_report(snapshot)
     extra_fixtures = _run_semantic_gate_fixtures(fixture)
     semantic_failure_class = _semantic_failure_class_report(semantic, extra_fixtures)
-    responses = asyncio.run(_run_queries(str(args.project_id), fixture))
+    _write_progress(output_dir, "semantic_reports_complete")
+    responses = asyncio.run(_run_query_batch(str(args.project_id), fixture.get("queries", []), dataset_id="chunk_processing_pilot_v1"))
+    expanded_query_responses = asyncio.run(
+        _run_query_batch(str(args.project_id), fixture.get("expanded_queries", []), dataset_id="chunk_processing_frozen_set_v2")
+    )
+    _write_progress(output_dir, "query_batches_complete", core_query_count=len(responses), expanded_query_count=len(expanded_query_responses))
     retrieval = _retrieval_report(fixture, responses)
     baseline_delta = _baseline_delta_report(fixture, responses)
     direct_answer = _direct_answer_report(fixture, responses)
     direct_answer_eligibility = _direct_answer_eligibility_report(fixture, responses)
+    expanded_frozen_queries = _expanded_frozen_query_report(fixture, expanded_query_responses)
     provenance = _provenance_report(snapshot, responses)
+    real_corpus_checks = _run_real_corpus_checks(fixture=fixture, pilot_project_id=str(args.project_id), output_dir=output_dir)
+    _write_progress(output_dir, "real_corpus_checks_complete", real_corpus_check_count=len(real_corpus_checks.get("items", [])))
     fixture_gate = _fixture_gate_report(
         structural=structural,
         semantic=semantic,
@@ -1279,6 +1551,8 @@ def main() -> int:
         semantic_failure_class=semantic_failure_class,
         fixture_gate=fixture_gate,
         extra_fixtures=extra_fixtures,
+        expanded_queries=expanded_frozen_queries,
+        real_corpus_checks=real_corpus_checks,
     )
 
     _write_json(output_dir / "structural_chunk_quality_report.json", structural)
@@ -1301,11 +1575,16 @@ def main() -> int:
     _write_md(output_dir / "fixture_gate_report.md", _markdown_from_mapping("Fixture Gate Report", fixture_gate))
     _write_json(output_dir / "semantic_gate_fixtures_report.json", extra_fixtures)
     _write_md(output_dir / "semantic_gate_fixtures_report.md", _markdown_from_mapping("Semantic Gate Fixtures Report", extra_fixtures))
+    _write_json(output_dir / "expanded_frozen_query_report.json", expanded_frozen_queries)
+    _write_md(output_dir / "expanded_frozen_query_report.md", _markdown_from_mapping("Expanded Frozen Query Report", expanded_frozen_queries))
+    _write_json(output_dir / "real_corpus_fixture_report.json", real_corpus_checks)
+    _write_md(output_dir / "real_corpus_fixture_report.md", _markdown_from_mapping("Real Corpus Fixture Report", real_corpus_checks))
     _write_json(output_dir / "processing_rules_export.json", rules_export)
     _write_md(output_dir / "processing_rules_export.md", _markdown_from_mapping("Chunk Processing Rules Export", rules_export))
     _write_json(output_dir / "processing_results_export.json", results_export)
     _write_md(output_dir / "processing_results_export.md", _markdown_from_mapping("Chunk Processing Results Export", results_export))
     _write_json(output_dir / "query_responses.json", {"items": responses})
+    _write_json(output_dir / "expanded_query_responses.json", {"items": expanded_query_responses})
     _write_json(output_dir / "target_chunk_ids.json", {"items": target_chunk_ids, "count": len(target_chunk_ids)})
     bundle = _build_chunk_audit_bundle(
         output_dir=output_dir,
@@ -1314,6 +1593,7 @@ def main() -> int:
         results_export=results_export,
     )
     _write_json(output_dir / "external_audit_bundle.json", bundle)
+    _write_progress(output_dir, "completed", bundle_zip_path=bundle.get("zip_path"))
     return 0
 
 

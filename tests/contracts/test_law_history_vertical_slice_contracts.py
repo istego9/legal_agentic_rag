@@ -206,3 +206,29 @@ def test_no_silent_fallback_blocks_unresolved_law_history_lookup(monkeypatch) ->
     assert payload["debug"]["abstain_reason"] == "law_history_resolution_missing"
     assert llm_called["value"] is False
 
+
+def test_history_effective_from_solver_scopes_dates_to_new_accounts() -> None:
+    question = {
+        "question": "Under Article 6 of the Common Reporting Standard Law 2018, what is the effective date for due diligence requirements for New Accounts?",
+        "answer_type": "date",
+    }
+    candidates = [
+        {
+            "paragraph": {
+                "text": "The effective date is 31 December 2016 for Pre-existing Accounts and 1 January 2017 for New Accounts.",
+                "dates": ["31 December 2016", "1 January 2017"],
+            },
+            "chunk_projection": {
+                "text_clean": "The effective date is 31 December 2016 for Pre-existing Accounts and 1 January 2017 for New Accounts.",
+                "effective_start_date": None,
+            },
+            "score": 0.91,
+        }
+    ]
+    intent = resolve_law_history_lookup_intent(question["question"])
+
+    result = solve_law_history_deterministic(question, "history_lineage", candidates, history_intent=intent)
+    normalized_answer, normalized_text = normalize_answer(result.answer, "date")
+    assert result.abstained is False
+    assert normalized_answer == "2017-01-01"
+    assert normalized_text == "2017-01-01"

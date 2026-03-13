@@ -1,4 +1,4 @@
-# Execution Plan: Chunk Processing and Proposition Layer v2
+# Execution Plan: Rules-First Chunk/Proposition Pilot v2
 
 ## Verdict
 

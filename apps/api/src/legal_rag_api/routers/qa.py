@@ -193,6 +193,21 @@ def _structural_match(question_structure: Dict[str, Any], candidate: Dict[str, A
     heading_path = projection.get("heading_path", []) if isinstance(projection.get("heading_path"), list) else []
     if not part_ref and heading_path:
         part_ref = str(heading_path[0]).lower().strip()
+    candidate_text = _normalize_query_text(
+        " ".join(
+            part
+            for part in (
+                str(paragraph.get("text", "")),
+                str(projection.get("text_clean", "")),
+                str(projection.get("retrieval_text", "")),
+            )
+            if part
+        )
+    )
+    article_marker_hit = any(
+        re.search(rf"\barticle\s+{re.escape(ref)}\b", candidate_text, re.IGNORECASE)
+        for ref in question_structure["article_refs"]
+    )
     schedule_number = str(projection.get("schedule_number", "")).lower().strip()
     law_number = str(projection.get("law_number", "")).strip()
     law_year = str(
@@ -214,7 +229,7 @@ def _structural_match(question_structure: Dict[str, Any], candidate: Dict[str, A
     expected_doc_type = str(lookup_intent.get("resolved_doc_type_guess", "")).strip().lower()
     case_number = str(projection.get("case_number", "")).upper().strip()
     return {
-        "article": bool(set(question_structure["article_refs"]).intersection(article_refs)),
+        "article": bool(set(question_structure["article_refs"]).intersection(article_refs) or article_marker_hit),
         "section": bool(question_structure["section_refs"] and section_ref in question_structure["section_refs"]),
         "paragraph": bool(
             question_structure["paragraph_refs"]
@@ -1167,6 +1182,10 @@ def _build_candidates(
         retrieval_backend=retrieval_backend,
     )
     if enforce_structural_for_article and route_name == "article_lookup":
+        explicit_provision_identifier = any(
+            bool(intent.get(key))
+            for key in ("article_identifier", "section_identifier", "paragraph_identifier", "clause_identifier", "schedule_identifier")
+        )
         structural_matches = [
             row
             for row in ordered
@@ -1175,7 +1194,7 @@ def _build_candidates(
                 for key in ("article", "section", "paragraph", "clause", "schedule")
             )
         ]
-        if intent.get("requires_structural_lookup") and not structural_matches:
+        if intent.get("requires_structural_lookup") and not structural_matches and not explicit_provision_identifier:
             stage_trace["retrieval_blocked"] = True
             stage_trace["retrieval_blocked_reason"] = "law_article_no_structural_identifier_match"
             stage_trace["retrieval_fallback_traced"] = True
@@ -1183,6 +1202,9 @@ def _build_candidates(
             stage_trace["candidate_count"] = 0
             stage_trace["top_candidates"] = []
             return [], stage_trace
+        if intent.get("requires_structural_lookup") and not structural_matches and explicit_provision_identifier:
+            stage_trace["retrieval_fallback_traced"] = True
+            stage_trace["retrieval_fallback_reason"] = "article_lookup_explicit_provision_lexical_backstop"
     return ordered[:max_pages], stage_trace
 
 
