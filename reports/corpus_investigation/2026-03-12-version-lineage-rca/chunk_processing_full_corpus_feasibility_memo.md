@@ -1,5 +1,25 @@
 # Full-Corpus Chunk Processing Feasibility Memo
 
+## Superseded Status
+
+This memo documents the first broad-selector corpus-wide run attempt and remains useful as the **pre-narrowing baseline** only.
+
+Latest canonical narrowing artifacts now live in:
+
+- [chunk_processing_full_corpus_eval_v2](/Users/artemgendler/dev/legal_agentic_rag/.artifacts/competition_runs/full/chunk_processing_full_corpus_eval_v2)
+- [semantic_target_narrowing_report.md](/Users/artemgendler/dev/legal_agentic_rag/.artifacts/competition_runs/full/chunk_processing_full_corpus_eval_v2/semantic_target_narrowing_report.md)
+- [baseline_delta_report.md](/Users/artemgendler/dev/legal_agentic_rag/.artifacts/competition_runs/full/chunk_processing_full_corpus_eval_v2/baseline_delta_report.md)
+- [chunk_processing_full_corpus_feasibility_memo_v2.md](/Users/artemgendler/dev/legal_agentic_rag/.artifacts/competition_runs/full/chunk_processing_full_corpus_eval_v2/chunk_processing_full_corpus_feasibility_memo_v2.md)
+
+Current narrowed-selector headline metrics:
+
+- `old target_chunk_count = 2151`
+- `new target_chunk_count = 488`
+- `old target_chunk_rate = 0.8841`
+- `new target_chunk_rate = 0.2006`
+
+Use the v2 artifact root above as the current truth for corpus-wide target-selection viability.
+
 ## Scope
 
 This memo records the first corpus-wide run attempt for the current rules-first chunk/proposition stack across the full `30`-document corpus.

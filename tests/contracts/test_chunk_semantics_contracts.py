@@ -234,6 +234,76 @@ def test_case_parties_chunk_is_not_semantically_rich() -> None:
     ) is False
 
 
+def test_semantic_target_selection_marks_conditional_legislative_chunk() -> None:
+    selection = chunk_semantics_module.semantic_target_selection(
+        "law",
+        {
+            "text": (
+                "Nothing in this Law precludes an employee from waiving rights by written agreement with the employer, "
+                "subject to Article 66(13) and the employee being given an opportunity to receive independent legal advice."
+            ),
+            "section_kind": "operative_provision",
+            "chunk_type": "paragraph",
+        },
+        {"article_number": "11"},
+    )
+    assert selection.selected is True
+    assert "contains_negation_or_exception" in selection.reasons
+    assert any(item in selection.target_classes for item in ("carve_out", "exception"))
+    assert selection.prompt_family == "law"
+
+
+def test_semantic_target_selection_excludes_definition_block_by_default() -> None:
+    selection = chunk_semantics_module.semantic_target_selection(
+        "law",
+        {
+            "text": "In this Law, Employee means a natural person engaged under a contract of employment.",
+            "section_kind": "definition",
+            "chunk_type": "paragraph",
+        },
+        {},
+    )
+    assert selection.selected is False
+    assert selection.reasons == ()
+
+
+def test_semantic_target_selection_marks_case_order_money_deadline_interest() -> None:
+    selection = chunk_semantics_module.semantic_target_selection(
+        "case",
+        {
+            "text": "The Applicant shall pay 10,000 AED within 14 days, failing which interest shall accrue at 9% per annum.",
+            "section_kind": "order",
+            "chunk_type": "list_item",
+        },
+        {"section_kind_case": "order"},
+    )
+    assert selection.selected is True
+    assert "contains_money_order" in selection.reasons
+    assert "contains_deadline" in selection.reasons
+    assert "contains_interest_clause" in selection.reasons
+    assert any(item in selection.target_classes for item in ("costs_order", "order_item"))
+    assert any(item in selection.target_classes for item in ("deadline_clause", "interest_clause"))
+    assert selection.prompt_family == "case"
+
+
+def test_semantic_target_selection_marks_notice_commencement_rule() -> None:
+    selection = chunk_semantics_module.semantic_target_selection(
+        "enactment_notice",
+        {
+            "text": (
+                "This Notice brings Articles 1 to 5 of the Target Law into force on 1 January 2027, "
+                "except Article 4, which shall come into force on a date appointed by a further notice."
+            ),
+            "section_kind": "procedure",
+            "chunk_type": "paragraph",
+        },
+        {},
+    )
+    assert selection.selected is True
+    assert "contains_notice_commencement" in selection.reasons
+    assert any(item in selection.target_classes for item in ("notice_rule", "commencement_rule"))
+
+
 def test_normalize_chunk_semantics_maps_regulation_and_notice_relation_aliases() -> None:
     payload = chunk_semantics_module.normalize_chunk_semantics_payload(
         {

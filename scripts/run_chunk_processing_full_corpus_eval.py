@@ -11,7 +11,7 @@ import json
 import os
 from pathlib import Path
 import shutil
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 ROOT = Path(__file__).resolve().parents[1]
 API_SRC = ROOT / "apps" / "api" / "src"
@@ -42,11 +42,41 @@ from scripts.run_chunk_processing_pilot import (  # noqa: E402
     _write_md,
 )
 from services.ingest.agentic_enrichment import retry_agentic_corpus_enrichment  # noqa: E402
-from services.ingest.chunk_semantics import _is_semantically_rich_chunk  # noqa: E402
+from services.ingest.chunk_semantics import (  # noqa: E402
+    build_chunk_semantics_client,
+    semantic_target_selection,
+)
 
 
-DEFAULT_OUTPUT_DIR = artifact_path("competition_runs", "full", "chunk_processing_full_corpus_eval_v1")
-DEFAULT_PROJECT_ID = "competition_chunk_processing_full_corpus_eval_v1"
+DEFAULT_OUTPUT_DIR = artifact_path("competition_runs", "full", "chunk_processing_full_corpus_eval_v2")
+DEFAULT_PROJECT_ID = "competition_chunk_processing_full_corpus_eval_v2"
+BASELINE_TARGETING_V1 = {
+    "target_chunk_count": 2151,
+    "total_chunk_count": 2433,
+    "target_chunk_rate": 0.8841,
+    "selected_chunk_count_by_doc_type": {
+        "case": 1104,
+        "law": 1047,
+    },
+    "selected_chunk_count_by_section_kind": {
+        "order": 171,
+        "procedural_history": 12,
+        "reasoning": 854,
+        "parties": 14,
+        "operative_provision": 866,
+        "penalty": 62,
+        "procedure": 50,
+        "exception": 96,
+        "definition": 22,
+        "schedule_item": 3,
+        "heading": 1,
+    },
+    "selected_chunk_count_by_prompt_family": {
+        "case": 1104,
+        "law": 1047,
+        "none": 0,
+    },
+}
 
 
 def _utcnow() -> datetime:
@@ -59,6 +89,15 @@ def _iso(value: datetime) -> str:
 
 def _load_json(path: Path) -> Any:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _parse_bool_arg(value: str) -> bool:
+    normalized = str(value or "").strip().lower()
+    if normalized in {"1", "true", "yes", "on"}:
+        return True
+    if normalized in {"0", "false", "no", "off"}:
+        return False
+    raise argparse.ArgumentTypeError(f"invalid boolean value: {value!r}")
 
 
 def _project_snapshot(project_id: str, *, pdf_ids: List[str] | None = None) -> Dict[str, List[Dict[str, Any]]]:
@@ -76,6 +115,71 @@ def _project_snapshot(project_id: str, *, pdf_ids: List[str] | None = None) -> D
         "chunk_search_documents": [item for item in store.chunk_search_documents.values() if str(item.get("document_id", "")) in document_ids],
         "chunk_assertions": [item for item in store.chunk_ontology_assertions.values() if str(item.get("document_id", "")) in document_ids],
     }
+
+
+def _configure_full_eval_runtime(*, llm_enabled: bool, provider: str, model: str, import_metadata_llm_enabled: bool) -> Dict[str, Any]:
+    provider_value = str(provider or "").strip().lower()
+    model_value = str(model or "").strip()
+    os.environ["AGENTIC_ENRICHMENT_LLM_ENABLED"] = "1" if llm_enabled else "0"
+
+    # Import phase metadata normalization is explicitly configured here instead
+    # of being silently forced in-script.
+    if import_metadata_llm_enabled:
+        if provider_value in {"azure", "openai"}:
+            os.environ["CORPUS_METADATA_NORMALIZER_PROVIDER"] = provider_value
+        if provider_value == "azure":
+            if model_value:
+                os.environ["CORPUS_METADATA_NORMALIZER_DEPLOYMENT"] = model_value
+        elif provider_value == "openai":
+            if model_value:
+                os.environ["CORPUS_METADATA_NORMALIZER_MODEL"] = model_value
+    else:
+        os.environ["CORPUS_METADATA_NORMALIZER_PROVIDER"] = "openai"
+        os.environ["CORPUS_METADATA_NORMALIZER_MODEL"] = ""
+        os.environ["OPENAI_API_KEY"] = ""
+
+    if llm_enabled:
+        if provider_value in {"azure", "openai"}:
+            os.environ["CHUNK_SEMANTICS_PROVIDER"] = provider_value
+        if provider_value == "azure":
+            if model_value:
+                os.environ["CHUNK_SEMANTICS_DEPLOYMENT"] = model_value
+        elif provider_value == "openai":
+            if model_value:
+                os.environ["CHUNK_SEMANTICS_MODEL"] = model_value
+    else:
+        os.environ["CHUNK_SEMANTICS_PROVIDER"] = "openai"
+        os.environ["CHUNK_SEMANTICS_MODEL"] = ""
+        os.environ["OPENAI_API_KEY"] = ""
+
+    chunk_client = build_chunk_semantics_client()
+    actual_model = chunk_client.config.deployment if chunk_client.config.provider == "azure" else chunk_client.config.model
+    actual_enabled = bool(llm_enabled and chunk_client.config.enabled)
+    return {
+        "llm_enabled_requested": bool(llm_enabled),
+        "llm_enabled_effective": actual_enabled,
+        "provider_requested": provider_value or "",
+        "model_requested": model_value or "",
+        "provider_effective": chunk_client.config.provider,
+        "model_effective": actual_model or "",
+        "import_metadata_llm_enabled_requested": bool(import_metadata_llm_enabled),
+        "chunk_api_mode_effective": chunk_client.config.api_mode,
+        "chunk_reasoning_effort_effective": chunk_client.config.reasoning_effort or "",
+        "chunk_timeout_seconds_effective": chunk_client.config.timeout_seconds,
+    }
+
+
+def _section_kind_for_reporting(paragraph: Dict[str, Any], projection: Dict[str, Any]) -> str:
+    return str(
+        projection.get("section_kind_case")
+        or paragraph.get("section_kind")
+        or projection.get("section_kind")
+        or "unknown"
+    ).strip().lower() or "unknown"
+
+
+def _chunk_type_for_reporting(paragraph: Dict[str, Any], projection: Dict[str, Any]) -> str:
+    return str(paragraph.get("chunk_type") or projection.get("chunk_type") or "unknown").strip().lower() or "unknown"
 
 
 def _structural_report(snapshot: Dict[str, List[Dict[str, Any]]]) -> Dict[str, Any]:
@@ -202,10 +306,16 @@ def _semantic_coverage_report(snapshot: Dict[str, List[Dict[str, Any]]]) -> Dict
     }
 
 
-def _semantic_target_chunk_ids(snapshot: Dict[str, List[Dict[str, Any]]]) -> List[str]:
+def _semantic_target_report(snapshot: Dict[str, List[Dict[str, Any]]]) -> Tuple[Dict[str, Any], List[str]]:
     documents_by_id = {str(item.get("document_id", "")): item for item in snapshot["documents"]}
     projections_by_chunk = {str(item.get("chunk_id", "")): item for item in snapshot["chunk_search_documents"]}
     out: List[str] = []
+    reason_counts: Counter[str] = Counter()
+    selected_by_doc_type: Counter[str] = Counter()
+    selected_by_section_kind: Counter[str] = Counter()
+    selected_by_prompt_family: Counter[str] = Counter()
+    selected_chunk_type_distribution: Counter[str] = Counter()
+    excluded_chunk_type_distribution: Counter[str] = Counter()
     for paragraph in snapshot["paragraphs"]:
         paragraph_id = str(paragraph.get("paragraph_id", "")).strip()
         if not paragraph_id:
@@ -213,9 +323,77 @@ def _semantic_target_chunk_ids(snapshot: Dict[str, List[Dict[str, Any]]]) -> Lis
         projection = projections_by_chunk.get(paragraph_id, {})
         document = documents_by_id.get(str(paragraph.get("document_id", "")), {})
         doc_type = str(document.get("doc_type", projection.get("doc_type", "")) or "").strip().lower()
-        if _is_semantically_rich_chunk(doc_type, paragraph, projection):
+        selection = semantic_target_selection(doc_type, paragraph, projection)
+        chunk_type = _chunk_type_for_reporting(paragraph, projection)
+        if selection.selected:
             out.append(paragraph_id)
-    return out
+            selected_by_doc_type[selection.doc_type or "unknown"] += 1
+            selected_by_section_kind[selection.section_kind or "unknown"] += 1
+            selected_by_prompt_family[selection.prompt_family or "none"] += 1
+            selected_chunk_type_distribution[chunk_type] += 1
+            for reason in selection.reasons:
+                reason_counts[reason] += 1
+        else:
+            excluded_chunk_type_distribution[chunk_type] += 1
+    total_chunk_count = len(snapshot["paragraphs"])
+    report = {
+        "report_version": "chunk_processing_semantic_target_narrowing_report_v1",
+        "target_chunk_count": len(out),
+        "total_chunk_count": total_chunk_count,
+        "target_chunk_rate": round(len(out) / max(1, total_chunk_count), 4),
+        "semantic_target_reason_distribution": dict(reason_counts.most_common()),
+        "selected_chunk_count_by_doc_type": dict(sorted(selected_by_doc_type.items())),
+        "selected_chunk_count_by_section_kind": dict(sorted(selected_by_section_kind.items())),
+        "selected_chunk_count_by_prompt_family": {
+            "law": int(selected_by_prompt_family.get("law", 0)),
+            "case": int(selected_by_prompt_family.get("case", 0)),
+            "none": int(selected_by_prompt_family.get("none", 0)),
+        },
+        "selected_chunk_type_distribution": dict(sorted(selected_chunk_type_distribution.items())),
+        "excluded_chunk_type_distribution": dict(sorted(excluded_chunk_type_distribution.items())),
+        "top_target_reasons": [
+            {"reason": reason, "count": count}
+            for reason, count in reason_counts.most_common(10)
+        ],
+    }
+    return report, out
+
+
+def _distribution_delta(old: Dict[str, int], new: Dict[str, int]) -> Dict[str, Dict[str, int]]:
+    keys = sorted(set(old) | set(new))
+    return {
+        key: {
+            "old": int(old.get(key, 0)),
+            "new": int(new.get(key, 0)),
+            "delta": int(new.get(key, 0)) - int(old.get(key, 0)),
+        }
+        for key in keys
+    }
+
+
+def _baseline_delta_report(report: Dict[str, Any]) -> Dict[str, Any]:
+    return {
+        "report_version": "chunk_processing_semantic_target_baseline_delta_v1",
+        "baseline_source": "broad_selector_diagnostic_v1",
+        "old_target_chunk_count": BASELINE_TARGETING_V1["target_chunk_count"],
+        "new_target_chunk_count": report["target_chunk_count"],
+        "target_chunk_count_delta": int(report["target_chunk_count"]) - int(BASELINE_TARGETING_V1["target_chunk_count"]),
+        "old_target_chunk_rate": BASELINE_TARGETING_V1["target_chunk_rate"],
+        "new_target_chunk_rate": report["target_chunk_rate"],
+        "target_chunk_rate_delta": round(float(report["target_chunk_rate"]) - float(BASELINE_TARGETING_V1["target_chunk_rate"]), 4),
+        "selected_chunk_count_by_doc_type_delta": _distribution_delta(
+            BASELINE_TARGETING_V1["selected_chunk_count_by_doc_type"],
+            report["selected_chunk_count_by_doc_type"],
+        ),
+        "selected_chunk_count_by_section_kind_delta": _distribution_delta(
+            BASELINE_TARGETING_V1["selected_chunk_count_by_section_kind"],
+            report["selected_chunk_count_by_section_kind"],
+        ),
+        "selected_chunk_count_by_prompt_family_delta": _distribution_delta(
+            BASELINE_TARGETING_V1["selected_chunk_count_by_prompt_family"],
+            report["selected_chunk_count_by_prompt_family"],
+        ),
+    }
 
 
 def _write_progress(output_dir: Path, stage: str, **extra: Any) -> None:
@@ -228,14 +406,19 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Run rules-first chunk/proposition evaluation on the full corpus")
     parser.add_argument("--output-dir", default=str(DEFAULT_OUTPUT_DIR))
     parser.add_argument("--project-id", default=DEFAULT_PROJECT_ID)
+    parser.add_argument("--llm-enabled", type=_parse_bool_arg, default=False)
+    parser.add_argument("--provider", default="")
+    parser.add_argument("--model", default="")
+    parser.add_argument("--import-metadata-llm-enabled", type=_parse_bool_arg, default=False)
     args = parser.parse_args()
 
     _prepare_env()
-    # Full chunk evaluation should measure the chunk/proposition layer, not spend
-    # time repeating document-level metadata normalization.
-    os.environ["CORPUS_METADATA_NORMALIZER_PROVIDER"] = "openai"
-    os.environ["CORPUS_METADATA_NORMALIZER_MODEL"] = ""
-    os.environ["OPENAI_API_KEY"] = ""
+    llm_config = _configure_full_eval_runtime(
+        llm_enabled=bool(args.llm_enabled),
+        provider=str(args.provider),
+        model=str(args.model),
+        import_metadata_llm_enabled=bool(args.import_metadata_llm_enabled),
+    )
     fixture = _load_json(FIXTURE_PATH)
     output_dir = Path(args.output_dir).resolve()
     if output_dir.exists():
@@ -260,8 +443,9 @@ def main() -> int:
         "project_id": str(args.project_id),
         "result": prepare_result,
         "code_version": _git_metadata(),
+        "llm_config": llm_config,
     }
-    _write_json(output_dir / "prepare_report.chunk_processing_full_corpus_eval_v1.json", prepare_report)
+    _write_json(output_dir / "prepare_report.chunk_processing_full_corpus_eval_v2.json", prepare_report)
     _write_progress(output_dir, "prepare_complete")
 
     imported_pdf_ids = [
@@ -271,28 +455,49 @@ def main() -> int:
     ]
 
     snapshot = _project_snapshot(str(args.project_id), pdf_ids=imported_pdf_ids)
-    os.environ["AGENTIC_ENRICHMENT_LLM_ENABLED"] = "1"
-    target_chunk_ids = _semantic_target_chunk_ids(snapshot)
+    semantic_target_report, target_chunk_ids = _semantic_target_report(snapshot)
+    baseline_delta = _baseline_delta_report(semantic_target_report)
     _write_progress(
         output_dir,
         "target_chunks_selected",
-        target_chunk_count=len(target_chunk_ids),
-        total_chunk_count=len(snapshot["paragraphs"]),
+        target_chunk_count=semantic_target_report["target_chunk_count"],
+        total_chunk_count=semantic_target_report["total_chunk_count"],
+        target_chunk_rate=semantic_target_report["target_chunk_rate"],
     )
-    enrichment = retry_agentic_corpus_enrichment(
-        project_id=str(args.project_id),
-        import_job_id=str((prepare_result.get("enrichment_job") or {}).get("import_job_id") or prepare_result.get("job_id") or "chunk_processing_full_corpus_eval"),
-        documents=snapshot["documents"],
-        pages=snapshot["pages"],
-        paragraphs=snapshot["paragraphs"],
-        chunk_search_documents=snapshot["chunk_search_documents"],
-        relation_edges=list(store.relation_edges.values()),
-        existing_registry_entries=list(store.ontology_registry_entries.values()),
-        target_type="chunk",
-        target_ids=target_chunk_ids,
+    _write_json(output_dir / "semantic_target_narrowing_report.json", semantic_target_report)
+    _write_md(
+        output_dir / "semantic_target_narrowing_report.md",
+        _markdown_from_mapping("Full Corpus Semantic Target Narrowing Report", semantic_target_report),
     )
-    _apply_enrichment_result(str(args.project_id), enrichment)
-    _write_progress(output_dir, "chunk_enrichment_complete")
+    _write_json(output_dir / "baseline_delta_report.json", baseline_delta)
+    _write_md(
+        output_dir / "baseline_delta_report.md",
+        _markdown_from_mapping("Full Corpus Semantic Target Baseline Delta Report", baseline_delta),
+    )
+
+    enrichment: Dict[str, Any] | None = None
+    if llm_config["llm_enabled_effective"] and target_chunk_ids:
+        enrichment = retry_agentic_corpus_enrichment(
+            project_id=str(args.project_id),
+            import_job_id=str((prepare_result.get("enrichment_job") or {}).get("import_job_id") or prepare_result.get("job_id") or "chunk_processing_full_corpus_eval"),
+            documents=snapshot["documents"],
+            pages=snapshot["pages"],
+            paragraphs=snapshot["paragraphs"],
+            chunk_search_documents=snapshot["chunk_search_documents"],
+            relation_edges=list(store.relation_edges.values()),
+            existing_registry_entries=list(store.ontology_registry_entries.values()),
+            target_type="chunk",
+            target_ids=target_chunk_ids,
+        )
+        _apply_enrichment_result(str(args.project_id), enrichment)
+        _write_progress(output_dir, "chunk_enrichment_complete", target_chunk_count=len(target_chunk_ids))
+    else:
+        _write_progress(
+            output_dir,
+            "chunk_enrichment_skipped",
+            target_chunk_count=len(target_chunk_ids),
+            llm_enabled_effective=llm_config["llm_enabled_effective"],
+        )
 
     snapshot = _project_snapshot(str(args.project_id), pdf_ids=imported_pdf_ids)
     structural = _structural_report(snapshot)
@@ -315,7 +520,14 @@ def main() -> int:
             "project_id": prepare_report.get("project_id"),
             "documents_path": prepare_report.get("documents_path"),
         },
+        "run_metadata": {
+            "llm_config": llm_config,
+            "semantic_target_count": semantic_target_report.get("target_chunk_count"),
+            "semantic_target_rate": semantic_target_report.get("target_chunk_rate"),
+        },
         "structural": structural,
+        "semantic_target_narrowing": semantic_target_report,
+        "baseline_delta": baseline_delta,
         "semantic_coverage": semantic,
         "expanded_frozen_queries": {
             "query_count": expanded_queries.get("query_count"),
@@ -349,6 +561,28 @@ def main() -> int:
     _write_md(output_dir / "real_corpus_fixture_report.md", _markdown_from_mapping("Full Corpus Real Corpus Fixture Report", real_corpus_checks))
     _write_json(output_dir / "processing_results_export.json", results_export)
     _write_md(output_dir / "processing_results_export.md", _markdown_from_mapping("Full Corpus Processing Results Export", results_export))
+    feasibility_memo = {
+        "report_version": "chunk_processing_full_corpus_feasibility_memo_v2",
+        "artifact_root": str(output_dir),
+        "operational_conclusion": "selection_only_viable" if not llm_config["llm_enabled_effective"] else "narrowed_semantic_subset_evaluated",
+        "old_target_chunk_count": BASELINE_TARGETING_V1["target_chunk_count"],
+        "new_target_chunk_count": semantic_target_report["target_chunk_count"],
+        "old_target_chunk_rate": BASELINE_TARGETING_V1["target_chunk_rate"],
+        "new_target_chunk_rate": semantic_target_report["target_chunk_rate"],
+        "selected_chunk_count_by_doc_type": semantic_target_report["selected_chunk_count_by_doc_type"],
+        "selected_chunk_count_by_section_kind": semantic_target_report["selected_chunk_count_by_section_kind"],
+        "target_reason_histogram": semantic_target_report["semantic_target_reason_distribution"],
+        "llm_config": llm_config,
+        "residual_blockers": [
+            "full semantic prompt quality remains out of scope for this step",
+            "rules-first query quality is still bounded by existing runtime logic",
+        ],
+    }
+    _write_json(output_dir / "chunk_processing_full_corpus_feasibility_memo_v2.json", feasibility_memo)
+    _write_md(
+        output_dir / "chunk_processing_full_corpus_feasibility_memo_v2.md",
+        _markdown_from_mapping("Full Corpus Feasibility Memo V2", feasibility_memo),
+    )
     _write_progress(output_dir, "completed")
     return 0
 

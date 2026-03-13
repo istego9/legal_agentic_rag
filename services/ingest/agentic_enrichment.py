@@ -16,6 +16,7 @@ from services.ingest.chunk_semantics import (
     PROMPT_SET_VERSION as CHUNK_SEMANTICS_PROMPT_SET_VERSION,
     build_chunk_semantics_client,
     extract_chunk_semantics,
+    semantic_target_selection,
 )
 
 ENRICHMENT_PROFILE_VERSION = "agentic_corpus_enrichment_v2"
@@ -344,6 +345,11 @@ def _chunk_interpreter_step(
     document: Dict[str, Any],
     chunk_projection: Dict[str, Any],
 ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+    selection = semantic_target_selection(
+        str(document.get("doc_type") or chunk_projection.get("doc_type") or ""),
+        paragraph,
+        chunk_projection,
+    )
     semantics = extract_chunk_semantics(
         client=client,
         paragraph=paragraph,
@@ -363,6 +369,10 @@ def _chunk_interpreter_step(
             "llm_enabled": bool(client.config.enabled),
             "llm_model_version": client.config.deployment or "disabled",
             "llm_prompt_version": semantics.prompt_version,
+            "semantic_target_selected": selection.selected,
+            "semantic_target_reasons": list(selection.reasons),
+            "semantic_target_classes": list(selection.target_classes),
+            "semantic_target_prompt_family": selection.prompt_family,
         },
     )
 

@@ -17,19 +17,51 @@ PROMPT_SET_VERSION = "chunk_semantics_prompt_set_v1"
 LAW_PROMPT_VERSION = "law_chunk_semantics_v1"
 CASE_PROMPT_VERSION = "case_chunk_semantics_v1"
 _DIRECT_ANSWER_TYPES = {"boolean", "number", "date", "name", "names", "none"}
-
-_SEMANTIC_RICH_LAW_PATTERN = re.compile(
-    r"\b(?:shall|must|may|unless|except|provided that|void|invalid|precludes|means|liable to|penalty)\b",
-    re.IGNORECASE,
-)
-_SEMANTIC_RICH_CASE_PATTERN = re.compile(
-    r"\b(?:ordered|shall pay|must pay|amount payable|dismissed|granted|stayed|interest|costs award|within \d+ days|per annum|for these reasons|i conclude)\b",
-    re.IGNORECASE,
-)
+SEMANTIC_TARGET_ALLOWLIST = {
+    "operative_provision",
+    "exception",
+    "carve_out",
+    "invalidity_rule",
+    "penalty",
+    "order_item",
+    "costs_order",
+    "interest_clause",
+    "deadline_clause",
+    "commencement_rule",
+    "notice_rule",
+}
+SEMANTIC_TARGET_REASON_ALLOWLIST = {
+    "contains_negation_or_exception",
+    "contains_deadline",
+    "contains_money_order",
+    "contains_notice_commencement",
+    "contains_invalidity_rule",
+    "contains_normative_operational_language",
+    "contains_interest_clause",
+    "contains_penalty_language",
+}
+_SEMANTIC_TARGET_DENYLIST_SECTION_KINDS = {
+    "heading",
+    "parties",
+    "procedural_history",
+    "definition",
+}
+_SEMANTIC_TARGET_DENYLIST_CHUNK_TYPES = {"heading"}
 _CONDITION_CUE_PATTERN = re.compile(
     r"\b(?:subject to|unless|except|provided that|if|only if|nothing in this law precludes)\b",
     re.IGNORECASE,
 )
+_INVALIDITY_RULE_PATTERN = re.compile(r"\b(?:void|invalid|unenforceable|null and void)\b", re.IGNORECASE)
+_NORMATIVE_OPERATIONAL_PATTERN = re.compile(
+    r"\b(?:shall|must|may|must not|shall not|is required to|is entitled to|liable to)\b",
+    re.IGNORECASE,
+)
+_COMMENCEMENT_RULE_PATTERN = re.compile(
+    r"\b(?:comes? into force|commences?|commencement|takes effect|effective from)\b",
+    re.IGNORECASE,
+)
+_NOTICE_RULE_PATTERN = re.compile(r"\b(?:notice|notified|gazette)\b", re.IGNORECASE)
+_PENALTY_RULE_PATTERN = re.compile(r"\b(?:fine|penalty|liable to|punishable)\b", re.IGNORECASE)
 _OPERATIVE_PAYMENT_PATTERN = re.compile(
     r"\b(?:shall|must|is hereby ordered to|ordered to)\s+pay\b|\bcosts award\b|\bamount payable\b",
     re.IGNORECASE,
@@ -98,6 +130,17 @@ class ChunkSemanticsResult:
     payload: Dict[str, Any]
     prompt_version: str
     mode: str
+
+
+@dataclass(frozen=True)
+class SemanticTargetSelection:
+    selected: bool
+    reasons: tuple[str, ...]
+    target_classes: tuple[str, ...]
+    prompt_family: str
+    doc_type: str
+    section_kind: str
+    chunk_type: str
 
 
 def _load_prompt(name: str) -> str:
@@ -175,28 +218,121 @@ def chunk_semantics_enabled() -> bool:
     return raw in {"1", "true", "yes", "on"}
 
 
-def _is_semantically_rich_chunk(doc_type: str, paragraph: Dict[str, Any], projection: Dict[str, Any]) -> bool:
+def semantic_target_selection(doc_type: str, paragraph: Dict[str, Any], projection: Dict[str, Any]) -> SemanticTargetSelection:
     text = _compact(paragraph.get("text", ""), 4000)
-    if not text:
-        return False
     normalized_doc_type = str(doc_type or "").strip().lower()
     section_kind = str(paragraph.get("section_kind") or projection.get("section_kind") or "").strip().lower()
+    section_kind_case = str(projection.get("section_kind_case") or "").strip().lower()
+    chunk_type = str(paragraph.get("chunk_type") or projection.get("chunk_type") or "").strip().lower()
+    effective_section_kind = section_kind_case or section_kind
     if normalized_doc_type in {"law", "regulation", "enactment_notice"}:
-        return bool(
-            section_kind in {"definition", "operative_provision", "exception", "penalty", "procedure"}
-            or paragraph.get("article_refs")
-            or projection.get("article_number")
-            or _SEMANTIC_RICH_LAW_PATTERN.search(text)
+        prompt_family = "law"
+    elif normalized_doc_type == "case":
+        prompt_family = "case"
+    else:
+        prompt_family = "none"
+
+    if not text:
+        return SemanticTargetSelection(
+            selected=False,
+            reasons=(),
+            target_classes=(),
+            prompt_family="none",
+            doc_type=normalized_doc_type,
+            section_kind=effective_section_kind,
+            chunk_type=chunk_type,
         )
-    if normalized_doc_type == "case":
-        section_kind_case = str(projection.get("section_kind_case") or "").strip().lower()
-        return bool(
-            section_kind in {"reasoning", "order", "disposition", "procedural_history"}
-            or section_kind_case in {"reasoning", "order", "disposition", "procedural_history"}
-            or paragraph.get("money_mentions")
-            or _SEMANTIC_RICH_CASE_PATTERN.search(text)
+    if chunk_type in _SEMANTIC_TARGET_DENYLIST_CHUNK_TYPES:
+        return SemanticTargetSelection(
+            selected=False,
+            reasons=(),
+            target_classes=(),
+            prompt_family="none",
+            doc_type=normalized_doc_type,
+            section_kind=effective_section_kind,
+            chunk_type=chunk_type,
         )
-    return False
+    if section_kind in _SEMANTIC_TARGET_DENYLIST_SECTION_KINDS or section_kind_case in _SEMANTIC_TARGET_DENYLIST_SECTION_KINDS:
+        return SemanticTargetSelection(
+            selected=False,
+            reasons=(),
+            target_classes=(),
+            prompt_family="none",
+            doc_type=normalized_doc_type,
+            section_kind=effective_section_kind,
+            chunk_type=chunk_type,
+        )
+
+    reasons: list[str] = []
+    target_classes: list[str] = []
+
+    def _add(target_class: str, reason: str) -> None:
+        if target_class not in SEMANTIC_TARGET_ALLOWLIST or reason not in SEMANTIC_TARGET_REASON_ALLOWLIST:
+            return
+        if target_class not in target_classes:
+            target_classes.append(target_class)
+        if reason not in reasons:
+            reasons.append(reason)
+
+    if normalized_doc_type in {"law", "regulation", "enactment_notice"}:
+        has_condition_or_exception = bool(_CONDITION_CUE_PATTERN.search(text)) or section_kind == "exception"
+        has_invalidity = bool(_INVALIDITY_RULE_PATTERN.search(text))
+        has_penalty = section_kind == "penalty" or bool(_PENALTY_RULE_PATTERN.search(text))
+        has_notice_commencement = bool(_COMMENCEMENT_RULE_PATTERN.search(text) or _NOTICE_RULE_PATTERN.search(text))
+        has_normative_operational_language = bool(_NORMATIVE_OPERATIONAL_PATTERN.search(text))
+
+        if has_condition_or_exception:
+            target_class = "exception" if section_kind == "exception" else "carve_out"
+            _add(target_class, "contains_negation_or_exception")
+        if has_invalidity:
+            _add("invalidity_rule", "contains_invalidity_rule")
+        if has_penalty:
+            _add("penalty", "contains_penalty_language")
+        if has_notice_commencement:
+            target_class = "notice_rule" if _NOTICE_RULE_PATTERN.search(text) else "commencement_rule"
+            _add(target_class, "contains_notice_commencement")
+        if (
+            section_kind == "operative_provision"
+            and has_normative_operational_language
+            and (has_condition_or_exception or has_invalidity or has_penalty or has_notice_commencement)
+        ):
+            _add("operative_provision", "contains_normative_operational_language")
+    elif normalized_doc_type == "case":
+        orderish = effective_section_kind in {"order", "disposition"}
+        has_money = bool(_MONEY_PATTERN.search(text))
+        has_deadline = bool(_DAYS_PATTERN.search(text))
+        has_interest = bool(_INTEREST_RATE_PATTERN.search(text) and "interest" in text.lower())
+        has_operational_order = bool(_OPERATIVE_PAYMENT_PATTERN.search(text))
+
+        if orderish and (has_money or has_operational_order):
+            target_class = "costs_order" if "cost" in text.lower() else "order_item"
+            _add(target_class, "contains_money_order" if has_money else "contains_normative_operational_language")
+        if orderish and has_deadline:
+            _add("deadline_clause", "contains_deadline")
+        if orderish and has_interest:
+            _add("interest_clause", "contains_interest_clause")
+        if effective_section_kind == "reasoning":
+            if has_deadline:
+                _add("deadline_clause", "contains_deadline")
+            if has_interest:
+                _add("interest_clause", "contains_interest_clause")
+            if has_money and has_operational_order:
+                _add("order_item", "contains_money_order")
+
+    selected = bool(target_classes and reasons)
+    return SemanticTargetSelection(
+        selected=selected,
+        reasons=tuple(reasons),
+        target_classes=tuple(target_classes),
+        prompt_family=prompt_family if selected else "none",
+        doc_type=normalized_doc_type,
+        section_kind=effective_section_kind,
+        chunk_type=chunk_type,
+    )
+
+
+def _is_semantically_rich_chunk(doc_type: str, paragraph: Dict[str, Any], projection: Dict[str, Any]) -> bool:
+    return semantic_target_selection(doc_type, paragraph, projection).selected
 
 
 def _law_prompt(paragraph: Dict[str, Any], page: Dict[str, Any], document: Dict[str, Any], projection: Dict[str, Any]) -> Tuple[str, str]:
@@ -638,9 +774,10 @@ def extract_chunk_semantics(
     projection: Dict[str, Any],
 ) -> ChunkSemanticsResult:
     doc_type = str(document.get("doc_type") or projection.get("doc_type") or "").strip().lower()
+    selection = semantic_target_selection(doc_type, paragraph, projection)
     if not client.config.enabled or not chunk_semantics_enabled():
         return ChunkSemanticsResult(payload={}, prompt_version="disabled", mode="rules_only")
-    if not _is_semantically_rich_chunk(doc_type, paragraph, projection):
+    if not selection.selected:
         return ChunkSemanticsResult(payload={}, prompt_version="skipped_non_semantic", mode="skipped")
     if doc_type == "case":
         prompt_version = CASE_PROMPT_VERSION
@@ -657,13 +794,17 @@ def extract_chunk_semantics(
             paragraph_id=str(paragraph.get("paragraph_id", "")),
         )
     )
+    payload = _postprocess_chunk_semantics_payload(
+        normalize_chunk_semantics_payload(raw, doc_type=doc_type),
+        doc_type=doc_type,
+        paragraph=paragraph,
+        projection=projection,
+    )
+    payload["semantic_target_reasons"] = list(selection.reasons)
+    payload["semantic_target_classes"] = list(selection.target_classes)
+    payload["semantic_target_prompt_family"] = selection.prompt_family
     return ChunkSemanticsResult(
-        payload=_postprocess_chunk_semantics_payload(
-            normalize_chunk_semantics_payload(raw, doc_type=doc_type),
-            doc_type=doc_type,
-            paragraph=paragraph,
-            projection=projection,
-        ),
+        payload=payload,
         prompt_version=prompt_version,
         mode="llm_merge" if raw else "rules_only",
     )
