@@ -431,6 +431,10 @@ def _direct_answer_stub(*, answer_type: str, boolean_value: bool | None = None, 
 def _normalize_proposition(item: Dict[str, Any]) -> Dict[str, Any]:
     relation_type = _compact(item.get("relation_type"), 80) or "governs"
     relation_type = _RELATION_ALIASES.get(relation_type.lower(), relation_type)
+    if "liable" in relation_type.lower():
+        relation_type = "penalizes"
+    if relation_type.lower().startswith("must_"):
+        relation_type = "requires"
     if relation_type not in _PROPOSITION_RELATIONS:
         relation_type = relation_type.lower().replace(" ", "_")
     modality = _compact(item.get("modality"), 40).lower() or "procedure"

@@ -270,9 +270,23 @@ def test_normalize_chunk_semantics_maps_regulation_and_notice_relation_aliases()
                     "dense_paraphrase": "Articles 1 to 5 come into force on 1 January 2027 except Article 4.",
                     "direct_answer": {"eligible": False, "answer_type": "none"},
                 },
+                {
+                    "subject_type": "actor",
+                    "subject_text": "contravening person",
+                    "relation_type": "is_liable_to",
+                    "object_type": "penalty",
+                    "object_text": "a fine not exceeding AED 50,000",
+                    "modality": "penalty",
+                    "polarity": "affirmative",
+                    "conditions": [],
+                    "exceptions": [],
+                    "citation_refs": ["Article 20"],
+                    "dense_paraphrase": "A contravening person is liable to a fine up to AED 50,000.",
+                    "direct_answer": {"eligible": False, "answer_type": "none"},
+                },
             ],
         },
         doc_type="regulation",
     )
     relations = [item["relation_type"] for item in payload["propositions"]]
-    assert relations == ["requires", "governs"]
+    assert relations == ["requires", "governs", "penalizes"]
