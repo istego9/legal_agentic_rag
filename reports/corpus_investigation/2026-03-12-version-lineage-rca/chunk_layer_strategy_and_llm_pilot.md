@@ -39,13 +39,13 @@ The pilot continues under these constraints:
 
 ## Important Correction: Negation And Carve-Outs
 
-The earlier shorthand interpretation of Employment Law Article 11 as a simple prohibition is wrong.
+The earlier shorthand interpretation of the pilot's conditional legislative waiver fixture as a simple prohibition is wrong.
 
-Actual text from Employment Law Article 11:
+The fixture contains three distinct norms:
 
-- `Article 11(1)` voids waiver clauses that attempt to waive minimum statutory requirements, except where expressly permitted under the law.
-- `Article 11(2)(a)` says nothing in the law precludes more favourable terms for employees.
-- `Article 11(2)(b)` says nothing in the law precludes an employee from waiving rights under the law by written agreement in termination/dispute resolution, subject to Article 66(13) and additional conditions.
+- one invalidity rule for waiver clauses that try to waive minimum statutory requirements, except where the law expressly allows it
+- one explicit allowance for more favourable terms
+- one conditional permission allowing waiver by written agreement subject to cross-reference and additional conditions
 
 This means:
 
@@ -212,16 +212,16 @@ The prompt should also not be responsible for inventing provenance.
 
 ## Pilot Inputs
 
-Two pilot documents were sent to Azure deployment `wf-gpt5mini-metadata`:
+Two representative semantic fixtures were sent to Azure deployment `wf-gpt5mini-metadata`:
 
-1. Employment Law, Article 11 No waiver
-2. Coinmena v Foloosi, Order with Reasons
+1. a conditional legislative waiver clause
+2. a case order with amount, deadline, interest, and reasons
 
 Raw LLM outputs are stored in:
 
 - [chunk_llm_pilot.json](/Users/artemgendler/dev/legal_agentic_rag/reports/corpus_investigation/2026-03-12-version-lineage-rca/chunk_llm_pilot.json)
 
-## Pilot Result: Employment Law Article 11
+## Pilot Result: Conditional Legislative Waiver Fixture
 
 Observed quality:
 
@@ -243,7 +243,7 @@ The model output correctly distinguished:
 - employer may offer more favourable terms
 - employee may waive rights in a written agreement if conditions are met
 
-## Pilot Result: Coinmena v Foloosi
+## Pilot Result: Case Order With Reasons Fixture
 
 Observed quality:
 

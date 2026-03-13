@@ -130,10 +130,10 @@ These may be fixture-backed rather than a second operational run.
 
 ## Mandatory Frozen Fixtures
 
-- Employment Law Article 11 must preserve:
+- one conditional legislative waiver fixture must preserve:
   - invalid waiver
-  - more favourable employer terms
-  - conditional employee waiver
+  - more favourable terms branch
+  - conditional waiver branch
   - the condition explicitly
 - one regulation obligation / penalty fixture
 - one notice-mediated commencement fixture
@@ -152,9 +152,9 @@ These may be fixture-backed rather than a second operational run.
 
 ### Gate 2 — Semantic
 
-- Employment Law Article 11 condition preserved = true
-- Coinmena amount extraction correct
-- CA 004 target semantic extraction non-empty
+- conditional legislative waiver fixture preserves conditions = true
+- operative case-order amount extraction correct
+- case interest-consequence target extraction non-empty
 - no polarity loss on negation-heavy fixtures
 - assertion provenance coverage = 100%
 
@@ -195,7 +195,7 @@ These may be fixture-backed rather than a second operational run.
   - [case_chunk_semantics_v1.md](/Users/artemgendler/dev/legal_agentic_rag/packages/prompts/case_chunk_semantics_v1.md)
 - [x] Remove document-named prompt examples and keep only generalized failure-class examples.
 - [x] Keep assertion provenance mandatory.
-- [ ] Preserve explicit conditions for Employment Law Article 11.
+- [ ] Preserve explicit conditions for the conditional legislative waiver fixture.
 - [ ] Extract the operative amount correctly on the case order fixture.
 - [ ] Extract the interest consequence correctly on the case order / rate fixture.
 - [ ] Add regulation and notice semantic fixtures before any broader rollout.
