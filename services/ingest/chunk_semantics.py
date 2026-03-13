@@ -23,7 +23,24 @@ _SEMANTIC_RICH_LAW_PATTERN = re.compile(
     re.IGNORECASE,
 )
 _SEMANTIC_RICH_CASE_PATTERN = re.compile(
-    r"\b(?:ordered|shall pay|dismissed|granted|stayed|interest|costs|within \d+ days|for these reasons|i conclude)\b",
+    r"\b(?:ordered|shall pay|must pay|amount payable|dismissed|granted|stayed|interest|costs award|within \d+ days|per annum|for these reasons|i conclude)\b",
+    re.IGNORECASE,
+)
+_CONDITION_CUE_PATTERN = re.compile(
+    r"\b(?:subject to|unless|except|provided that|if|only if|nothing in this law precludes)\b",
+    re.IGNORECASE,
+)
+_OPERATIVE_PAYMENT_PATTERN = re.compile(
+    r"\b(?:shall|must|is hereby ordered to|ordered to)\s+pay\b|\bcosts award\b|\bamount payable\b",
+    re.IGNORECASE,
+)
+_MONEY_PATTERN = re.compile(
+    r"(?:\b(?:USD|US\\$|AED|EUR|GBP)\s*([0-9][0-9,]*(?:\.\d+)?)\b|\b([0-9][0-9,]*(?:\.\d+)?)\s*(?:USD|US\\$|AED|EUR|GBP|dirhams?)\b)",
+    re.IGNORECASE,
+)
+_DAYS_PATTERN = re.compile(r"\bwithin\s+(\d{1,3})\s+days?\b", re.IGNORECASE)
+_INTEREST_RATE_PATTERN = re.compile(
+    r"(?:interest[^.]{0,120}?(\d{1,3}(?:\.\d+)?)\s*%|(\d{1,3}(?:\.\d+)?)\s*%[^.]{0,120}?interest)",
     re.IGNORECASE,
 )
 _PROPOSITION_RELATIONS = {
@@ -49,6 +66,14 @@ _RELATION_ALIASES = {
     "unenforceable": "is_void",
     "awards_costs": "awarded_costs",
     "orders_to_pay": "ordered_to_pay",
+    "obligation": "requires",
+    "must_file": "requires",
+    "must_file_within": "requires",
+    "penalty_liability": "penalizes",
+    "liable_to": "penalizes",
+    "comes_into_force_on": "governs",
+    "comes_into_force_via": "governs",
+    "forum_of_proceeding": "governs",
 }
 _MODALITY_ALIASES = {
     "required": "obligation",
@@ -159,9 +184,10 @@ def _is_semantically_rich_chunk(doc_type: str, paragraph: Dict[str, Any], projec
             or _SEMANTIC_RICH_LAW_PATTERN.search(text)
         )
     if normalized_doc_type == "case":
+        section_kind_case = str(projection.get("section_kind_case") or "").strip().lower()
         return bool(
             section_kind in {"reasoning", "order", "disposition", "procedural_history"}
-            or projection.get("section_kind_case")
+            or section_kind_case in {"reasoning", "order", "disposition", "procedural_history"}
             or paragraph.get("money_mentions")
             or _SEMANTIC_RICH_CASE_PATTERN.search(text)
         )
@@ -291,6 +317,117 @@ def _normalize_citation_refs(value: Any) -> List[str]:
     return cleaned
 
 
+def _extract_clause_windows(text: str, pattern: re.Pattern[str], *, limit: int = 3) -> List[str]:
+    out: List[str] = []
+    for match in pattern.finditer(text):
+        start = match.start()
+        tail = text[start:]
+        clause = re.split(r"(?<=[.;:])\s+", tail, maxsplit=1)[0]
+        clause = _compact(clause, 220)
+        if clause:
+            out.append(clause)
+        if len(out) >= limit:
+            break
+    return _normalize_string_list(out, limit=limit)
+
+
+def _derived_conditions(text: str) -> List[str]:
+    patterns = (
+        re.compile(r"\bsubject to\b[^.;:]{0,220}", re.IGNORECASE),
+        re.compile(r"\bonly if\b[^.;:]{0,220}", re.IGNORECASE),
+        re.compile(r"\bif\b[^.;:]{0,220}", re.IGNORECASE),
+        re.compile(r"\bprovided that\b[^.;:]{0,220}", re.IGNORECASE),
+        re.compile(r"\bfailing which\b[^.;:]{0,220}", re.IGNORECASE),
+        re.compile(r"\bwritten agreement\b[^.;:]{0,220}", re.IGNORECASE),
+        re.compile(r"\bopportunity to\b[^.;:]{0,220}", re.IGNORECASE),
+        re.compile(r"\bmediation\b[^.;:]{0,220}", re.IGNORECASE),
+    )
+    out: List[str] = []
+    for pattern in patterns:
+        out.extend(_extract_clause_windows(text, pattern, limit=2))
+    return _normalize_string_list(out, limit=8)
+
+
+def _derived_exceptions(text: str) -> List[str]:
+    patterns = (
+        re.compile(r"\bunless\b[^.;:]{0,220}", re.IGNORECASE),
+        re.compile(r"\bexcept\b[^.;:]{0,220}", re.IGNORECASE),
+    )
+    out: List[str] = []
+    for pattern in patterns:
+        out.extend(_extract_clause_windows(text, pattern, limit=2))
+    return _normalize_string_list(out, limit=6)
+
+
+def _money_values(text: str) -> List[tuple[str, float]]:
+    out: List[tuple[str, float]] = []
+    seen = set()
+    for match in _MONEY_PATTERN.finditer(text):
+        raw_text = _compact(match.group(0), 64)
+        raw_value = match.group(1) or match.group(2)
+        if raw_value is None:
+            continue
+        try:
+            parsed = float(raw_value.replace(",", ""))
+        except ValueError:
+            continue
+        key = (raw_text.casefold(), parsed)
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append((raw_text, parsed))
+    return out
+
+
+def _rate_values(text: str) -> List[tuple[str, float]]:
+    out: List[tuple[str, float]] = []
+    seen = set()
+    for match in _INTEREST_RATE_PATTERN.finditer(text):
+        raw_number = match.group(1) or match.group(2)
+        if raw_number is None:
+            continue
+        value_text = f"{raw_number}% per annum" if "per annum" in match.group(0).lower() else f"{raw_number}%"
+        try:
+            parsed = float(raw_number)
+        except ValueError:
+            continue
+        key = value_text.casefold()
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append((value_text, parsed))
+    return out
+
+
+def _first_deadline_value(text: str) -> tuple[str, float] | None:
+    match = _DAYS_PATTERN.search(text)
+    if not match:
+        return None
+    return (f"within {match.group(1)} days", float(match.group(1)))
+
+
+def _derive_case_subject(text: str, propositions: List[Dict[str, Any]]) -> str:
+    for proposition in propositions:
+        subject_text = _compact(proposition.get("subject_text"), 120)
+        if subject_text:
+            return subject_text
+    for token in ("Applicant", "Respondent", "Defendant", "Claimant", "Appellant"):
+        if re.search(rf"\b{token}\b", text, re.IGNORECASE):
+            return token
+    return "party"
+
+
+def _direct_answer_stub(*, answer_type: str, boolean_value: bool | None = None, number_value: float | None = None, text_value: str | None = None) -> Dict[str, Any]:
+    return {
+        "eligible": answer_type in {"boolean", "number", "date", "name", "names"},
+        "answer_type": answer_type,
+        "boolean_value": boolean_value,
+        "number_value": number_value,
+        "date_value": None,
+        "text_value": text_value,
+    }
+
+
 def _normalize_proposition(item: Dict[str, Any]) -> Dict[str, Any]:
     relation_type = _compact(item.get("relation_type"), 80) or "governs"
     relation_type = _RELATION_ALIASES.get(relation_type.lower(), relation_type)
@@ -341,6 +478,116 @@ def _normalize_proposition(item: Dict[str, Any]) -> Dict[str, Any]:
         "dense_paraphrase": _compact(item.get("dense_paraphrase"), 320),
         "direct_answer": direct_answer_payload,
     }
+
+
+def _postprocess_legislative_payload(payload: Dict[str, Any], *, text: str) -> Dict[str, Any]:
+    propositions = payload.get("propositions")
+    if not isinstance(propositions, list):
+        return payload
+    condition_cues = bool(_CONDITION_CUE_PATTERN.search(text))
+    derived_conditions = _derived_conditions(text)
+    derived_exceptions = _derived_exceptions(text)
+    updated: List[Dict[str, Any]] = []
+    for proposition in propositions:
+        if not isinstance(proposition, dict):
+            continue
+        item = dict(proposition)
+        if condition_cues and not item.get("conditions"):
+            item["conditions"] = derived_conditions
+        if not item.get("exceptions"):
+            item["exceptions"] = derived_exceptions
+        if item.get("conditions") or item.get("exceptions"):
+            item["direct_answer"] = _direct_answer_stub(answer_type="none")
+        updated.append(_normalize_proposition(item))
+    payload["propositions"] = updated
+    return payload
+
+
+def _postprocess_case_payload(payload: Dict[str, Any], *, text: str) -> Dict[str, Any]:
+    propositions = payload.get("propositions")
+    if not isinstance(propositions, list):
+        propositions = []
+    updated = [item for item in propositions if isinstance(item, dict)]
+    operative_payment = bool(_OPERATIVE_PAYMENT_PATTERN.search(text))
+    subject_text = _derive_case_subject(text, updated)
+
+    has_amount = any(
+        any(raw in json.dumps(item, ensure_ascii=False) for raw, _ in _money_values(text))
+        or str(item.get("relation_type", "")) == "ordered_to_pay"
+        for item in updated
+    )
+    if operative_payment and not has_amount:
+        amounts = _money_values(text)
+        if amounts:
+            raw_text, parsed = amounts[0]
+            updated.append(
+                _normalize_proposition(
+                    {
+                        "subject_type": "actor",
+                        "subject_text": subject_text,
+                        "relation_type": "ordered_to_pay",
+                        "object_type": "money_amount",
+                        "object_text": raw_text,
+                        "modality": "obligation",
+                        "polarity": "affirmative",
+                        "conditions": [],
+                        "exceptions": [],
+                        "citation_refs": [],
+                        "dense_paraphrase": _compact(f"{subject_text} must pay {raw_text}.", 320),
+                        "direct_answer": _direct_answer_stub(answer_type="number", number_value=parsed),
+                    }
+                )
+            )
+
+    has_interest = any(
+        str(item.get("relation_type", "")) == "accrues_interest"
+        or "interest" in json.dumps(item, ensure_ascii=False).lower()
+        for item in updated
+    )
+    if not has_interest:
+        rates = _rate_values(text)
+        if rates:
+            rate_text, parsed_rate = rates[0]
+            conditions = _derived_conditions(text)
+            updated.append(
+                _normalize_proposition(
+                    {
+                        "subject_type": "money_amount",
+                        "subject_text": "unpaid amount",
+                        "relation_type": "accrues_interest",
+                        "object_type": "interest_rate",
+                        "object_text": rate_text,
+                        "modality": "procedure",
+                        "polarity": "affirmative",
+                        "conditions": conditions,
+                        "exceptions": [],
+                        "citation_refs": [],
+                        "dense_paraphrase": _compact(f"If unpaid, interest accrues at {rate_text}.", 320),
+                        "direct_answer": _direct_answer_stub(answer_type="none" if conditions else "number", number_value=None if conditions else parsed_rate),
+                    }
+                )
+            )
+
+    payload["propositions"] = updated
+    return payload
+
+
+def _postprocess_chunk_semantics_payload(
+    payload: Dict[str, Any],
+    *,
+    doc_type: str,
+    paragraph: Dict[str, Any],
+    projection: Dict[str, Any],
+) -> Dict[str, Any]:
+    text = _compact(paragraph.get("text", ""), 4000)
+    normalized_doc_type = str(doc_type or "").strip().lower()
+    if normalized_doc_type in {"law", "regulation", "enactment_notice"}:
+        return _postprocess_legislative_payload(payload, text=text)
+    if normalized_doc_type == "case":
+        section_kind_case = str(payload.get("section_kind_case") or projection.get("section_kind_case") or "").strip().lower()
+        if section_kind_case in {"order", "disposition"} or _OPERATIVE_PAYMENT_PATTERN.search(text) or "interest" in text.lower():
+            return _postprocess_case_payload(payload, text=text)
+    return payload
 
 
 def normalize_chunk_semantics_payload(raw: Dict[str, Any], *, doc_type: str) -> Dict[str, Any]:
@@ -402,7 +649,12 @@ def extract_chunk_semantics(
         )
     )
     return ChunkSemanticsResult(
-        payload=normalize_chunk_semantics_payload(raw, doc_type=doc_type),
+        payload=_postprocess_chunk_semantics_payload(
+            normalize_chunk_semantics_payload(raw, doc_type=doc_type),
+            doc_type=doc_type,
+            paragraph=paragraph,
+            projection=projection,
+        ),
         prompt_version=prompt_version,
         mode="llm_merge" if raw else "rules_only",
     )

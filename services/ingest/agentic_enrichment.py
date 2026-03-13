@@ -290,6 +290,17 @@ def _extract_condition(text: str, llm_payload: Dict[str, Any]) -> str | None:
             conditions.append(clause[:180])
         if len(conditions) >= 2:
             break
+    for pattern in (
+        re.compile(r"\bwritten agreement\b[^.;]{0,180}", re.I),
+        re.compile(r"\bopportunity to\b[^.;]{0,180}", re.I),
+        re.compile(r"\bmediation\b[^.;]{0,180}", re.I),
+    ):
+        for match in pattern.finditer(text):
+            clause = re.sub(r"\s+", " ", match.group(0)).strip()
+            if clause:
+                conditions.append(clause[:180])
+            if len(conditions) >= 4:
+                break
     if not conditions:
         return None
     return "; ".join(_uniq(conditions))[:180]
@@ -728,6 +739,16 @@ def _projection_updates(
             "modality": assertion.get("modality"),
             "condition_text": assertion.get("condition_text"),
             "exception_text": assertion.get("exception_text"),
+            "conditions": [
+                item.strip()
+                for item in str(assertion.get("condition_text") or "").split(";")
+                if item.strip()
+            ],
+            "exceptions": [
+                item.strip()
+                for item in str(assertion.get("exception_text") or "").split(";")
+                if item.strip()
+            ],
             "citation_refs": assertion.get("citation_refs", []),
             "confidence": assertion.get("confidence"),
             "source_page_id": assertion.get("source_page_id"),

@@ -31,6 +31,7 @@ _CASE_NUMBER_MARKER = re.compile(r"\b(?:Claim|Case|Appeal)\s+No[:.]?\s*", re.IGN
 _ORDER_HEADING_PATTERN = re.compile(r"\b(?:ORDER WITH REASONS|JUDGMENT|ORDER)\b", re.IGNORECASE)
 _ORDER_MARKER_PATTERN = re.compile(r"\bIT IS HEREBY ORDERED THAT[: ]", re.IGNORECASE)
 _REASONS_HEADING_PATTERN = re.compile(r"\bSCHEDULE OF REASONS\b", re.IGNORECASE)
+_LEADING_LIST_ITEM_PATTERN = re.compile(r"^\s*(\d{1,3})\.\s+")
 
 
 def _compact(value: str) -> str:
@@ -98,6 +99,8 @@ def _case_section_kind_for_text(text: str, *, default: str = "reasoning") -> str
     if "between" in lowered and "claimant" in lowered and "defendant" in lowered:
         return "parties"
     if "it is hereby ordered" in lowered or "shall pay" in lowered or "is hereby ordered" in lowered:
+        return "order"
+    if "interest will accrue" in lowered or "interest shall accrue" in lowered or "costs are not paid" in lowered:
         return "order"
     if "schedule of reasons" in lowered or lowered.startswith("1. ") or "for these reasons" in lowered:
         return "reasoning"
@@ -251,7 +254,13 @@ def _extract_case_chunks(page_text: str) -> List[StructuralChunk]:
         return []
 
     chunks: List[StructuralChunk] = []
-    caption_end_candidates = [m.start() for m in (_CASE_NUMBER_MARKER.search(text), _ORDER_HEADING_PATTERN.search(text)) if m]
+    leading_window = text[:450]
+    has_caption_signals = bool(
+        _CASE_NUMBER_MARKER.search(leading_window)
+        or " BETWEEN " in f" {leading_window.upper()} "
+        or " IN THE " in f" {leading_window.upper()} "
+    )
+    caption_end_candidates = [m.start() for m in (_CASE_NUMBER_MARKER.search(text), _ORDER_HEADING_PATTERN.search(text)) if m] if has_caption_signals else []
     caption_end = min(caption_end_candidates) if caption_end_candidates else 0
     if caption_end > 20:
         caption_text = _compact(text[:caption_end])
@@ -270,9 +279,59 @@ def _extract_case_chunks(page_text: str) -> List[StructuralChunk]:
             )
         )
 
-    order_heading_match = _ORDER_HEADING_PATTERN.search(text)
+    order_heading_match = _ORDER_HEADING_PATTERN.search(text) if has_caption_signals else None
     order_marker_match = _ORDER_MARKER_PATTERN.search(text)
     reasons_heading_match = _REASONS_HEADING_PATTERN.search(text)
+
+    if not has_caption_signals:
+        leading_list_match = _LEADING_LIST_ITEM_PATTERN.search(text)
+        if leading_list_match:
+            pre_reasons_text = text[: reasons_heading_match.start()] if reasons_heading_match else text
+            pre_reason_items = list(_ORDER_ITEM_PATTERN.finditer(pre_reasons_text))
+            if pre_reason_items:
+                continuation_section = _case_section_kind_for_text(pre_reasons_text, default="reasoning")
+                continuation_key = (
+                    "case:continuation_order"
+                    if continuation_section in {"order", "disposition"}
+                    else "case:continuation_reasoning"
+                )
+                continuation_section_kind = "order" if continuation_section == "order" else "reasoning"
+                chunks.append(
+                    StructuralChunk(
+                        text="Continuation",
+                        chunk_type="heading",
+                        section_kind=continuation_section_kind,
+                        char_start=0,
+                        char_end=len("Continuation"),
+                        heading_path=["Continuation"],
+                        structural_level=1,
+                        local_key=continuation_key,
+                        section_kind_case=continuation_section,
+                        paragraph_class="case_excerpt",
+                    )
+                )
+                for idx, item_match in enumerate(pre_reason_items):
+                    start = item_match.start()
+                    end = pre_reason_items[idx + 1].start() if idx + 1 < len(pre_reason_items) else len(pre_reasons_text)
+                    item_text = _compact(text[start:end])
+                    if not item_text:
+                        continue
+                    item_kind_case = _case_section_kind_for_text(item_text, default=continuation_section)
+                    item_section_kind = "order" if item_kind_case == "order" else "reasoning"
+                    chunks.append(
+                        StructuralChunk(
+                            text=item_text,
+                            chunk_type="list_item",
+                            section_kind=item_section_kind,
+                            char_start=start,
+                            char_end=min(len(text), start + len(item_text)),
+                            heading_path=["Continuation", item_text[:80]],
+                            structural_level=2,
+                            parent_local_key=continuation_key,
+                            section_kind_case=item_kind_case,
+                            paragraph_class="case_excerpt",
+                        )
+                    )
 
     if order_heading_match:
         heading_text = _compact(order_heading_match.group(0))

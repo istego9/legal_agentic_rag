@@ -54,6 +54,8 @@ Never use `free_text` for chunk-level direct-answer hints.
 - If one chunk contains multiple norms, emit multiple propositions.
 - If the text says a clause is void, capture that explicitly.
 - If the text says nothing precludes an action, do not rewrite that as a prohibition.
+- If the text contains condition-bearing cues such as `subject to`, `unless`, `except`, `provided that`, `if`, `only if`, or `nothing in this Law precludes`, the affected proposition must carry explicit `conditions` or `exceptions`.
+- If a proposition depends on conditions or exceptions, do not mark it as eligible for direct answer.
 - Keep `semantic_dense_summary` to one short sentence.
 - Keep `semantic_query_terms` short and retrieval-oriented.
 - If no grounded proposition exists, return an empty `propositions` array.

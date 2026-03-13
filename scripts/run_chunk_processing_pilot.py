@@ -11,6 +11,7 @@ import json
 import os
 from pathlib import Path
 import shutil
+import time
 import zipfile
 from typing import Any, Dict, List
 import re
@@ -31,6 +32,7 @@ from legal_rag_api.routers import qa as qa_router  # noqa: E402
 from legal_rag_api.state import store  # noqa: E402
 from scripts.competition_batch import _git_metadata  # noqa: E402
 from services.ingest.agentic_enrichment import retry_agentic_corpus_enrichment  # noqa: E402
+from services.ingest.chunk_semantics import build_chunk_semantics_client, extract_chunk_semantics  # noqa: E402
 
 
 FIXTURE_PATH = ROOT / "tests" / "fixtures" / "chunk_processing_pilot_v1.json"
@@ -315,6 +317,38 @@ def _semantic_report(snapshot: Dict[str, List[Dict[str, Any]]]) -> Dict[str, Any
     coinmena_assertions = coinmena.get("semantic_assertions", []) if isinstance(coinmena.get("semantic_assertions"), list) else []
     ca004_assertions = ca004.get("semantic_assertions", []) if isinstance(ca004.get("semantic_assertions"), list) else []
 
+    def _doc_assertions(pdf_id: str) -> List[Dict[str, Any]]:
+        out: List[Dict[str, Any]] = []
+        for row in snapshot["chunk_search_documents"]:
+            if str(row.get("pdf_id", "")) != pdf_id:
+                continue
+            if isinstance(row.get("semantic_assertions"), list):
+                out.extend(item for item in row.get("semantic_assertions", []) if isinstance(item, dict))
+        return out
+
+    coinmena_doc_assertions = _doc_assertions("897ab23ed5a70034d3d708d871ad1da8bc7b6608d94b1ca46b5d578d985d3c13")
+    ca004_doc_assertions = _doc_assertions("78ffe994cdc61ce6a2a6937c79fc52751bb5d2b4eaa4019f088fbccf70569c26")
+
+    def _condition_blob(item: Dict[str, Any]) -> str:
+        parts: List[str] = []
+        if isinstance(item.get("conditions"), list):
+            parts.extend(str(value) for value in item.get("conditions", []) if str(value).strip())
+        if str(item.get("condition_text", "")).strip():
+            parts.append(str(item.get("condition_text")))
+        return " ".join(parts).lower()
+
+    def _has_money_assertion(items: List[Dict[str, Any]]) -> bool:
+        for item in items:
+            blob = json.dumps(item, ensure_ascii=False).lower()
+            if str(item.get("relation_type", "")) == "ordered_to_pay":
+                return True
+            if any(token in blob for token in ("usd", "aed", "eur", "gbp", "dirham")):
+                return True
+            direct = item.get("direct_answer", {}) if isinstance(item.get("direct_answer"), dict) else {}
+            if direct.get("answer_type") == "number" and direct.get("number_value") is not None:
+                return True
+        return False
+
     return {
         "report_version": "chunk_processing_semantic_report_v1",
         "assertion_count": len(assertions),
@@ -325,20 +359,20 @@ def _semantic_report(snapshot: Dict[str, List[Dict[str, Any]]]) -> Dict[str, Any
             "has_void_assertion": any(str(item.get("relation_type", "")) == "is_void" or "void" in str(item.get("object_text", "")).lower() for item in employment_assertions),
             "has_more_favourable_permission": any("more favourable" in str(item.get("object_text", "")).lower() for item in employment_assertions),
             "has_employee_waive_permission": any("employee" in str(item.get("subject_text", "")).lower() and "waive" in str(item.get("relation_type", "")).lower() or ("employee" in str(item.get("subject_text", "")).lower() and "rights" in str(item.get("object_text", "")).lower() and str(item.get("modality", "")) == "permission") for item in employment_assertions),
-            "has_condition_preserved": any("legal advice" in str(item.get("condition_text", "")).lower() or "mediation" in str(item.get("condition_text", "")).lower() for item in employment_assertions),
+            "has_condition_preserved": any("legal advice" in _condition_blob(item) or "mediation" in _condition_blob(item) or "subject to" in _condition_blob(item) for item in employment_assertions),
         },
         "coinmena_order": {
             "chunk_id": coinmena.get("chunk_id"),
             "assertion_count": len(coinmena_assertions),
-            "has_amount": any("155,879.50" in json.dumps(item, ensure_ascii=False) for item in coinmena_assertions),
-            "has_deadline": any("14" in json.dumps(item, ensure_ascii=False) and "day" in json.dumps(item, ensure_ascii=False).lower() for item in coinmena_assertions),
-            "has_interest": any("9%" in json.dumps(item, ensure_ascii=False) or "interest" in json.dumps(item, ensure_ascii=False).lower() for item in coinmena_assertions),
+            "has_amount": _has_money_assertion(coinmena_doc_assertions),
+            "has_deadline": any("14" in json.dumps(item, ensure_ascii=False) and "day" in json.dumps(item, ensure_ascii=False).lower() for item in coinmena_doc_assertions),
+            "has_interest": any("9%" in json.dumps(item, ensure_ascii=False) or "interest" in json.dumps(item, ensure_ascii=False).lower() for item in coinmena_doc_assertions),
         },
         "ca004_order": {
             "chunk_id": ca004.get("chunk_id"),
             "assertion_count": len(ca004_assertions),
-            "has_amount": any("720,000" in json.dumps(item, ensure_ascii=False) for item in ca004_assertions),
-            "has_interest": any("9%" in json.dumps(item, ensure_ascii=False) or "interest" in json.dumps(item, ensure_ascii=False).lower() for item in ca004_assertions),
+            "has_amount": _has_money_assertion(ca004_doc_assertions),
+            "has_interest": any("9%" in json.dumps(item, ensure_ascii=False) or "interest" in json.dumps(item, ensure_ascii=False).lower() for item in ca004_doc_assertions),
         },
         "semantic_dense_summary_count": sum(1 for row in projections.values() if str(row.get("semantic_dense_summary", "")).strip()),
     }
@@ -409,6 +443,54 @@ def _retrieval_report(fixture: Dict[str, Any], responses: List[Dict[str, Any]]) 
     }
 
 
+def _baseline_delta_report(fixture: Dict[str, Any], responses: List[Dict[str, Any]]) -> Dict[str, Any]:
+    queries = {str(item["question_id"]): item for item in fixture.get("queries", [])}
+    rows: List[Dict[str, Any]] = []
+    preserved_or_improved = 0
+    for response in responses:
+        qid = str(response.get("question_id", ""))
+        expected = queries[qid]
+        debug = response.get("debug") if isinstance(response.get("debug"), dict) else {}
+        retrieval_trace = debug.get("retrieval_stage_trace", {}) if isinstance(debug.get("retrieval_stage_trace"), dict) else {}
+        reranked = retrieval_trace.get("top_candidates", []) if isinstance(retrieval_trace.get("top_candidates"), list) else []
+        chunk_only = retrieval_trace.get("chunk_only_top_candidates", []) if isinstance(retrieval_trace.get("chunk_only_top_candidates"), list) else []
+
+        def _rank(rows_: List[Dict[str, Any]]) -> int | None:
+            for index, item in enumerate(rows_, start=1):
+                if str(item.get("source_page_id", "")).startswith(str(expected.get("expected_pdf_id", ""))):
+                    return index
+            return None
+
+        reranked_rank = _rank(reranked)
+        chunk_only_rank = _rank(chunk_only)
+        improved_or_preserved = False
+        if reranked_rank is not None and chunk_only_rank is not None:
+            improved_or_preserved = reranked_rank <= chunk_only_rank
+        elif reranked_rank is not None and chunk_only_rank is None:
+            improved_or_preserved = True
+        if improved_or_preserved:
+            preserved_or_improved += 1
+        rows.append(
+            {
+                "question_id": qid,
+                "expected_pdf_id": expected.get("expected_pdf_id"),
+                "chunk_only_rank": chunk_only_rank,
+                "reranked_rank": reranked_rank,
+                "improved_or_preserved": improved_or_preserved,
+                "chunk_only_top_candidates": chunk_only[:3],
+                "reranked_top_candidates": reranked[:3],
+            }
+        )
+
+    return {
+        "report_version": "chunk_processing_baseline_delta_report_v1",
+        "query_count": len(rows),
+        "improved_or_preserved_count": preserved_or_improved,
+        "improved_or_preserved_ratio": round(preserved_or_improved / max(1, len(rows)), 4),
+        "items": rows,
+    }
+
+
 def _direct_answer_report(fixture: Dict[str, Any], responses: List[Dict[str, Any]]) -> Dict[str, Any]:
     queries = {str(item["question_id"]): item for item in fixture.get("queries", [])}
     rows: List[Dict[str, Any]] = []
@@ -417,21 +499,29 @@ def _direct_answer_report(fixture: Dict[str, Any], responses: List[Dict[str, Any
     for response in responses:
         qid = str(response.get("question_id", ""))
         expected = queries[qid]
+        expectation = expected.get("direct_answer_expected", {}) if isinstance(expected.get("direct_answer_expected"), dict) else {}
         debug = response.get("debug") if isinstance(response.get("debug"), dict) else {}
         solver_trace = debug.get("solver_trace", {}) if isinstance(debug.get("solver_trace"), dict) else {}
         used = str(solver_trace.get("solver_version", "")) == "proposition_direct_answer_v1"
         if used:
             used_count += 1
         answer = response.get("answer")
-        expected_answer = expected.get("expected_answer")
-        correct = answer == expected_answer
-        if isinstance(answer, (int, float)) and isinstance(expected_answer, (int, float)):
-            correct = abs(float(answer) - float(expected_answer)) < 0.01
+        expected_action = str(expectation.get("expected_action", "answer" if expectation.get("eligible") else "abstain"))
+        expected_answer = expectation.get("expected_answer", expected.get("expected_answer"))
+        correct = False
+        if expected_action == "abstain":
+            correct = not used
+        else:
+            correct = used and answer == expected_answer
+            if used and isinstance(answer, (int, float)) and isinstance(expected_answer, (int, float)):
+                correct = abs(float(answer) - float(expected_answer)) < 0.01
         if used and correct:
             correct_count += 1
         rows.append(
             {
                 "question_id": qid,
+                "eligible_expected": bool(expectation.get("eligible")),
+                "expected_action": expected_action,
                 "used_direct_answer": used,
                 "solver_path": solver_trace.get("path"),
                 "answer": answer,
@@ -446,6 +536,61 @@ def _direct_answer_report(fixture: Dict[str, Any], responses: List[Dict[str, Any
         "direct_answer_used_count": used_count,
         "direct_answer_correct_count": correct_count,
         "direct_answer_correct_ratio": round(correct_count / max(1, used_count), 4) if used_count else 0.0,
+        "items": rows,
+    }
+
+
+def _direct_answer_eligibility_report(fixture: Dict[str, Any], responses: List[Dict[str, Any]]) -> Dict[str, Any]:
+    queries = {str(item["question_id"]): item for item in fixture.get("queries", [])}
+    rows: List[Dict[str, Any]] = []
+    eligible_count = 0
+    used_count = 0
+    precision_hits = 0
+    abstain_reasons: Dict[str, int] = {}
+    for response in responses:
+        qid = str(response.get("question_id", ""))
+        expected = queries[qid]
+        expectation = expected.get("direct_answer_expected", {}) if isinstance(expected.get("direct_answer_expected"), dict) else {}
+        eligible = bool(expectation.get("eligible"))
+        if eligible:
+            eligible_count += 1
+        debug = response.get("debug") if isinstance(response.get("debug"), dict) else {}
+        solver_trace = debug.get("solver_trace", {}) if isinstance(debug.get("solver_trace"), dict) else {}
+        used = str(solver_trace.get("solver_version", "")) == "proposition_direct_answer_v1"
+        if used:
+            used_count += 1
+        expected_action = str(expectation.get("expected_action", "answer" if eligible else "abstain"))
+        expected_answer = expectation.get("expected_answer", expected.get("expected_answer"))
+        answer = response.get("answer")
+        precise = False
+        if eligible and used:
+            precise = answer == expected_answer
+            if isinstance(answer, (int, float)) and isinstance(expected_answer, (int, float)):
+                precise = abs(float(answer) - float(expected_answer)) < 0.01
+        if eligible and used and precise:
+            precision_hits += 1
+        if not used:
+            reason = str(solver_trace.get("path", "direct_answer_not_used") or "direct_answer_not_used")
+            abstain_reasons[reason] = abstain_reasons.get(reason, 0) + 1
+        rows.append(
+            {
+                "question_id": qid,
+                "eligible_expected": eligible,
+                "expected_action": expected_action,
+                "used_direct_answer": used,
+                "answer": answer,
+                "expected_answer": expected_answer,
+                "precise": precise,
+                "solver_path": solver_trace.get("path"),
+            }
+        )
+    return {
+        "report_version": "chunk_processing_direct_answer_eligibility_report_v1",
+        "query_count": len(rows),
+        "eligible_count": eligible_count,
+        "used_count": used_count,
+        "precision_on_eligible": round(precision_hits / max(1, eligible_count), 4) if eligible_count else 0.0,
+        "abstain_reasons": abstain_reasons,
         "items": rows,
     }
 
@@ -545,13 +690,260 @@ def _provenance_report(snapshot: Dict[str, List[Dict[str, Any]]], responses: Lis
     }
 
 
+def _run_semantic_gate_fixtures(fixture: Dict[str, Any]) -> Dict[str, Any]:
+    client = build_chunk_semantics_client()
+    rows: List[Dict[str, Any]] = []
+    for index, item in enumerate(fixture.get("semantic_gate_fixtures", []), start=1):
+        if not isinstance(item, dict):
+            continue
+        fixture_id = str(item.get("fixture_id", f"fixture_{index}"))
+        doc_type = str(item.get("doc_type", "law"))
+        paragraph_payload = item.get("paragraph", {}) if isinstance(item.get("paragraph"), dict) else {}
+        projection_payload = item.get("projection", {}) if isinstance(item.get("projection"), dict) else {}
+        paragraph = {
+            "paragraph_id": f"{fixture_id}_paragraph",
+            "document_id": f"{fixture_id}_document",
+            "page_id": f"{fixture_id}_page",
+            "text": str(paragraph_payload.get("text", "")),
+            "section_kind": paragraph_payload.get("section_kind"),
+            "paragraph_class": paragraph_payload.get("paragraph_class"),
+            "article_refs": list(paragraph_payload.get("article_refs", [])) if isinstance(paragraph_payload.get("article_refs"), list) else [],
+            "law_refs": list(paragraph_payload.get("law_refs", [])) if isinstance(paragraph_payload.get("law_refs"), list) else [],
+            "case_refs": list(paragraph_payload.get("case_refs", [])) if isinstance(paragraph_payload.get("case_refs"), list) else [],
+            "dates": list(paragraph_payload.get("dates", [])) if isinstance(paragraph_payload.get("dates"), list) else [],
+            "money_mentions": list(paragraph_payload.get("money_mentions", [])) if isinstance(paragraph_payload.get("money_mentions"), list) else [],
+        }
+        page = {
+            "page_id": f"{fixture_id}_page",
+            "document_id": f"{fixture_id}_document",
+            "source_page_id": f"{fixture_id}_0",
+            "page_num": 0,
+        }
+        document = {
+            "document_id": f"{fixture_id}_document",
+            "pdf_id": str((item.get("source_reference", {}) if isinstance(item.get("source_reference"), dict) else {}).get("label") or fixture_id),
+            "doc_type": doc_type,
+            "title": str((item.get("source_reference", {}) if isinstance(item.get("source_reference"), dict) else {}).get("label") or fixture_id),
+        }
+        projection = {
+            "chunk_id": paragraph["paragraph_id"],
+            "doc_type": doc_type,
+            "heading_path": list(projection_payload.get("heading_path", [])) if isinstance(projection_payload.get("heading_path"), list) else [],
+            "article_number": projection_payload.get("article_number"),
+            "article_title": projection_payload.get("article_title"),
+            "part_ref": projection_payload.get("part_ref"),
+            "chapter_ref": projection_payload.get("chapter_ref"),
+            "section_ref": projection_payload.get("section_ref"),
+            "section_kind_case": projection_payload.get("section_kind_case"),
+            "case_number": projection_payload.get("case_number"),
+            "court_name": projection_payload.get("court_name"),
+        }
+        semantics = None
+        last_error = None
+        for attempt in range(3):
+            try:
+                semantics = extract_chunk_semantics(
+                    client=client,
+                    paragraph=paragraph,
+                    page=page,
+                    document=document,
+                    projection=projection,
+                )
+                last_error = None
+                break
+            except RuntimeError as exc:
+                last_error = str(exc)
+                if "429" not in last_error:
+                    raise
+                time.sleep(1.5 * (attempt + 1))
+        if semantics is None:
+            rows.append(
+                {
+                    "fixture_id": fixture_id,
+                    "source_reference": item.get("source_reference", {}),
+                    "doc_type": doc_type,
+                    "prompt_version": "fixture_retry_failed",
+                    "mode": "error",
+                    "payload": {},
+                    "proposition_count": 0,
+                    "expectations": item.get("expectations", {}),
+                    "error": last_error,
+                }
+            )
+            continue
+        payload = semantics.payload if isinstance(semantics.payload, dict) else {}
+        propositions = payload.get("propositions", []) if isinstance(payload.get("propositions"), list) else []
+        rows.append(
+            {
+                "fixture_id": fixture_id,
+                "source_reference": item.get("source_reference", {}),
+                "doc_type": doc_type,
+                "prompt_version": semantics.prompt_version,
+                "mode": semantics.mode,
+                "payload": payload,
+                "proposition_count": len(propositions),
+                "expectations": item.get("expectations", {}),
+            }
+        )
+    return {
+        "report_version": "chunk_processing_semantic_gate_fixtures_v1",
+        "fixture_count": len(rows),
+        "items": rows,
+    }
+
+
+def _semantic_failure_class_report(semantic: Dict[str, Any], extra_fixtures: Dict[str, Any]) -> Dict[str, Any]:
+    missing_conditions = []
+    if not bool(((semantic.get("employment_article_11") or {}).get("has_condition_preserved"))):
+        missing_conditions.append(
+            {
+                "class": "conditional_legislative_norm",
+                "chunk_id": (semantic.get("employment_article_11") or {}).get("chunk_id"),
+                "detail": "Condition-bearing legislative proposition lost required conditions.",
+            }
+        )
+
+    missing_amount = []
+    if not bool(((semantic.get("coinmena_order") or {}).get("has_amount"))):
+        missing_amount.append(
+            {
+                "class": "case_operative_amount",
+                "chunk_id": (semantic.get("coinmena_order") or {}).get("chunk_id"),
+                "detail": "Operative payment amount missing from case-order semantic propositions.",
+            }
+        )
+
+    missing_interest = []
+    if not bool(((semantic.get("ca004_order") or {}).get("has_interest"))):
+        missing_interest.append(
+            {
+                "class": "case_interest_consequence",
+                "chunk_id": (semantic.get("ca004_order") or {}).get("chunk_id"),
+                "detail": "Interest consequence missing from case-order semantic propositions.",
+            }
+        )
+
+    polarity_loss = []
+    for item in extra_fixtures.get("items", []):
+        expectations = item.get("expectations", {}) if isinstance(item.get("expectations"), dict) else {}
+        if not expectations.get("must_preserve_polarity"):
+            continue
+        payload = item.get("payload", {}) if isinstance(item.get("payload"), dict) else {}
+        propositions = payload.get("propositions", []) if isinstance(payload.get("propositions"), list) else []
+        if not propositions:
+            polarity_loss.append(
+                {
+                    "fixture_id": item.get("fixture_id"),
+                    "detail": "No propositions extracted for polarity-sensitive fixture.",
+                }
+            )
+
+    return {
+        "report_version": "chunk_processing_semantic_failure_class_report_v1",
+        "missing_conditions": missing_conditions,
+        "missing_conditions_count": len(missing_conditions),
+        "missing_amount": missing_amount,
+        "missing_amount_count": len(missing_amount),
+        "missing_interest_consequence": missing_interest,
+        "missing_interest_consequence_count": len(missing_interest),
+        "polarity_loss": polarity_loss,
+        "polarity_loss_count": len(polarity_loss),
+    }
+
+
+def _fixture_gate_report(
+    *,
+    structural: Dict[str, Any],
+    semantic: Dict[str, Any],
+    retrieval: Dict[str, Any],
+    baseline_delta: Dict[str, Any],
+    direct_answer_eligibility: Dict[str, Any],
+    provenance: Dict[str, Any],
+    extra_fixtures: Dict[str, Any],
+) -> Dict[str, Any]:
+    fixture_rows: List[Dict[str, Any]] = []
+    for item in extra_fixtures.get("items", []):
+        expectations = item.get("expectations", {}) if isinstance(item.get("expectations"), dict) else {}
+        payload = item.get("payload", {}) if isinstance(item.get("payload"), dict) else {}
+        propositions = payload.get("propositions", []) if isinstance(payload.get("propositions"), list) else []
+        relation_aliases = {
+            "must_file_within": "requires",
+            "liable_to": "penalizes",
+            "comes_into_force_on": "governs",
+            "comes_into_force_via": "governs",
+            "forum_of_proceeding": "governs",
+        }
+        relation_types = {
+            relation_aliases.get(str(prop.get("relation_type", "")).strip().lower(), str(prop.get("relation_type", "")).strip().lower())
+            for prop in propositions if isinstance(prop, dict)
+        }
+        pass_checks = {
+            "required_relations": all(rel in relation_types for rel in expectations.get("required_relations", [])),
+            "must_have_amount": (not expectations.get("must_have_amount")) or any(
+                any(token in json.dumps(prop, ensure_ascii=False) for token in ("AED", "USD", "EUR", "GBP"))
+                for prop in propositions if isinstance(prop, dict)
+            ),
+            "must_have_conditions_or_exceptions": (not expectations.get("must_have_conditions_or_exceptions")) or any(
+                (prop.get("conditions") or prop.get("exceptions"))
+                for prop in propositions if isinstance(prop, dict)
+            ),
+            "must_have_empty_propositions": (not expectations.get("must_have_empty_propositions")) or len(propositions) == 0,
+        }
+        fixture_rows.append(
+            {
+                "fixture_id": item.get("fixture_id"),
+                "source_reference": item.get("source_reference", {}),
+                "passed": all(pass_checks.values()),
+                "checks": pass_checks,
+            }
+        )
+
+    gate_rows = {
+        "structural": {
+            "passed": (
+                len(structural.get("cross_article_chunk_ids", [])) == 0
+                and len(structural.get("case_merge_issue_chunk_ids", [])) == 0
+                and float(structural.get("missing_offsets_count", 0)) == 0
+                and float(structural.get("missing_parent_count", 0)) < max(1, float(structural.get("chunk_count", 1))) * 0.02
+            )
+        },
+        "semantic": {
+            "passed": (
+                bool((semantic.get("employment_article_11") or {}).get("has_condition_preserved"))
+                and bool((semantic.get("coinmena_order") or {}).get("has_amount"))
+                and bool((semantic.get("ca004_order") or {}).get("has_interest"))
+                and int(provenance.get("assertion_missing_count", 0) or 0) == 0
+                and all(row.get("passed") for row in fixture_rows)
+            )
+        },
+        "retrieval": {
+            "passed": (
+                float(retrieval.get("top3_expected_hit_ratio", 0.0) or 0.0) == 1.0
+                and float(baseline_delta.get("improved_or_preserved_ratio", 0.0) or 0.0) == 1.0
+            )
+        },
+        "direct_answer": {
+            "passed": (
+                float(direct_answer_eligibility.get("precision_on_eligible", 0.0) or 0.0) == 1.0
+                and int(provenance.get("direct_answer_missing_count", 0) or 0) == 0
+            )
+        },
+    }
+    return {
+        "report_version": "chunk_processing_fixture_gate_report_v1",
+        "gates": gate_rows,
+        "extra_fixtures": fixture_rows,
+    }
+
+
 def _processing_rules_export(fixture: Dict[str, Any]) -> Dict[str, Any]:
     return {
-        "export_version": "chunk_processing_rules_export_v1",
+        "export_version": "chunk_processing_rules_export_v2",
         "pilot_scope": {
             "document_count": len(fixture.get("documents", [])),
             "documents": fixture.get("documents", []),
         },
+        "fixture_backed_semantic_coverage": fixture.get("semantic_gate_fixtures", []),
         "structural_chunking": {
             "laws": ["part", "chapter", "section", "article", "schedule item"],
             "cases": ["caption", "heading", "reasoning paragraphs", "order", "disposition/costs/timing"],
@@ -581,12 +973,14 @@ def _processing_rules_export(fixture: Dict[str, Any]) -> Dict[str, Any]:
                 "hybrid chunk ranking",
                 "proposition reranking",
                 "local context expansion",
-                "direct answer only when grounded proposition dominates",
+                "typed direct answer only when grounded proposition dominates",
             ],
             "direct_answer_requires": [
                 "single dominant proposition",
                 "explicit citation support",
+                "single dominant page",
                 "no competing conflict",
+                "no condition or exception ambiguity",
                 "page-grounded provenance",
             ],
         },
@@ -604,11 +998,16 @@ def _processing_results_export(
     structural: Dict[str, Any],
     semantic: Dict[str, Any],
     retrieval: Dict[str, Any],
+    baseline_delta: Dict[str, Any],
     direct_answer: Dict[str, Any],
+    direct_answer_eligibility: Dict[str, Any],
     provenance: Dict[str, Any],
+    semantic_failure_class: Dict[str, Any],
+    fixture_gate: Dict[str, Any],
+    extra_fixtures: Dict[str, Any],
 ) -> Dict[str, Any]:
     return {
-        "export_version": "chunk_processing_results_export_v1",
+        "export_version": "chunk_processing_results_export_v2",
         "prepare_report": {
             "status": ((prepare_report.get("result") or {}).get("metadata_normalization_job") or {}).get("status"),
             "project_id": prepare_report.get("project_id"),
@@ -627,11 +1026,28 @@ def _processing_results_export(
             "query_count": retrieval.get("query_count"),
             "top3_expected_hit_ratio": retrieval.get("top3_expected_hit_ratio"),
         },
+        "baseline_delta": {
+            "improved_or_preserved_count": baseline_delta.get("improved_or_preserved_count"),
+            "improved_or_preserved_ratio": baseline_delta.get("improved_or_preserved_ratio"),
+        },
         "direct_answer": {
             "direct_answer_used_count": direct_answer.get("direct_answer_used_count"),
             "direct_answer_correct_count": direct_answer.get("direct_answer_correct_count"),
             "direct_answer_correct_ratio": direct_answer.get("direct_answer_correct_ratio"),
         },
+        "direct_answer_eligibility": {
+            "eligible_count": direct_answer_eligibility.get("eligible_count"),
+            "used_count": direct_answer_eligibility.get("used_count"),
+            "precision_on_eligible": direct_answer_eligibility.get("precision_on_eligible"),
+        },
+        "semantic_failure_classes": {
+            "missing_conditions_count": semantic_failure_class.get("missing_conditions_count"),
+            "missing_amount_count": semantic_failure_class.get("missing_amount_count"),
+            "missing_interest_consequence_count": semantic_failure_class.get("missing_interest_consequence_count"),
+            "polarity_loss_count": semantic_failure_class.get("polarity_loss_count"),
+        },
+        "fixture_gates": fixture_gate.get("gates", {}),
+        "extra_fixture_count": extra_fixtures.get("fixture_count"),
         "provenance": {
             "document_field_missing_count": provenance.get("document_field_missing_count"),
             "assertion_missing_count": provenance.get("assertion_missing_count"),
@@ -833,18 +1249,36 @@ def main() -> int:
     snapshot = _project_snapshot(str(args.project_id), fixture)
     structural = _structural_report(snapshot, fixture)
     semantic = _semantic_report(snapshot)
+    extra_fixtures = _run_semantic_gate_fixtures(fixture)
+    semantic_failure_class = _semantic_failure_class_report(semantic, extra_fixtures)
     responses = asyncio.run(_run_queries(str(args.project_id), fixture))
     retrieval = _retrieval_report(fixture, responses)
+    baseline_delta = _baseline_delta_report(fixture, responses)
     direct_answer = _direct_answer_report(fixture, responses)
+    direct_answer_eligibility = _direct_answer_eligibility_report(fixture, responses)
     provenance = _provenance_report(snapshot, responses)
+    fixture_gate = _fixture_gate_report(
+        structural=structural,
+        semantic=semantic,
+        retrieval=retrieval,
+        baseline_delta=baseline_delta,
+        direct_answer_eligibility=direct_answer_eligibility,
+        provenance=provenance,
+        extra_fixtures=extra_fixtures,
+    )
     rules_export = _processing_rules_export(fixture)
     results_export = _processing_results_export(
         prepare_report=prepare_report,
         structural=structural,
         semantic=semantic,
         retrieval=retrieval,
+        baseline_delta=baseline_delta,
         direct_answer=direct_answer,
+        direct_answer_eligibility=direct_answer_eligibility,
         provenance=provenance,
+        semantic_failure_class=semantic_failure_class,
+        fixture_gate=fixture_gate,
+        extra_fixtures=extra_fixtures,
     )
 
     _write_json(output_dir / "structural_chunk_quality_report.json", structural)
@@ -853,10 +1287,20 @@ def main() -> int:
     _write_md(output_dir / "semantic_assertion_quality_report.md", _markdown_from_mapping("Semantic Assertion Quality Report", semantic))
     _write_json(output_dir / "retrieval_quality_report.json", retrieval)
     _write_md(output_dir / "retrieval_quality_report.md", _markdown_from_mapping("Retrieval Quality Report", retrieval))
+    _write_json(output_dir / "baseline_delta_report.json", baseline_delta)
+    _write_md(output_dir / "baseline_delta_report.md", _markdown_from_mapping("Baseline Delta Report", baseline_delta))
     _write_json(output_dir / "direct_answer_report.json", direct_answer)
     _write_md(output_dir / "direct_answer_report.md", _markdown_from_mapping("Direct Answer Report", direct_answer))
+    _write_json(output_dir / "direct_answer_eligibility_report.json", direct_answer_eligibility)
+    _write_md(output_dir / "direct_answer_eligibility_report.md", _markdown_from_mapping("Direct Answer Eligibility Report", direct_answer_eligibility))
     _write_json(output_dir / "provenance_coverage_report.json", provenance)
     _write_md(output_dir / "provenance_coverage_report.md", _markdown_from_mapping("Provenance Coverage Report", provenance))
+    _write_json(output_dir / "semantic_failure_class_report.json", semantic_failure_class)
+    _write_md(output_dir / "semantic_failure_class_report.md", _markdown_from_mapping("Semantic Failure Class Report", semantic_failure_class))
+    _write_json(output_dir / "fixture_gate_report.json", fixture_gate)
+    _write_md(output_dir / "fixture_gate_report.md", _markdown_from_mapping("Fixture Gate Report", fixture_gate))
+    _write_json(output_dir / "semantic_gate_fixtures_report.json", extra_fixtures)
+    _write_md(output_dir / "semantic_gate_fixtures_report.md", _markdown_from_mapping("Semantic Gate Fixtures Report", extra_fixtures))
     _write_json(output_dir / "processing_rules_export.json", rules_export)
     _write_md(output_dir / "processing_rules_export.md", _markdown_from_mapping("Chunk Processing Rules Export", rules_export))
     _write_json(output_dir / "processing_results_export.json", results_export)

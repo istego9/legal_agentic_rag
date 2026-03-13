@@ -52,6 +52,9 @@ Never use `free_text` for chunk-level direct-answer hints.
 - Separate operative order content from procedural background and reasons.
 - Preserve amounts, deadlines, percentages, and interest rates exactly when explicit.
 - If one chunk contains multiple grounded propositions, emit multiple propositions.
+- If an operative order chunk contains a payment amount, deadline, and interest consequence, emit separate propositions for each of those facts.
+- Do not infer an operative amount from background or reasoning text unless an operative payment verb is explicit in the same chunk.
+- If an interest consequence depends on non-payment or a timing trigger, keep that trigger in `conditions` and do not mark the proposition as eligible for direct answer.
 - Keep `semantic_dense_summary` to one short sentence.
 - Keep `semantic_query_terms` short and retrieval-oriented.
 - If no grounded proposition exists, return an empty `propositions` array.

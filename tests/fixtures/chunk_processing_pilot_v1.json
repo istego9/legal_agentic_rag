@@ -34,6 +34,10 @@
       "answer_type": "boolean",
       "route_hint": "article_lookup",
       "expected_answer": true,
+      "direct_answer_expected": {
+        "eligible": false,
+        "expected_action": "abstain"
+      },
       "expected_pdf_id": "33bc02044716acdfedb164b065bdaec098aaadcae863c591f9931c88e7307d16",
       "expected_article_number": "11"
     },
@@ -43,6 +47,10 @@
       "answer_type": "boolean",
       "route_hint": "article_lookup",
       "expected_answer": true,
+      "direct_answer_expected": {
+        "eligible": false,
+        "expected_action": "abstain"
+      },
       "expected_pdf_id": "33bc02044716acdfedb164b065bdaec098aaadcae863c591f9931c88e7307d16",
       "expected_article_number": "11"
     },
@@ -52,6 +60,11 @@
       "answer_type": "number",
       "route_hint": "single_case_extraction",
       "expected_answer": 155879.5,
+      "direct_answer_expected": {
+        "eligible": true,
+        "expected_action": "answer",
+        "expected_answer": 155879.5
+      },
       "expected_pdf_id": "897ab23ed5a70034d3d708d871ad1da8bc7b6608d94b1ca46b5d578d985d3c13"
     },
     {
@@ -60,6 +73,11 @@
       "answer_type": "number",
       "route_hint": "single_case_extraction",
       "expected_answer": 14,
+      "direct_answer_expected": {
+        "eligible": true,
+        "expected_action": "answer",
+        "expected_answer": 14
+      },
       "expected_pdf_id": "897ab23ed5a70034d3d708d871ad1da8bc7b6608d94b1ca46b5d578d985d3c13"
     },
     {
@@ -68,6 +86,10 @@
       "answer_type": "number",
       "route_hint": "single_case_extraction",
       "expected_answer": 9,
+      "direct_answer_expected": {
+        "eligible": false,
+        "expected_action": "abstain"
+      },
       "expected_pdf_id": "78ffe994cdc61ce6a2a6937c79fc52751bb5d2b4eaa4019f088fbccf70569c26"
     },
     {
@@ -76,7 +98,106 @@
       "answer_type": "name",
       "route_hint": "single_case_extraction",
       "expected_answer": "Court Of Appeal",
+      "direct_answer_expected": {
+        "eligible": true,
+        "expected_action": "answer",
+        "expected_answer": "Court Of Appeal"
+      },
       "expected_pdf_id": "78ffe994cdc61ce6a2a6937c79fc52751bb5d2b4eaa4019f088fbccf70569c26"
+    }
+  ],
+  "semantic_gate_fixtures": [
+    {
+      "fixture_id": "regulation_obligation_penalty_fixture",
+      "source_reference": {
+        "kind": "synthetic_fixture",
+        "label": "regulation_obligation_penalty_v1"
+      },
+      "doc_type": "regulation",
+      "paragraph": {
+        "text": "A regulated person must file the annual compliance return within 30 days of the end of the reporting period. A contravention of this requirement is liable to a fine not exceeding AED 50,000.",
+        "section_kind": "operative_provision",
+        "paragraph_class": "article_clause",
+        "article_refs": [
+          "Article 19"
+        ]
+      },
+      "projection": {
+        "heading_path": [
+          "Part 3 Compliance",
+          "Article 19 Compliance returns"
+        ],
+        "article_number": "19",
+        "article_title": "Compliance returns",
+        "part_ref": "Part 3"
+      },
+      "expectations": {
+        "required_relations": [
+          "requires",
+          "penalizes"
+        ],
+        "must_have_amount": true,
+        "must_preserve_polarity": true,
+        "must_not_overanswer": true
+      }
+    },
+    {
+      "fixture_id": "notice_mediated_commencement_fixture",
+      "source_reference": {
+        "kind": "synthetic_fixture",
+        "label": "notice_mediated_commencement_v1"
+      },
+      "doc_type": "enactment_notice",
+      "paragraph": {
+        "text": "This Notice brings Articles 1 to 5 of the Target Law into force on 1 January 2027, except Article 4, which shall come into force on a date appointed by a further notice.",
+        "section_kind": "operative_provision",
+        "paragraph_class": "article_clause",
+        "article_refs": [
+          "Notice paragraph 1"
+        ]
+      },
+      "projection": {
+        "heading_path": [
+          "Commencement Notice",
+          "Operative provision"
+        ],
+        "article_title": "Commencement",
+        "section_ref": "Operative provision"
+      },
+      "expectations": {
+        "required_relations": [
+          "governs"
+        ],
+        "must_have_conditions_or_exceptions": true,
+        "must_preserve_polarity": true,
+        "must_not_overanswer": true
+      }
+    },
+    {
+      "fixture_id": "adversarial_no_answer_fixture",
+      "source_reference": {
+        "kind": "synthetic_fixture",
+        "label": "adversarial_no_answer_v1"
+      },
+      "doc_type": "case",
+      "paragraph": {
+        "text": "IN THE DUBAI INTERNATIONAL FINANCIAL CENTRE COURTS BETWEEN ALPHA Claimant and BETA Defendant",
+        "section_kind": "parties",
+        "paragraph_class": "heading"
+      },
+      "projection": {
+        "heading_path": [
+          "Caption"
+        ],
+        "section_kind_case": "parties",
+        "case_number": "CFI 999/2026",
+        "court_name": "Court Of First Instance"
+      },
+      "expectations": {
+        "required_relations": [],
+        "must_have_empty_propositions": true,
+        "must_not_overanswer": true
+      }
     }
   ]
 }

@@ -296,3 +296,6 @@ def test_agentic_enrichment_accepts_multiple_assertions(monkeypatch) -> None:
     assert updated_projection["semantic_assertion_count"] == 2
     assert len(updated_projection["semantic_assertions"]) == 2
     assert updated_projection["semantic_dense_summary"]
+    second_projection_assertion = updated_projection["semantic_assertions"][1]
+    assert "conditions" in second_projection_assertion
+    assert second_projection_assertion["conditions"]

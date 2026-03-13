@@ -147,9 +147,7 @@ def test_direct_answer_extracts_number_from_case_candidate_text() -> None:
         route_name="single_case_extraction",
         candidates=[_case_candidate()],
     )
-    assert result is not None
-    assert result["answer"] == 9
-    assert result["trace"]["path"] == "deterministic_percent_pattern"
+    assert result is None
 
 
 def test_direct_answer_extracts_cost_amount_from_case_candidate_text() -> None:
@@ -191,6 +189,7 @@ def test_direct_answer_extracts_suffix_currency_amount() -> None:
     assert result is not None
     assert result["answer"] == 10000
     assert result["trace"]["path"] == "deterministic_money_pattern"
+    assert result["trace"]["top_proposition"]["evidence"]["source_page_ids"]
 
 
 def test_direct_answer_does_not_support_free_text_shortcuts() -> None:
@@ -199,5 +198,15 @@ def test_direct_answer_does_not_support_free_text_shortcuts() -> None:
         answer_type="free_text",
         route_name="article_lookup",
         candidates=[_candidate()],
+    )
+    assert result is None
+
+
+def test_direct_answer_abstains_for_conditional_number_question() -> None:
+    result = try_direct_answer(
+        question_text="If the amount is not paid within 14 days, at what annual rate does interest accrue?",
+        answer_type="number",
+        route_name="single_case_extraction",
+        candidates=[_case_candidate()],
     )
     assert result is None

@@ -940,40 +940,52 @@ def _rerank_candidates(
         semantic_identifier_hits += 1 if proposition_features.get("semantic_terms_hit_count", 0) else 0
 
         final_score = float(base_score)
+        chunk_only_score = float(base_score)
         stage = "lexical_projected"
         reasons: List[str] = []
         if exact_identifier_hit:
             final_score += 0.35
+            chunk_only_score += 0.35
             reasons.append("exact_identifier_hit")
         if current_version_hit and route_name != "history_lineage":
             final_score += 0.06
+            chunk_only_score += 0.06
             reasons.append("current_version_soft_boost")
         if lineage_signal and route_name == "history_lineage":
             final_score += 0.15
+            chunk_only_score += 0.15
             reasons.append("lineage_signal")
         if route_name == "article_lookup" and features["structure_hits"]["article"]:
             final_score += 0.2
+            chunk_only_score += 0.2
             reasons.append("article_lookup_structural_match")
         if route_name == "article_lookup" and features["structure_hits"]["law_number"]:
             final_score += 0.15
+            chunk_only_score += 0.15
             reasons.append("article_lookup_law_number_match")
         if route_name == "article_lookup" and features["structure_hits"]["law_year"]:
             final_score += 0.08
+            chunk_only_score += 0.08
             reasons.append("article_lookup_law_year_match")
         if route_name == "article_lookup" and features["structure_hits"]["law_title"]:
             final_score += 0.12
+            chunk_only_score += 0.12
             reasons.append("article_lookup_law_title_match")
         if route_name == "article_lookup" and features["structure_hits"]["doc_type"]:
             final_score += 0.05
+            chunk_only_score += 0.05
             reasons.append("article_lookup_doc_type_match")
         if route_name == "single_case_extraction" and features["structure_hits"]["case_number"]:
             final_score += 0.2
+            chunk_only_score += 0.2
             reasons.append("case_lookup_structural_match")
+        semantic_boost = float(proposition_features.get("semantic_boost", 0.0))
         if proposition_features.get("semantic_boost", 0.0) > 0:
-            final_score += float(proposition_features.get("semantic_boost", 0.0))
+            final_score += semantic_boost
             reasons.append("semantic_proposition_match")
         if retrieval_profile.structural_lookup_enabled and any(features["structure_hits"].values()):
             final_score += 0.5
+            chunk_only_score += 0.5
             stage = "structural_lookup"
             reasons.append("structural_lookup_priority")
         elif proposition_features.get("semantic_boost", 0.0) >= 0.18:
@@ -987,7 +999,9 @@ def _rerank_candidates(
             "retrieval_debug": {
                 "stage": stage,
                 "base_score": round(base_score, 4),
+                "chunk_only_score": round(chunk_only_score, 4),
                 "final_score": round(final_score, 4),
+                "semantic_boost": round(semantic_boost, 4),
                 "reasons": reasons,
                 "structure_hits": features["structure_hits"],
                 "semantic_terms_hit_count": proposition_features.get("semantic_terms_hit_count", 0),
@@ -1011,6 +1025,11 @@ def _rerank_candidates(
             continue
         seen.add(paragraph_id)
         ordered.append(row)
+    chunk_only_ordered = sorted(
+        ordered,
+        key=lambda row: float(((row.get("retrieval_debug") or {}).get("chunk_only_score", row.get("score", 0.0)) or 0.0)),
+        reverse=True,
+    )
 
     stage_trace = {
         "trace_version": "retrieval_stage_trace_v1",
@@ -1033,10 +1052,24 @@ def _rerank_candidates(
                 "paragraph_id": str(_paragraph_for_candidate(row).get("paragraph_id", "")),
                 "source_page_id": str((_fetch_page_for_candidate(row) or {}).get("source_page_id", "")),
                 "stage": str((row.get("retrieval_debug") or {}).get("stage", "")),
+                "chunk_only_score": float((row.get("retrieval_debug") or {}).get("chunk_only_score", 0.0)),
                 "score": float(row.get("score", 0.0)),
+                "semantic_boost": float((row.get("retrieval_debug") or {}).get("semantic_boost", 0.0)),
                 "reasons": list((row.get("retrieval_debug") or {}).get("reasons", [])),
             }
             for row in ordered[: min(8, len(ordered))]
+        ],
+        "chunk_only_top_candidates": [
+            {
+                "paragraph_id": str(_paragraph_for_candidate(row).get("paragraph_id", "")),
+                "source_page_id": str((_fetch_page_for_candidate(row) or {}).get("source_page_id", "")),
+                "stage": str((row.get("retrieval_debug") or {}).get("stage", "")),
+                "chunk_only_score": float((row.get("retrieval_debug") or {}).get("chunk_only_score", 0.0)),
+                "score": float(row.get("score", 0.0)),
+                "semantic_boost": float((row.get("retrieval_debug") or {}).get("semantic_boost", 0.0)),
+                "reasons": list((row.get("retrieval_debug") or {}).get("reasons", [])),
+            }
+            for row in chunk_only_ordered[: min(8, len(chunk_only_ordered))]
         ],
     }
     return ordered, stage_trace

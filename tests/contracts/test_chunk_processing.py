@@ -82,3 +82,17 @@ def test_case_chunker_splits_order_and_reasons() -> None:
     assert any(chunk.section_kind_case == "order" and chunk.chunk_type == "list_item" for chunk in chunks)
     assert any(chunk.section_kind_case == "reasoning" and chunk.chunk_type == "list_item" for chunk in chunks)
     assert all(chunk.char_end >= chunk.char_start for chunk in chunks)
+
+
+def test_case_chunker_handles_continuation_page_without_caption() -> None:
+    text = (
+        "2. If these costs are not paid to the Appellants within fourteen (14) days of the date of this order, "
+        "interest will accrue on the amount outstanding from the date of this order until payment in full at the rate of 9% per annum. "
+        "SCHEDULE OF REASONS Summary 1. After hearing argument on the appeal, the Court pronounced orders allowing the appeal."
+    )
+
+    chunks = build_structural_chunks(doc_type="case", page_text=text)
+    chunks, _ = _finalize(chunks)
+
+    assert any(chunk.section_kind_case == "order" and chunk.chunk_type == "list_item" for chunk in chunks)
+    assert any(chunk.section_kind_case == "reasoning" and chunk.chunk_type == "list_item" for chunk in chunks)

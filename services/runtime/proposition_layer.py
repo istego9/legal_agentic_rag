@@ -20,6 +20,7 @@ _INTEREST_PERCENT_PATTERN = re.compile(
     r"(?:interest[^.]{0,120}?(\d{1,3}(?:\.\d+)?)\s*%|(\d{1,3}(?:\.\d+)?)\s*%[^.]{0,120}?interest)",
     re.IGNORECASE,
 )
+_QUESTION_CONDITIONAL_PATTERN = re.compile(r"\b(if|unless|when|provided that|subject to|failing which)\b", re.IGNORECASE)
 
 
 def _compact(value: Any) -> str:
@@ -57,6 +58,21 @@ def _assertion_evidence(assertion: Dict[str, Any]) -> Dict[str, Any]:
     if isinstance(evidence, dict):
         return evidence
     return {}
+
+
+def _candidate_evidence(candidate: Dict[str, Any]) -> Dict[str, Any]:
+    paragraph = candidate.get("paragraph") if isinstance(candidate.get("paragraph"), dict) else {}
+    page = candidate.get("page") if isinstance(candidate.get("page"), dict) else {}
+    source_page_id = str(page.get("source_page_id", "")).strip()
+    page_num = page.get("page_num")
+    return {
+        "source_page_ids": [source_page_id] if source_page_id else [],
+        "page_numbers_0": [int(page_num)] if page_num is not None else [],
+        "page_numbers_1": [int(page_num) + 1] if page_num is not None else [],
+        "paragraph_id": paragraph.get("paragraph_id"),
+        "chunk_id": paragraph.get("paragraph_id"),
+        "document_id": paragraph.get("document_id"),
+    }
 
 
 def _has_assertion_provenance(assertion: Dict[str, Any]) -> bool:
@@ -110,13 +126,16 @@ def _extract_number_from_candidates(question_text: str, candidate_pool: List[Dic
             text = _candidate_text(candidate)
             scoped_values: List[float] = []
             projection = candidate.get("chunk_projection") if isinstance(candidate.get("chunk_projection"), dict) else {}
-            for raw in projection.get("money_values", []) if isinstance(projection.get("money_values"), list) else []:
-                raw_text = _compact(raw)
-                match = _MONEY_PATTERN.search(raw_text)
-                if match:
-                    parsed = _money_match_value(match)
-                    if parsed is not None:
-                        scoped_values.append(parsed)
+            section_kind_case = str(projection.get("section_kind_case", "")).strip().lower()
+            operative_chunk = section_kind_case in {"order", "disposition"}
+            if operative_chunk:
+                for raw in projection.get("money_values", []) if isinstance(projection.get("money_values"), list) else []:
+                    raw_text = _compact(raw)
+                    match = _MONEY_PATTERN.search(raw_text)
+                    if match:
+                        parsed = _money_match_value(match)
+                        if parsed is not None:
+                            scoped_values.append(parsed)
             for sentence in re.split(r"(?<=[.;])\s+", text):
                 sentence_lower = sentence.lower()
                 if "costs award" not in sentence_lower and "shall pay" not in sentence_lower and "pay" not in sentence_lower:
@@ -127,11 +146,8 @@ def _extract_number_from_candidates(question_text: str, candidate_pool: List[Dic
                         scoped_values.append(parsed)
             if scoped_values:
                 values.extend(scoped_values)
+            else:
                 continue
-            for match in _MONEY_PATTERN.finditer(text):
-                parsed = _money_match_value(match)
-                if parsed is not None:
-                    values.append(parsed)
         unique = sorted({value for value in values})
         return (unique[0], "deterministic_money_pattern") if len(unique) == 1 else (None, "number_abstain_conflict")
     return None, "number_abstain_missing"
@@ -233,6 +249,9 @@ def try_direct_answer(
         return None
     if route_name not in {"article_lookup", "single_case_extraction"}:
         return None
+    question_has_conditional_cue = bool(_QUESTION_CONDITIONAL_PATTERN.search(question_text))
+    if question_has_conditional_cue and answer_type in {"boolean", "number", "date", "name", "names"}:
+        return None
 
     query_tokens = _query_signal_tokens(question_text)
     candidate_pool = list(candidates[:6])
@@ -262,6 +281,7 @@ def try_direct_answer(
         if answer_type == "number":
             number_value, number_path = _extract_number_from_candidates(question_text, candidate_pool)
             if number_value is not None:
+                evidence = _candidate_evidence(candidate_pool[0]) if candidate_pool else {}
                 return {
                     "answer": int(number_value) if number_value.is_integer() else number_value,
                     "confidence": 0.76,
@@ -272,7 +292,7 @@ def try_direct_answer(
                         "path": number_path,
                         "top_proposition_score": 0.0,
                         "second_proposition_score": 0.0,
-                        "top_proposition": {},
+                        "top_proposition": {"evidence": evidence},
                         "matched_candidate_indices": [0] if candidate_pool else [],
                         "candidate_count": len(candidates),
                         "direct_answer_used": True,
@@ -282,6 +302,7 @@ def try_direct_answer(
         if answer_type == "name":
             name_value, name_path = _extract_name_from_candidates(question_text, candidate_pool)
             if name_value:
+                evidence = _candidate_evidence(candidate_pool[0]) if candidate_pool else {}
                 return {
                     "answer": name_value,
                     "confidence": 0.76,
@@ -292,7 +313,7 @@ def try_direct_answer(
                         "path": name_path,
                         "top_proposition_score": 0.0,
                         "second_proposition_score": 0.0,
-                        "top_proposition": {},
+                        "top_proposition": {"evidence": evidence},
                         "matched_candidate_indices": [0] if candidate_pool else [],
                         "candidate_count": len(candidates),
                         "direct_answer_used": True,
@@ -307,6 +328,7 @@ def try_direct_answer(
         if answer_type == "number":
             number_value, number_path = _extract_number_from_candidates(question_text, candidate_pool)
             if number_value is not None:
+                evidence = _candidate_evidence(candidate_pool[0]) if candidate_pool else {}
                 return {
                     "answer": int(number_value) if number_value.is_integer() else number_value,
                     "confidence": 0.76,
@@ -317,7 +339,7 @@ def try_direct_answer(
                         "path": number_path,
                         "top_proposition_score": round(top_score, 4),
                         "second_proposition_score": round(second_score, 4),
-                        "top_proposition": {},
+                        "top_proposition": {"evidence": evidence},
                         "matched_candidate_indices": [0] if candidate_pool else [],
                         "candidate_count": len(candidates),
                         "direct_answer_used": True,
@@ -327,6 +349,7 @@ def try_direct_answer(
         if answer_type == "name":
             name_value, name_path = _extract_name_from_candidates(question_text, candidate_pool)
             if name_value:
+                evidence = _candidate_evidence(candidate_pool[0]) if candidate_pool else {}
                 return {
                     "answer": name_value,
                     "confidence": 0.76,
@@ -337,7 +360,7 @@ def try_direct_answer(
                         "path": name_path,
                         "top_proposition_score": round(top_score, 4),
                         "second_proposition_score": round(second_score, 4),
-                        "top_proposition": {},
+                        "top_proposition": {"evidence": evidence},
                         "matched_candidate_indices": [0] if candidate_pool else [],
                         "candidate_count": len(candidates),
                         "direct_answer_used": True,
@@ -357,13 +380,13 @@ def try_direct_answer(
     if len(normalized_source_page_ids) != 1:
         return None
     has_condition_or_exception = bool(top_assertion.get("conditions") or top_assertion.get("exceptions"))
-    if has_condition_or_exception and answer_type in {"boolean", "number", "date", "name", "names"}:
+    if has_condition_or_exception and answer_type == "boolean":
         return None
 
     direct = top_assertion.get("direct_answer") if isinstance(top_assertion.get("direct_answer"), dict) else {}
     answer = None
     path = "no_match"
-    if direct.get("eligible") and str(direct.get("answer_type", "")).strip().lower() == answer_type:
+    if not has_condition_or_exception and direct.get("eligible") and str(direct.get("answer_type", "")).strip().lower() == answer_type:
         if answer_type == "boolean" and isinstance(direct.get("boolean_value"), bool):
             inferred = _boolean_inference(question_text, top_assertion)
             answer = inferred if inferred is not None else direct.get("boolean_value")
